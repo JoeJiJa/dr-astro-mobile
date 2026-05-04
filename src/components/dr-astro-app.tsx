@@ -4640,7 +4640,7 @@ const ExamSubjectDetailView = ({
     const subject = subjects[subjectId];
     if (!subject) return <div>Subject not found</div>;
 
-    let categories = subject.examSections || [
+    const categories = subject.examSections || [
         { id: 'pyqs', label: 'Previous Year Questions' },
         { id: 'notes', label: 'High-Yield Notes' }
     ];
