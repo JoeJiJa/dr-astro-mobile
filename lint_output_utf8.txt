@@ -1,0 +1,120 @@
+﻿
+> dr-astro@0.1.0 lint
+> eslint
+
+node.exe : [BABEL] Note: The code generator has deoptimised the styling of D:\Astro\src\components\dr-astro-app.tsx as 
+it exceeds the max of 500KB.
+At line:1 char:1
++ & "D:\Program Files\node.js/node.exe" "D:\Program Files\node.js/node_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([BABEL] Note: T...e max of 500KB.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+D:\Astro\src\app\layout.tsx
+  98:9  warning  Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+D:\Astro\src\components\InstallPrompt.tsx
+   9:26  warning  'setIsStandalone' is assigned a value but never used                                                             @typescript-eslint/no-unused-vars
+  54:8   warning  React Hook useEffect has a missing dependency: 'isStandalone'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Astro\src\components\StudyMode.tsx
+  204:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\Astro\src\components\StudyMode.tsx:204:13
+  202 |             }, 1000);
+  203 |         } else if (timerState.timeLeft === 0 && timerState.isRunning && !timerState.isAlarmRinging) {
+> 204 |             setTimerState(prev => ({ ...prev, isRunning: false, isAlarmRinging: true }));
+      |             ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  205 |             if (timerState.mode === 'focus' && timerState.subjectId) {
+  206 |                 handleSessionComplete(timerState.initialTime, timerState.subjectId);
+  207 |             }  react-hooks/set-state-in-effect
+
+D:\Astro\src\components\StudyMode\CalendarStrip.tsx
+  19:19  warning  'today' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Astro\src\components\StudyMode\StudyHeatmap.tsx
+  5:29  error  Component definition is missing display name  react/display-name
+
+D:\Astro\src\components\dr-astro-app.tsx
+  2942:7   warning  'getAIAssistantResponse' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  4496:5   warning  'onMoveBook' is defined but never used                       @typescript-eslint/no-unused-vars
+  4724:5   warning  'onRenameSection' is defined but never used                  @typescript-eslint/no-unused-vars
+  4726:5   warning  'onAddSection' is defined but never used                     @typescript-eslint/no-unused-vars
+  4956:5   warning  'subjects' is defined but never used                         @typescript-eslint/no-unused-vars
+  4958:5   warning  'onBack' is defined but never used                           @typescript-eslint/no-unused-vars
+  4963:5   warning  'onRenameSection' is defined but never used                  @typescript-eslint/no-unused-vars
+  4964:5   warning  'onAddSection' is defined but never used                     @typescript-eslint/no-unused-vars
+  4968:5   warning  'navigate' is defined but never used                         @typescript-eslint/no-unused-vars
+  5680:27  warning  'accentColor' is assigned a value but never used             @typescript-eslint/no-unused-vars
+  6362:19  warning  'setQuote' is assigned a value but never used                @typescript-eslint/no-unused-vars
+  6373:11  warning  'quotes' is assigned a value but never used                  @typescript-eslint/no-unused-vars
+  7050:5   warning  'setView' is defined but never used                          @typescript-eslint/no-unused-vars
+  7051:5   warning  'onBookClick' is defined but never used                      @typescript-eslint/no-unused-vars
+  7052:5   warning  'onManageBook' is defined but never used                     @typescript-eslint/no-unused-vars
+  7053:5   warning  'selectedUser' is defined but never used                     @typescript-eslint/no-unused-vars
+  7055:5   warning  'selectedUserLogs' is defined but never used                 @typescript-eslint/no-unused-vars
+  7071:13  warning  'minutes' is assigned a value but never used                 @typescript-eslint/no-unused-vars
+  7451:47  warning  'diff' is assigned a value but never used                    @typescript-eslint/no-unused-vars
+  8009:12  warning  'subjectsSyncError' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+D:\Astro\src\components\views\ExamPrepView.tsx
+  1:8   warning  'React' is defined but never used                @typescript-eslint/no-unused-vars
+  2:10  warning  'Trophy' is defined but never used               @typescript-eslint/no-unused-vars
+  2:18  warning  'TrendingUp' is defined but never used           @typescript-eslint/no-unused-vars
+  2:30  warning  'Zap' is defined but never used                  @typescript-eslint/no-unused-vars
+  2:35  warning  'BookOpen' is defined but never used             @typescript-eslint/no-unused-vars
+  2:45  warning  'Activity' is defined but never used             @typescript-eslint/no-unused-vars
+  3:10  warning  'BarChart' is defined but never used             @typescript-eslint/no-unused-vars
+  3:20  warning  'Bar' is defined but never used                  @typescript-eslint/no-unused-vars
+  3:25  warning  'XAxis' is defined but never used                @typescript-eslint/no-unused-vars
+  3:32  warning  'YAxis' is defined but never used                @typescript-eslint/no-unused-vars
+  3:39  warning  'CartesianGrid' is defined but never used        @typescript-eslint/no-unused-vars
+  3:54  warning  'Tooltip' is defined but never used              @typescript-eslint/no-unused-vars
+  3:63  warning  'ResponsiveContainer' is defined but never used  @typescript-eslint/no-unused-vars
+  3:84  warning  'Cell' is defined but never used                 @typescript-eslint/no-unused-vars
+  4:10  warning  'AppUser' is defined but never used              @typescript-eslint/no-unused-vars
+  4:19  warning  'Book' is defined but never used                 @typescript-eslint/no-unused-vars
+
+D:\Astro\src\components\views\NeuralLabView.tsx
+  32:5   warning  'config' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  70:51  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+D:\Astro\src\components\views\NeuralLabView.tsx:70:51
+  68 |     ];
+  69 |
+> 70 |     const caseId = React.useMemo(() => Math.floor(Math.random() * 9000) + 1000, []);
+     |                                                   ^^^^^^^^^^^^^ Cannot call impure function
+  71 |     const matrixContent = React.useMemo(() => Array(2000).fill(0).map(() => Math.floor(Math.random() * 2)).join(''), []);
+  72 |
+  73 |     const synthesizeCase = useCallback(async () => {                                                              react-hooks/purity
+  71:88  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+D:\Astro\src\components\views\NeuralLabView.tsx:71:88
+  69 |
+  70 |     const caseId = React.useMemo(() => Math.floor(Math.random() * 9000) + 1000, []);
+> 71 |     const matrixContent = React.useMemo(() => Array(2000).fill(0).map(() => Math.floor(Math.random() * 2)).join(''), []);
+     |                                                                                        ^^^^^^^^^^^^^ Cannot call impure function
+  72 |
+  73 |     const synthesizeCase = useCallback(async () => {
+  74 |         setStatus('loading');  react-hooks/purity
+
+D:\Astro\src\lib\gemini.ts
+  48:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Astro\src\scripts\makeAdmin.js
+  3:75  warning  'setDoc' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 47 problems (4 errors, 43 warnings)
+
+

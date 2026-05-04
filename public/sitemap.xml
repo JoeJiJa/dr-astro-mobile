@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main Pages -->
+  <url>
+    <loc>https://dr-astro.pages.dev/</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=THEORY</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=EXAM_PREP</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Pre-Clinical Subjects (Year 1) -->
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=anatomy</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=physiology</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=biochemistry</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Para-Clinical Subjects (Year 2) -->
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=pharmacology</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=pathology</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=microbiology</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Clinical Subjects (Year 3) -->
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=community-medicine</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=fmt</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Clinical Subjects (Year 4 - Major) -->
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=general-medicine</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=general-surgery</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=obg</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=pediatrics</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Specialties -->
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=ent</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=ophthalmology</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=psychiatry</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=dermatology</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=orthopaedics</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=radiology</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dr-astro.pages.dev/?view=SUBJECT_DETAIL&amp;subject=anesthesiology</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <!-- Blogs & Insights -->
+  <url>
+    <loc>https://dr-astro.pages.dev/blog/medical-books-vs-materials</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>

@@ -1,0 +1,27 @@
+{
+  "name": "Dr. Astro — Medical Education Platform",
+  "short_name": "Dr. Astro",
+  "description": "AI-powered medical study companion for MBBS students",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#dc2626",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/app-logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/splash-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "medical"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
