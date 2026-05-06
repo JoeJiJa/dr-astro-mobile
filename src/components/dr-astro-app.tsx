@@ -63,7 +63,7 @@ import {
     Info
 } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
-import { auth, db, googleProvider, signInWithPopup, sendPasswordResetEmail, confirmPasswordReset } from '../lib/firebase';
+import { auth, db, googleProvider, signInWithGoogle, getRedirectResult, sendPasswordResetEmail, confirmPasswordReset } from '../lib/firebase';
 import {
     doc,
     setDoc,
@@ -6372,6 +6372,48 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
             setIsResetting(true);
             setIsLogin(false);
         }
+
+        // Handle redirect result from signInWithRedirect (used in Capacitor/native apps)
+        getRedirectResult(auth).then(async (result) => {
+            if (result?.user) {
+                const firebaseUser = result.user;
+                setIsGoogleLoading(true);
+                try {
+                    const localUsers = AuthService.getUsers();
+                    const localUser = localUsers.find(u => u.email === firebaseUser.email);
+                    if (localUser && AuthService.isProfileComplete(localUser)) {
+                        AuthService.directLogin(localUser);
+                        onLogin(localUser);
+                        return;
+                    }
+                    let userDataFromCloud: AppUser | null = null;
+                    try {
+                        const userRef = doc(db, 'users', firebaseUser.uid);
+                        const [userSnap, cloudUserByEmail] = await Promise.all([
+                            getDoc(userRef),
+                            AuthService.getUserByEmail(firebaseUser.email!)
+                        ]);
+                        if (userSnap.exists()) userDataFromCloud = userSnap.data() as AppUser;
+                        else if (cloudUserByEmail) userDataFromCloud = cloudUserByEmail;
+                    } catch (cloudErr) { console.warn('Cloud check failed:', cloudErr); }
+                    if (userDataFromCloud && AuthService.isProfileComplete(userDataFromCloud)) {
+                        AuthService.directLogin(userDataFromCloud);
+                        onLogin(userDataFromCloud);
+                        return;
+                    }
+                    setOnboardingUser({
+                        id: firebaseUser.uid,
+                        name: firebaseUser.displayName || 'Google User',
+                        email: firebaseUser.email || '',
+                        role: ADMIN_EMAILS.includes((firebaseUser.email || '').toLowerCase()) ? 'admin' : 'user',
+                        joinedAt: new Date().toISOString(),
+                        avatarUrl: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.uid}`,
+                    });
+                    setFormData(prev => ({ ...prev, name: firebaseUser.displayName || '', email: firebaseUser.email || '', phone: '', college: '', yearOfStudy: '', batchYear: '', gender: 'male' }));
+                    setIsOnboarding(true);
+                } finally { setIsGoogleLoading(false); }
+            }
+        }).catch(err => { console.warn('Redirect result error:', err); });
     }, []);
 
     const [formData, setFormData] = useState({
@@ -6481,7 +6523,8 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
         setError('');
 
         try {
-            const result = await signInWithPopup(auth, googleProvider);
+            const result = await signInWithGoogle();
+            if (!result) { setIsGoogleLoading(false); return; } // Redirect flow — result comes on page reload
             const firebaseUser = result.user;
 
             // 1. FAST-TRACK: Check Local Storage first (Instant)

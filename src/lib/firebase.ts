@@ -1,6 +1,6 @@
 
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendPasswordResetEmail, confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -31,5 +31,29 @@ if (typeof window !== 'undefined') {
 
 const googleProvider = new GoogleAuthProvider();
 
-export { auth, db, googleProvider, signInWithPopup, sendPasswordResetEmail, confirmPasswordReset, verifyPasswordResetCode };
+// Detect if running inside a Capacitor native app (Android/iOS WebView)
+const isNativeApp = (): boolean => {
+    if (typeof window === 'undefined') return false;
+    // Capacitor injects this object into the WebView
+    return !!(window as any).Capacitor?.isNativePlatform?.();
+};
+
+/**
+ * Smart Google Sign-In that works in both browser and Capacitor WebView.
+ * - Browser: uses signInWithPopup (fast, no redirect)
+ * - Capacitor WebView: uses signInWithRedirect (popups are blocked in WebViews)
+ */
+const signInWithGoogle = async () => {
+    if (isNativeApp()) {
+        // In native app, redirect-based flow works reliably
+        await signInWithRedirect(auth, googleProvider);
+        // After redirect, getRedirectResult will be called on page reload
+        return null; // Result will come from getRedirectResult on next load
+    } else {
+        // In browser, popup is the best experience
+        return signInWithPopup(auth, googleProvider);
+    }
+};
+
+export { auth, db, googleProvider, signInWithPopup, signInWithGoogle, signInWithRedirect, getRedirectResult, sendPasswordResetEmail, confirmPasswordReset, verifyPasswordResetCode, isNativeApp };
 
