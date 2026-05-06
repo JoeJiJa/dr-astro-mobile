@@ -3391,53 +3391,28 @@ const DynamicCover = ({ book }: { book: Book }) => {
     };
 
     return (
-        <div className={`w-full h-full bg-gradient-to-br ${gradient} p-4 flex flex-col justify-between relative group-hover:scale-105 transition-transform duration-200`}>
+        <div className={`w-full h-full bg-gradient-to-br ${gradient} p-4 flex flex-col justify-between relative group-hover:scale-105 transition-transform duration-300`}>
             {/* Subtle Overlay Pattern */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`, backgroundSize: '16px 16px' }}></div>
+            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 1.5px 1.5px, white 0.8px, transparent 0)`, backgroundSize: '12px 12px' }}></div>
 
             {/* Top Section */}
             <div className="relative z-10 flex justify-between items-start">
-                <div className="bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest text-white border border-white/20">
+                <div className="bg-white/10 backdrop-blur-md px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest text-white border border-white/10">
                     {book.type}
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                    <div className="text-white/40">
+                    <div className="text-white/30">
                         {getIcon()}
                     </div>
-                    {book.recommendationLevel === 'gold-standard' && (
-                        <div className="bg-amber-500 text-white p-1.5 rounded-lg shadow-lg shadow-amber-500/30">
-                            <Star size={16} fill="white" strokeWidth={0} />
-                        </div>
-                    )}
-                    {book.recommendationLevel === 'preferred' && (
-                        <div className="bg-blue-500 text-white p-1.5 rounded-lg shadow-lg shadow-blue-500/30">
-                            <CheckCircle size={16} fill="white" strokeWidth={0} />
-                        </div>
-                    )}
-                    {book.recommendationLevel === 'exam-oriented' && (
-                        <div className="bg-emerald-500 text-white p-1.5 rounded-lg shadow-lg shadow-emerald-500/30">
-                            <Target size={16} fill="white" strokeWidth={0} />
-                        </div>
-                    )}
                 </div>
             </div>
 
-            {/* Middle Section: Title Area */}
-            <div className="relative z-10 mt-2">
-                <h4 className="text-white font-black text-sm md:text-base leading-tight font-display drop-shadow-lg line-clamp-4">
-                    {book.title}
-                </h4>
-            </div>
-
             {/* Bottom Section */}
-            <div className="relative z-10 border-t border-white/20 pt-3">
-                <p className="text-white/70 text-[10px] font-bold uppercase tracking-tight truncate">
-                    {book.author}
-                </p>
-                <div className="flex gap-1 mt-1">
+            <div className="relative z-10 border-t border-white/10 pt-3">
+                <div className="flex gap-1">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-0.5 flex-1 bg-white/20 rounded-full overflow-hidden">
-                            <div className="h-full bg-white/40 w-1/2"></div>
+                        <div key={i} className="h-0.5 flex-1 bg-white/10 rounded-full overflow-hidden">
+                            <div className="h-full bg-white/20 w-1/2"></div>
                         </div>
                     ))}
                 </div>
@@ -3474,98 +3449,80 @@ const BookCard = ({ book, onClick, onLongPress, onToggleFavorite, isFavorite, on
     };
 
     return (
-        <div
-            onClick={onClick}
-            onContextMenu={handleContextMenu}
-            style={{ perspective: '1000px' }}
-            className={`group relative min-w-[140px] w-[140px] md:min-w-[200px] md:w-[200px] aspect-[2/3] cursor-pointer rounded-xl md:rounded-[2.5rem] overflow-hidden snap-start transition-all duration-500 glass-card card-3d ${book.parts ? 'hover:shadow-[0_50px_100px_rgba(0,0,0,0.7),0_0_30px_rgba(220,38,38,0.2)]' : 'hover:shadow-[0_40px_80px_rgba(0,0,0,0.6)]'}`}
-        >
-            {/* Visual Stack Effect for Multi-part Books */}
-            {book.parts && (
-                <>
-                    <div className="absolute inset-0 bg-white/5 translate-x-1 -translate-y-1 rounded-xl md:rounded-[2.5rem] z-0 blur-[1px]" />
-                    <div className="absolute inset-0 bg-black/30 translate-x-2 -translate-y-2 rounded-xl md:rounded-[2.5rem] z-[-1] blur-[2px]" />
-                </>
-            )}
+        <div className="flex-none w-[150px] md:w-[220px] group cursor-pointer select-none">
+            <div
+                onClick={onClick}
+                onContextMenu={handleContextMenu}
+                className="relative aspect-[2/3] rounded-md overflow-hidden bg-zinc-900 transition-all duration-300 ease-out group-hover:scale-105 group-hover:ring-[3px] group-hover:ring-white group-hover:z-50 shadow-2xl"
+            >
+                {/* Background Image / Cover */}
+                <div className="absolute inset-0">
+                    {book.coverUrl && !imgError ? (
+                        <Image
+                            src={book.coverUrl}
+                            alt={book.title}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 150px, 220px"
+                            className="object-cover transition-all duration-700 group-hover:scale-110"
+                            onError={() => setImgError(true)}
+                        />
+                    ) : (
+                        <DynamicCover book={book} />
+                    )}
+                </div>
 
-            {/* Background Image / Cover */}
-            <div className="absolute inset-0 bg-zinc-900">
-                {book.coverUrl && !imgError ? (
-                    <Image
-                        src={book.coverUrl}
-                        alt={book.title}
-                        fill
-                        unoptimized
-                        sizes="(max-width: 768px) 140px, 200px"
-                        className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-2"
-                        onError={() => setImgError(true)}
-                    />
-                ) : (
-                    <DynamicCover book={book} />
-                )}
-                {/* Mirror effect overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 opacity-30 group-hover:opacity-50 transition-opacity" />
-            </div>
-
-            {/* Recommendation Badges */}
-            {book.recommendationLevel && book.recommendationLevel !== 'none' && (
-                <div className="absolute top-4 right-4 z-30 flex flex-col items-end gap-1.5">
-                    {book.recommendationLevel === 'gold-standard' && (
-                        <div className="bg-amber-500/90 backdrop-blur-md text-white px-2.5 py-1 rounded-lg shadow-xl shadow-amber-500/30 flex items-center gap-1.5 border border-white/20 scale-105 group-hover:scale-110 transition-transform">
+                {/* Badges for Recommendation */}
+                {book.recommendationLevel && book.recommendationLevel === 'gold-standard' && (
+                    <div className="absolute top-0 right-0 p-2">
+                        <div className="bg-amber-500 text-[8px] md:text-[10px] font-black text-white px-1.5 py-0.5 rounded-sm shadow-xl flex flex-col items-center leading-none">
+                            <span className="uppercase text-[6px]">GOLD</span>
                             <Star size={10} fill="white" strokeWidth={0} />
-                            <span className="text-[7px] md:text-[9px] font-black uppercase tracking-widest">GOLD</span>
                         </div>
-                    )}
-                    {book.recommendationLevel === 'preferred' && (
-                        <div className="bg-blue-600/90 backdrop-blur-md text-white px-2.5 py-1 rounded-lg shadow-xl shadow-blue-500/30 flex items-center gap-1.5 border border-white/20 scale-105 group-hover:scale-110 transition-transform">
-                            <CheckCircle size={10} fill="white" strokeWidth={0} />
-                            <span className="text-[7px] md:text-[9px] font-black uppercase tracking-widest">PREF</span>
-                        </div>
-                    )}
-                </div>
-            )}
+                    </div>
+                )}
 
-            {/* Content Overlay */}
-            <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end z-10 bg-gradient-to-t from-black via-black/40 to-transparent">
-                <div className="space-y-2 md:space-y-3">
-                    <div className="flex justify-between items-start gap-2">
-                        <h4 className="text-white font-black text-sm md:text-xl leading-tight font-display drop-shadow-md flex-1 line-clamp-2">
-                            {book.title}
-                        </h4>
-                        <div className="flex gap-1.5">
-                            <button 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onToggleFavorite?.(book.id);
-                                }}
-                                className={`p-1.5 md:p-2 rounded-xl transition-all ${isFavorite ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)]' : 'bg-white/10 text-white/40 hover:bg-white/20 hover:text-white'}`}
-                            >
-                                <Heart size={14} fill={isFavorite ? "currentColor" : "none"} strokeWidth={3} />
-                            </button>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <p className="text-[9px] md:text-xs font-bold uppercase tracking-[0.2em] text-white/50 group-hover:text-red-400 transition-colors truncate max-w-[70%]">
-                            {book.author}
-                        </p>
-                        {onSimulate && (
-                            <button 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onSimulate();
-                                }}
-                                className="p-1.5 md:p-2 rounded-xl bg-red-600/10 border border-red-600/20 text-red-500 hover:bg-red-600 hover:text-white transition-all group/zap"
-                            >
-                                <Zap size={12} className="group-hover/zap:fill-white" />
-                            </button>
-                        )}
-                    </div>
+                {/* Action Buttons Overlay - Appear on Hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-between items-end">
+                    <button 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavorite?.(book.id);
+                        }}
+                        className={`p-2 rounded-full transition-all ${isFavorite ? 'bg-red-600 text-white' : 'bg-black/60 text-white/60 hover:bg-black/90 hover:text-white'}`}
+                    >
+                        <Heart size={14} fill={isFavorite ? "currentColor" : "none"} strokeWidth={3} />
+                    </button>
+
+                    {onSimulate && (
+                        <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSimulate();
+                            }}
+                            className="p-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-all shadow-xl"
+                        >
+                            <Zap size={14} className="fill-white" />
+                        </button>
+                    )}
                 </div>
+
+                {/* Stack effect for multi-part books */}
+                {book.parts && (
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-[7px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg border border-white/20">
+                        Vol {book.parts.length}
+                    </div>
+                )}
             </div>
-
-            {/* Scanline Effect */}
-            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity">
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_2px,3px_100%]" />
+            
+            {/* Title below card - The OTT Way */}
+            <div className="mt-3 px-1 text-center md:text-left">
+                <h4 className="text-white font-bold text-xs md:text-sm leading-tight line-clamp-2 transition-colors group-hover:text-red-400">
+                    {book.title}
+                </h4>
+                <p className="text-[9px] md:text-[10px] font-medium text-zinc-500 uppercase tracking-wider mt-1 truncate">
+                    {book.author}
+                </p>
             </div>
         </div>
     );
@@ -3915,6 +3872,23 @@ const HomeView = ({ setView, onBookClick, subjects, currentUser, onManageBook, o
         return result;
     }, [recentIds, subjects]);
 
+    const favoriteBooks = useMemo(() => {
+        const result: Book[] = [];
+        const favIds = currentUser?.favorites || [];
+        favIds.forEach(id => {
+            let match: Book | undefined;
+            for (const s of Object.values(subjects)) {
+                for (const list of Object.values(s.materials)) {
+                    const found = (list as Book[]).find(b => b.id === id);
+                    if (found) { match = found; break; }
+                }
+                if (match) break;
+            }
+            if (match) result.push(match);
+        });
+        return result;
+    }, [currentUser?.favorites, subjects]);
+
     const user = currentUser;
     
     const formatName = (name: string) => {
@@ -4129,29 +4103,46 @@ const HomeView = ({ setView, onBookClick, subjects, currentUser, onManageBook, o
                         </div>
                     </div>
                     <div className="flex-1">
-                        <h3 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-8">Recent <span className="text-red-600">Access</span></h3>
-                    
-                    {recentBooksWithLoc.length > 0 ? (
-                        <UnifiedCarousel>
-                            {recentBooksWithLoc.map(({ book, sId, secId }, idx) => (
-                                <div key={`${book.id}-${idx}`} className="snap-start">
-                                    <BookCard 
-                                        book={book} 
-                                        onClick={() => onBookClick(book)}
-                                        onToggleFavorite={onToggleFavorite}
-                                        isFavorite={currentUser?.favorites?.includes(book.id)}
-                                        onSimulate={() => onSimulate(book)}
-                                        onLongPress={currentUser?.role === 'admin' ? () => onManageBook?.('edit', sId, secId, book) : undefined}
-                                    />
-                                </div>
-                            ))}
-                        </UnifiedCarousel>
-                    ) : (
-                        <div className="p-20 rounded-[3rem] border border-dashed border-white/10 bg-white/5 text-center flex flex-col items-center gap-4">
-                            <Clock className="text-white/20" size={48} />
-                            <p className="text-zinc-500 font-bold uppercase tracking-widest text-[11px]">No recent neural transfers</p>
-                        </div>
-                    )}
+                        {recentBooksWithLoc.length > 0 ? (
+                            <UnifiedCarousel title="Recent Access">
+                                {recentBooksWithLoc.map(({ book, sId, secId }, idx) => (
+                                    <div key={`${book.id}-${idx}`} className="snap-start">
+                                        <BookCard
+                                            book={book}
+                                            onClick={() => onBookClick(book)}
+                                            onToggleFavorite={onToggleFavorite}
+                                            isFavorite={currentUser?.favorites?.includes(book.id)}
+                                            onSimulate={() => onSimulate(book)}
+                                            onLongPress={currentUser?.role === 'admin' ? () => onManageBook?.('edit', sId, secId, book) : undefined}
+                                        />
+                                    </div>
+                                ))}
+                            </UnifiedCarousel>
+                        ) : (
+                            <div className="p-20 rounded-[3rem] border border-dashed border-white/10 bg-white/5 text-center flex flex-col items-center gap-4">
+                                <Clock className="text-white/20" size={48} />
+                                <p className="text-zinc-500 font-bold uppercase tracking-widest text-[11px]">No recent neural transfers</p>
+                            </div>
+                        )}
+
+                        {/* STUDY SHELF (FAVORITES) */}
+                        {favoriteBooks.length > 0 && (
+                            <div className="mt-12">
+                                <UnifiedCarousel title="My Study Shelf">
+                                    {favoriteBooks.map((book) => (
+                                        <div key={book.id} className="snap-start">
+                                            <BookCard
+                                                book={book}
+                                                onClick={() => onBookClick(book)}
+                                                onToggleFavorite={onToggleFavorite}
+                                                isFavorite={true}
+                                                onSimulate={() => onSimulate(book)}
+                                            />
+                                        </div>
+                                    ))}
+                                </UnifiedCarousel>
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -4448,10 +4439,21 @@ const SubjectDetailView = ({
     const subject = subjects[subjectId];
     if (!subject) return <div>Subject not found</div>;
 
-    const categories = (subject as any).categories || [
-        { key: 'textbooks', label: 'Standard Textbooks' },
-        { key: 'reference', label: 'Reference Books' }
-    ];
+    // Auto-discover categories from materials if not explicitly defined
+    const categories = useMemo(() => {
+        if ((subject as any).categories && (subject as any).categories.length > 0) {
+            return (subject as any).categories;
+        }
+        
+        // Auto-generate from materials keys (only those with content)
+        const keys = Object.keys(subject.materials || {}).filter(k => 
+            Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+        );
+        return keys.map(key => ({
+            key,
+            label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()
+        }));
+    }, [subject]);
 
     return (
         <div className="animate-view-transition px-4 md:px-12 pb-32">
@@ -4572,18 +4574,20 @@ const SubjectDetailView = ({
                                             ))}
                                         </UnifiedCarousel>
                                     ) : (
-                                        <BookRoll>
+                                        <UnifiedCarousel title={cat.label}>
                                             {books.map((book: Book) => (
-                                                <BookCard
-                                                    key={book.id}
-                                                    book={book}
-                                                    onClick={() => onBookClick(book)}
-                                                    onToggleFavorite={onToggleFavorite}
-                                                    isFavorite={currentUser?.favorites?.includes(book.id)}
-                                                    onSimulate={() => onSimulate(book)}
-                                                />
+                                                <div key={book.id} className="snap-start">
+                                                    <BookCard
+                                                        key={book.id}
+                                                        book={book}
+                                                        onClick={() => onBookClick(book)}
+                                                        onToggleFavorite={onToggleFavorite}
+                                                        isFavorite={currentUser?.favorites?.includes(book.id)}
+                                                        onSimulate={() => onSimulate(book)}
+                                                    />
+                                                </div>
                                             ))}
-                                        </BookRoll>
+                                        </UnifiedCarousel>
                                     )}
                                 </div>
                             </div>
@@ -4640,10 +4644,19 @@ const ExamSubjectDetailView = ({
     const subject = subjects[subjectId];
     if (!subject) return <div>Subject not found</div>;
 
-    const categories = subject.examSections || [
-        { id: 'pyqs', label: 'Previous Year Questions' },
-        { id: 'notes', label: 'High-Yield Notes' }
-    ];
+    const categories = useMemo(() => {
+        const base = subject.examSections || [];
+        if (base.length > 0) return base;
+        
+        // Auto-discover from materials keys if no examSections defined
+        const keys = Object.keys(subject.materials || {}).filter(k => 
+            Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+        );
+        return keys.map(key => ({
+            id: key,
+            label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()
+        }));
+    }, [subject.examSections, subject.materials]);
 
     return (
         <div className="animate-view-transition px-4 md:px-12 pb-4">
@@ -4736,12 +4749,13 @@ const ExamSubjectDetailView = ({
                                     {!isEmpty ? (
                                         currentUser?.role === 'admin' ? (
                                             <UnifiedCarousel
+                                                title={cat.label}
                                                 containerComponent={Reorder.Group}
                                                 containerProps={{
                                                     axis: "x",
                                                     values: books,
                                                     onReorder: (newBooks: Book[]) => onReorderBooks(subjectId, cat.id, newBooks),
-                                                    className: "flex overflow-x-auto gap-6 pb-6 no-scrollbar snap-x scroll-smooth"
+                                                    className: "flex overflow-x-auto gap-4 md:gap-6 pb-6 no-scrollbar snap-x scroll-smooth overflow-visible"
                                                 }}
                                             >
                                                 {books.map((book: Book, idx: number) => (
@@ -4804,18 +4818,19 @@ const ExamSubjectDetailView = ({
                                                 ))}
                                             </UnifiedCarousel>
                                         ) : (
-                                            <BookRoll>
+                                            <UnifiedCarousel title={cat.label}>
                                                 {books.map((book: Book) => (
-                                                    <BookCard
-                                                        key={book.id}
-                                                        book={book}
-                                                        onClick={() => onBookClick(book)}
-                                                        onToggleFavorite={onToggleFavorite}
-                                                        isFavorite={currentUser?.favorites?.includes(book.id)}
-                                                        onSimulate={() => onSimulate(book)}
-                                                    />
+                                                    <div key={book.id} className="snap-start">
+                                                        <BookCard
+                                                            book={book}
+                                                            onClick={() => onBookClick(book)}
+                                                            onToggleFavorite={onToggleFavorite}
+                                                            isFavorite={currentUser?.favorites?.includes(book.id)}
+                                                            onSimulate={() => onSimulate(book)}
+                                                        />
+                                                    </div>
                                                 ))}
-                                            </BookRoll>
+                                            </UnifiedCarousel>
                                         )
                                     ) : (
                                         <div className="p-8 text-center rounded-3xl bg-zinc-50 dark:bg-zinc-900/30 border border-dashed border-zinc-200 dark:border-white/5">
@@ -4874,29 +4889,41 @@ const PracticalSubjectDetailView = ({
 
     if (!subject) return <div>Subject not found</div>;
 
-    let categories = subject.practicalSections || [
-        { id: 'practicalMaterials', label: 'Practical Materials' }
-    ];
-    // --- REORDER LOGIC FOR ENT (User Request: Proforma below Books) ---
-    if (subjectId === 'ent') {
-        const entOrder = ['clinicalBooks', 'exam-cases', 'caseNotesAndViva', 'osce', 'practicalMaterials'];
-        categories = [...categories].sort((a, b) => {
-            const idxA = entOrder.indexOf(a.id);
-            const idxB = entOrder.indexOf(b.id);
-            // If unknown section, put it at the end
-            if (idxA === -1 && idxB === -1) return 0;
-            if (idxA === -1) return 1;
-            if (idxB === -1) return -1;
-            return idxA - idxB;
-        });
+    const categories = useMemo(() => {
+        let base = subject.practicalSections || [];
         
-        // Ensure labels are synchronized with user request
-        categories = categories.map((cat: any) => {
-            if (cat.id === 'clinicalBooks' && cat.label !== 'Clinical Books') return { ...cat, label: 'Clinical Books' };
-            if (cat.id === 'exam-cases' && cat.label !== 'Clinical Proforma') return { ...cat, label: 'Clinical Proforma' };
-            return cat;
-        });
-    }
+        // Auto-discover if empty
+        if (base.length === 0) {
+            const keys = Object.keys(subject.materials || {}).filter(k => 
+                Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+            );
+            base = keys.map(key => ({
+                id: key,
+                label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()
+            }));
+        }
+
+        // --- REORDER LOGIC FOR ENT (User Request: Proforma below Books) ---
+        if (subjectId === 'ent') {
+            const entOrder = ['clinicalBooks', 'exam-cases', 'caseNotesAndViva', 'osce', 'practicalMaterials'];
+            base = [...base].sort((a, b) => {
+                const idxA = entOrder.indexOf(a.id);
+                const idxB = entOrder.indexOf(b.id);
+                if (idxA === -1 && idxB === -1) return 0;
+                if (idxA === -1) return 1;
+                if (idxB === -1) return -1;
+                return idxA - idxB;
+            });
+            
+            base = base.map((cat: any) => {
+                if (cat.id === 'clinicalBooks' && cat.label !== 'Clinical Books') return { ...cat, label: 'Clinical Books' };
+                if (cat.id === 'exam-cases' && cat.label !== 'Clinical Proforma') return { ...cat, label: 'Clinical Proforma' };
+                return cat;
+            });
+        }
+        
+        return base;
+    }, [subject.practicalSections, subject.materials, subjectId]);
 
     return (
         <div className="animate-view-transition px-4 md:px-12 pb-32 overflow-x-hidden">
@@ -5608,12 +5635,13 @@ const PracticalSubjectDetailView = ({
                                     {!isEmpty ? (
                                         currentUser?.role === 'admin' ? (
                                             <UnifiedCarousel
+                                                title={cat.label}
                                                 containerComponent={Reorder.Group}
                                                 containerProps={{
                                                     axis: "x",
                                                     values: books,
                                                     onReorder: (newBooks: Book[]) => onReorderBooks(subjectId, cat.id, newBooks),
-                                                    className: "flex overflow-x-auto gap-6 pb-6 no-scrollbar snap-x scroll-smooth"
+                                                    className: "flex overflow-x-auto gap-4 md:gap-6 pb-6 no-scrollbar snap-x scroll-smooth overflow-visible"
                                                 }}
                                             >
                                                 {books.map((book: Book, idx: number) => (
@@ -5676,18 +5704,19 @@ const PracticalSubjectDetailView = ({
                                                 ))}
                                             </UnifiedCarousel>
                                         ) : (
-                                            <BookRoll>
+                                            <UnifiedCarousel title={cat.label}>
                                                 {books.map((book: Book) => (
-                                                    <BookCard
-                                                        key={book.id}
-                                                        book={book}
-                                                        onClick={() => onBookClick(book)}
-                                                        onToggleFavorite={onToggleFavorite}
-                                                        isFavorite={currentUser?.favorites?.includes(book.id)}
-                                                        onSimulate={() => onSimulate(book)}
-                                                    />
+                                                    <div key={book.id} className="snap-start">
+                                                        <BookCard
+                                                            book={book}
+                                                            onClick={() => onBookClick(book)}
+                                                            onToggleFavorite={onToggleFavorite}
+                                                            isFavorite={currentUser?.favorites?.includes(book.id)}
+                                                            onSimulate={() => onSimulate(book)}
+                                                        />
+                                                    </div>
                                                 ))}
-                                            </BookRoll>
+                                            </UnifiedCarousel>
                                         )
                                     ) : (
                                         <div id="practicalMaterials-bot" className="bg-gradient-to-r from-emerald-600/10 to-teal-600/10 border border-emerald-500/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 dark:from-emerald-900/10 dark:to-teal-900/10">
