@@ -88,8 +88,8 @@ const InstallPrompt = () => {
                 </button>
 
                 <div className="flex flex-col items-center gap-8 relative z-10">
-                    <div className="w-24 h-24 bg-black rounded-3xl flex items-center justify-center shadow-2xl shadow-red-500/20 transform rotate-6 hover:rotate-0 transition-transform duration-500 overflow-hidden relative border border-white/10">
-                        <Image src="/app-logo.jpg" alt="Logo" fill className="object-cover" />
+                    <div className="w-24 h-24 bg-neutral-900 rounded-3xl flex items-center justify-center shadow-2xl shadow-red-500/20 transform rotate-6 hover:rotate-0 transition-transform duration-500 overflow-hidden relative border border-white/10 p-2">
+                        <Image src="/logo.png" alt="Logo" fill className="object-contain p-2 filter drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" />
                     </div>
 
                     <div className="space-y-3">

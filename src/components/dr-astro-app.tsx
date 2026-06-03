@@ -91,30 +91,6 @@ import Image from 'next/image';
 import InstallPrompt from './InstallPrompt';
 import CarouselSection, { UnifiedCarousel, CarouselCard } from './Carousel';
 
-const CINEMATIC_COLLECTIONS = [
-    {
-        title: "Medical Masterpieces",
-        items: [
-            { id: 'p1', title: "Theory Foundations", image: "/poster-theory.png" },
-            { id: 'p2', title: "Clinical Mastery", image: "/poster-clinical.png" },
-            { id: 'p3', title: "Surgical Excellence", image: "/poster-surgical.png" },
-            { id: 'p4', title: "Emergency Response", image: "/poster-emergency.png" },
-            { id: 'p5', title: "The Neural Hub", image: "/poster-theory.png" },
-            { id: 'p6', title: "Precision Diagnostics", image: "/poster-clinical.png" },
-        ]
-    },
-    {
-        title: "Clinical Originals",
-        items: [
-            { id: 'p7', title: "Emergency Response", image: "/poster-emergency.png" },
-            { id: 'p8', title: "Surgical Excellence", image: "/poster-surgical.png" },
-            { id: 'p9', title: "Theory Foundations", image: "/poster-theory.png" },
-            { id: 'p10', title: "Clinical Mastery", image: "/poster-clinical.png" },
-            { id: 'p11', title: "Neural Dynamics", image: "/poster-theory.png" },
-            { id: 'p12', title: "Trauma Protocol", image: "/poster-emergency.png" },
-        ]
-    }
-];
 
 /**
  * ==========================================
@@ -2544,6 +2520,7 @@ const AuthService = {
 
     isProfileComplete: (user: AppUser | null | undefined): boolean => {
         if (!user) return false;
+        if (user.role === 'admin' || (user.email && ADMIN_EMAILS.includes(user.email.toLowerCase()))) return true;
         // Required fields for a 'complete' professional profile
         return !!(
             user.name && 
@@ -3016,9 +2993,8 @@ const Header = ({
 
                     {/* Logo Area with Neural Glow */}
                     <div className="flex items-center gap-3 px-3 cursor-pointer group/logo" onClick={() => setView('HOME')}>
-                        <div className="relative w-11 h-11 flex items-center justify-center bg-black rounded-full shadow-[0_0_20px_rgba(220,38,38,0.2)] overflow-hidden group-hover/logo:rotate-[360deg] transition-all duration-1000 border border-white/20">
-                            <Image src="/app-logo.jpg" alt="Dr. Astro" fill className="object-cover" />
-                            <div className="absolute inset-0 bg-red-600/10 mix-blend-overlay" />
+                        <div className="relative w-11 h-11 flex items-center justify-center rounded-full shadow-[0_0_20px_rgba(255,255,255,0.1)] overflow-hidden group-hover/logo:rotate-[360deg] transition-all duration-1000 border border-white/10 bg-white/5 p-1.5">
+                            <Image src="/logo.png" alt="Dr. Astro Logo" fill className="object-contain filter drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]" />
                         </div>
                         <div className="flex flex-col">
                             <span className="font-display font-black text-xl tracking-tighter text-white group-hover/logo:text-red-500 transition-colors leading-none">
@@ -3362,59 +3338,94 @@ const DynamicCover = ({ book }: { book: Book }) => {
         return Math.abs(hash);
     };
 
-    const hash = getHash(book.id);
+    const hash = getHash(book.id || 'default');
     const gradients = [
-        'from-blue-600 to-indigo-900',
-        'from-emerald-500 to-teal-800',
-        'from-rose-500 to-red-900',
-        'from-amber-500 to-orange-800',
-        'from-purple-600 to-indigo-950',
-        'from-cyan-500 to-blue-800',
-        'from-fuchsia-600 to-pink-900'
+        'from-blue-600 via-indigo-700 to-indigo-950',
+        'from-emerald-500 via-teal-700 to-teal-950',
+        'from-rose-500 via-red-700 to-red-950',
+        'from-amber-500 via-orange-600 to-amber-950',
+        'from-purple-600 via-violet-800 to-indigo-950',
+        'from-cyan-500 via-blue-700 to-slate-900',
+        'from-fuchsia-600 via-pink-700 to-purple-950'
     ];
-    const gradient = gradients[hash % gradients.length];
 
-    // Pick icon based on keywords in title
-    const getIcon = () => {
+    const getGradient = (colorClass?: string) => {
+        if (!colorClass) return gradients[hash % gradients.length];
+        
+        const cls = colorClass.toLowerCase();
+        if (cls.includes('slate')) return 'from-slate-500 via-slate-700 to-slate-900';
+        if (cls.includes('blue')) return 'from-blue-500 via-indigo-700 to-indigo-950';
+        if (cls.includes('red')) return 'from-rose-500 via-red-700 to-red-950';
+        if (cls.includes('green') || cls.includes('emerald')) return 'from-emerald-500 via-teal-700 to-teal-950';
+        if (cls.includes('yellow') || cls.includes('amber')) return 'from-amber-400 via-orange-600 to-amber-950';
+        if (cls.includes('purple')) return 'from-purple-500 via-indigo-800 to-purple-950';
+        if (cls.includes('pink') || cls.includes('rose')) return 'from-rose-500 via-pink-700 to-fuchsia-950';
+        if (cls.includes('cyan') || cls.includes('teal')) return 'from-cyan-400 via-teal-600 to-blue-900';
+        
+        return gradients[hash % gradients.length];
+    };
+
+    const gradient = getGradient(book.coverColor);
+
+    const getIcon = (size = 36) => {
         const title = book.title.toLowerCase();
-        if (title.includes('anat')) return <User size={40} />;
-        if (title.includes('surg')) return <Scissors size={40} />;
-        if (title.includes('phys')) return <Activity size={40} />;
-        if (title.includes('pharma')) return <Pill size={40} />;
-        if (title.includes('micro')) return <Microscope size={40} />;
-        if (title.includes('path')) return <Activity size={40} />;
-        if (title.includes('eye') || title.includes('oph')) return <Eye size={40} />;
-        if (title.includes('bone') || title.includes('ortho')) return <Bone size={40} />;
-        if (title.includes('baby') || title.includes('obs') || title.includes('ped')) return <Baby size={40} />;
-        if (title.includes('brain') || title.includes('psych')) return <Brain size={40} />;
-        return <BookOpen size={40} />;
+        if (title.includes('anat')) return <User size={size} />;
+        if (title.includes('surg')) return <Scissors size={size} />;
+        if (title.includes('phys')) return <Activity size={size} />;
+        if (title.includes('pharma')) return <Pill size={size} />;
+        if (title.includes('micro')) return <Microscope size={size} />;
+        if (title.includes('path')) return <Activity size={size} />;
+        if (title.includes('eye') || title.includes('oph')) return <Eye size={size} />;
+        if (title.includes('bone') || title.includes('ortho')) return <Bone size={size} />;
+        if (title.includes('baby') || title.includes('obs') || title.includes('ped')) return <Baby size={size} />;
+        if (title.includes('brain') || title.includes('psych')) return <Brain size={size} />;
+        return <BookOpen size={size} />;
     };
 
     return (
-        <div className={`w-full h-full bg-gradient-to-br ${gradient} p-4 flex flex-col justify-between relative group-hover:scale-105 transition-transform duration-300`}>
-            {/* Subtle Overlay Pattern */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 1.5px 1.5px, white 0.8px, transparent 0)`, backgroundSize: '12px 12px' }}></div>
+        <div className={`w-full h-full bg-gradient-to-br ${gradient} p-4 pb-5 flex flex-col justify-between relative select-none overflow-hidden`}>
+            {/* 3D Book Crease / Spine Effect */}
+            <div className="absolute left-0 top-0 bottom-0 w-2.5 bg-gradient-to-r from-black/35 via-black/15 to-transparent z-20 pointer-events-none" />
+            <div className="absolute left-2.5 top-0 bottom-0 w-[1px] bg-white/10 z-20 pointer-events-none" />
+            <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-black/25 z-20 pointer-events-none" />
 
-            {/* Top Section */}
-            <div className="relative z-10 flex justify-between items-start">
-                <div className="bg-white/10 backdrop-blur-md px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest text-white border border-white/10">
+            {/* Ambient Light Highlight (simulates curved surface lighting) */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_center,rgba(255,255,255,0.18)_0%,transparent_60%)] z-10 pointer-events-none" />
+            
+            {/* Subtle Grid Pattern */}
+            <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-0" style={{ backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`, backgroundSize: '10px 10px' }}></div>
+
+            {/* Watermark Icon (blended in background) */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.07] text-white z-0 scale-[1.7] blur-[0.5px]">
+                {getIcon(120)}
+            </div>
+
+            {/* Top Badge & Header */}
+            <div className="relative z-10 flex justify-between items-start pl-2">
+                <div className="bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-wider text-white/90 border border-white/10">
                     {book.type}
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                    <div className="text-white/30">
-                        {getIcon()}
-                    </div>
+                <div className="text-white/40">
+                    {getIcon(16)}
                 </div>
             </div>
 
-            {/* Bottom Section */}
-            <div className="relative z-10 border-t border-white/10 pt-3">
-                <div className="flex gap-1">
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="h-0.5 flex-1 bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-white/20 w-1/2"></div>
-                        </div>
-                    ))}
+            {/* Typographic Core Cover Design */}
+            <div className="relative z-10 flex-1 flex flex-col justify-center items-center px-2 py-4 text-center">
+                <h3 className="text-white font-serif text-[11px] md:text-sm font-extrabold leading-tight tracking-tight uppercase line-clamp-3 select-none filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                    {book.title}
+                </h3>
+                <div className="w-8 h-[1px] bg-white/20 my-2.5"></div>
+                <p className="text-white/60 font-sans text-[7px] md:text-[9px] font-medium tracking-wide truncate max-w-[90%] uppercase">
+                    {book.author || 'Dr. Astro Press'}
+                </p>
+            </div>
+
+            {/* Bottom Page Edge Simulation */}
+            <div className="relative z-10 border-t border-white/10 pt-2.5 pl-2">
+                <div className="flex gap-1 items-center justify-center opacity-40">
+                    <span className="w-1 h-1 rounded-full bg-white/30 animate-pulse" />
+                    <span className="text-[6px] md:text-[7px] font-bold text-white/40 uppercase tracking-widest">DR. ASTRO SYSTEM</span>
                 </div>
             </div>
         </div>
@@ -3453,7 +3464,7 @@ const BookCard = ({ book, onClick, onLongPress, onToggleFavorite, isFavorite, on
             <div
                 onClick={onClick}
                 onContextMenu={handleContextMenu}
-                className="relative aspect-[2/3] rounded-md overflow-hidden bg-zinc-900 transition-all duration-300 ease-out group-hover:scale-105 group-hover:ring-[3px] group-hover:ring-white group-hover:z-50 shadow-2xl"
+                className="relative aspect-[2/3] rounded-2xl md:rounded-[1.75rem] overflow-hidden bg-zinc-900 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-108 group-hover:ring-2 group-hover:ring-white/80 group-hover:z-30 shadow-2xl group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
             >
                 {/* Background Image / Cover */}
                 <div className="absolute inset-0">
@@ -3474,7 +3485,7 @@ const BookCard = ({ book, onClick, onLongPress, onToggleFavorite, isFavorite, on
 
                 {/* Badges for Recommendation */}
                 {book.recommendationLevel && book.recommendationLevel === 'gold-standard' && (
-                    <div className="absolute top-0 right-0 p-2">
+                    <div className="absolute top-0 right-0 p-2 z-20">
                         <div className="bg-amber-500 text-[8px] md:text-[10px] font-black text-white px-1.5 py-0.5 rounded-sm shadow-xl flex flex-col items-center leading-none">
                             <span className="uppercase text-[6px]">GOLD</span>
                             <Star size={10} fill="white" strokeWidth={0} />
@@ -3483,7 +3494,7 @@ const BookCard = ({ book, onClick, onLongPress, onToggleFavorite, isFavorite, on
                 )}
 
                 {/* Action Buttons Overlay - Appear on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-between items-end">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-between items-end z-20">
                     <button 
                         onClick={(e) => {
                             e.stopPropagation();
@@ -3509,7 +3520,7 @@ const BookCard = ({ book, onClick, onLongPress, onToggleFavorite, isFavorite, on
 
                 {/* Stack effect for multi-part books */}
                 {book.parts && (
-                    <div className="absolute top-2 left-2 bg-red-600 text-white text-[7px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg border border-white/20">
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-[7px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg border border-white/20 z-20">
                         Vol {book.parts.length}
                     </div>
                 )}
@@ -3517,7 +3528,7 @@ const BookCard = ({ book, onClick, onLongPress, onToggleFavorite, isFavorite, on
             
             {/* Title below card - The OTT Way */}
             <div className="mt-3 px-1 text-center md:text-left">
-                <h4 className="text-white font-bold text-xs md:text-sm leading-tight line-clamp-2 transition-colors group-hover:text-red-400">
+                <h4 className="text-white font-bold text-xs md:text-sm leading-tight line-clamp-2 transition-all duration-300 group-hover:text-red-500">
                     {book.title}
                 </h4>
                 <p className="text-[9px] md:text-[10px] font-medium text-zinc-500 uppercase tracking-wider mt-1 truncate">
@@ -4077,16 +4088,6 @@ const HomeView = ({ setView, onBookClick, subjects, currentUser, onManageBook, o
                 </div>
             </div>
 
-            {/* --- CINEMATIC CAROUSELS (HIGH VISIBILITY) --- */}
-            <div className="relative z-10 max-w-7xl mx-auto mb-16">
-                {CINEMATIC_COLLECTIONS.map((collection, idx) => (
-                    <CarouselSection 
-                        key={idx} 
-                        title={collection.title} 
-                        items={collection.items} 
-                    />
-                ))}
-            </div>
 
             {/* BENTO GRID: NEURAL COMMAND CENTER */}
             <div className="w-full px-4 md:px-8 space-y-24 md:space-y-40 pb-40">
@@ -6250,7 +6251,7 @@ const SplashScreen = ({ user, onFinish }: { user: AppUser | null, onFinish: () =
         if (hour < 17) return 'Good Afternoon';
         return 'Good Evening';
     });
-    const [quote, setQuote] = useState(() => {
+    const [quote] = useState(() => {
         const quotes = [
             "The good physician treats the disease; the great physician treats the patient who has the disease. — Sir William Osler",
             "Medicine is a science of uncertainty and an art of probability. — Sir William Osler",
@@ -6260,14 +6261,6 @@ const SplashScreen = ({ user, onFinish }: { user: AppUser | null, onFinish: () =
         ];
         return quotes[Math.floor(Math.random() * quotes.length)];
     });
-
-    const quotes = [
-        "The good physician treats the disease; the great physician treats the patient who has the disease. — Sir William Osler",
-        "Medicine is a science of uncertainty and an art of probability. — Sir William Osler",
-        "Wherever the art of Medicine is loved, there is also a love of Humanity. — Hippocrates",
-        "The physician should not treat the disease, but the patient who is suffering from it. — Maimonides",
-        "Observation, Reason, Human Understanding, Courage; these make the physician. — Martin H. Fischer"
-    ];
 
     const formatName = (name: string) => {
         const parts = name.split(' ').filter(p => p.trim() !== '');
@@ -6287,62 +6280,91 @@ const SplashScreen = ({ user, onFinish }: { user: AppUser | null, onFinish: () =
             sessionStorage.setItem('hasVisitedSplash', 'true');
         }
 
-        const timer = setTimeout(onFinish, isFirstVisit ? 5000 : 2500);
+        const timer = setTimeout(onFinish, isFirstVisit ? 4000 : 2200);
         return () => clearTimeout(timer);
     }, [onFinish, isFirstVisit]);
 
     return (
-        <div className={`fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-out fade-out duration-700 ${isFirstVisit ? 'delay-[4300ms]' : 'delay-[1800ms]'} fill-mode-forwards pointer-events-none`}>
+        <div className={`fixed inset-0 z-[100] bg-neutral-950 flex flex-col items-center justify-center animate-out fade-out duration-700 ${isFirstVisit ? 'delay-[3300ms]' : 'delay-[1500ms]'} fill-mode-forwards pointer-events-none`}>
             
-            <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="relative w-32 h-32 md:w-48 md:h-48 mb-8"
-            >
-                <div className="absolute inset-0 bg-red-600/20 blur-xl rounded-full animate-pulse-slow" />
-                <Image src="/splash-icon.png" alt="Dr. Astro" fill className="object-contain drop-shadow-2xl z-10" priority />
-            </motion.div>
+            {/* Subtle Ambient Radial Metallic Glow */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-zinc-800/10 via-zinc-700/5 to-transparent blur-[120px] rounded-full animate-pulse-slow" />
+            </div>
 
-            <div className="flex flex-col items-center z-20 text-center px-6">
+            <div className="flex flex-col items-center z-20 text-center px-6 max-w-lg">
+                {/* Silver-Toned Metallic Logo */}
+                <motion.div
+                    initial={{ scale: 0.85, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative w-36 h-36 md:w-48 md:h-48 mb-8"
+                >
+                    <Image 
+                        src="/logo.png" 
+                        alt="Dr. Astro Logo" 
+                        fill 
+                        className="object-contain filter invert-[0.9] brightness-[1.1] contrast-[1.2] drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]" 
+                        priority 
+                    />
+                </motion.div>
+
+                {/* Typography branding */}
                 <motion.h1
-                    initial={{ y: 20, opacity: 0 }}
+                    initial={{ y: 15, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3, duration: 0.8 }}
-                    className="text-5xl md:text-8xl font-black text-white tracking-tighter font-display drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                    transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+                    className="text-4xl md:text-6xl font-sans font-black tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-b from-slate-100 to-slate-400 leading-none mr-[-0.25em] drop-shadow-sm"
                 >
                     DR. ASTRO
                 </motion.h1>
+
+                <motion.div
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={{ scaleX: 1, opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.6 }}
+                    className="w-24 h-[1px] bg-gradient-to-r from-transparent via-zinc-500/50 to-transparent my-4"
+                />
+
                 <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.7 }}
-                    className="text-red-500 mt-2 tracking-[0.5em] text-xs md:text-sm uppercase font-bold drop-shadow-md"
+                    transition={{ delay: 0.6, duration: 0.6 }}
+                    className="text-[10px] md:text-xs uppercase font-sans font-medium tracking-[0.4em] text-zinc-500 leading-relaxed mr-[-0.4em]"
                 >
-                    {greeting}, Dr. {user ? formatName(user.name) : 'Physician'}
+                    {greeting}, Dr. <span className="text-zinc-300 font-bold">{user ? formatName(user.name) : 'Physician'}</span>
                 </motion.p>
 
                 {isFirstVisit && (
                     <motion.p
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.2 }}
-                        className="text-zinc-400 mt-8 text-base md:text-lg max-w-md px-6 italic leading-relaxed"
+                        transition={{ delay: 1.0, duration: 0.8 }}
+                        className="text-zinc-400 mt-6 text-sm md:text-base max-w-sm px-6 italic leading-relaxed animate-in fade-in"
                     >
                         &quot;{quote}&quot;
                     </motion.p>
                 )}
+
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.2, duration: 0.8 }}
+                    className="text-[9px] md:text-[10px] font-sans text-zinc-600 tracking-[0.3em] uppercase mt-6 leading-relaxed mr-[-0.3em]"
+                >
+                    Neural Medical Matrix
+                </motion.p>
             </div>
 
             <motion.div
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 w-48 h-1 bg-white/10 rounded-full overflow-hidden"
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 w-48 h-1 bg-white/5 rounded-full overflow-hidden"
             >
                 <motion.div
                     initial={{ x: '-100%' }}
                     animate={{ x: '0%' }}
-                    transition={{ delay: 0.3, duration: isFirstVisit ? 4 : 1.5, ease: 'linear' }}
-                    className="h-full bg-red-600 w-full"
-                    style={{ boxShadow: '0 0 10px rgba(220, 38, 38, 0.5)' }}
+                    transition={{ delay: 0.3, duration: isFirstVisit ? 3.2 : 1.4, ease: 'linear' }}
+                    className="h-full bg-zinc-400 w-full"
+                    style={{ boxShadow: '0 0 10px rgba(255, 255, 255, 0.2)' }}
                 />
             </motion.div>
         </div>
@@ -6379,9 +6401,10 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
                 const firebaseUser = result.user;
                 setIsGoogleLoading(true);
                 try {
+                    const isAdminEmail = ADMIN_EMAILS.includes((firebaseUser.email || '').toLowerCase());
                     const localUsers = AuthService.getUsers();
                     const localUser = localUsers.find(u => u.email === firebaseUser.email);
-                    if (localUser && AuthService.isProfileComplete(localUser)) {
+                    if (localUser && (isAdminEmail || AuthService.isProfileComplete(localUser))) {
                         AuthService.directLogin(localUser);
                         onLogin(localUser);
                         return;
@@ -6396,7 +6419,7 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
                         if (userSnap.exists()) userDataFromCloud = userSnap.data() as AppUser;
                         else if (cloudUserByEmail) userDataFromCloud = cloudUserByEmail;
                     } catch (cloudErr) { console.warn('Cloud check failed:', cloudErr); }
-                    if (userDataFromCloud && AuthService.isProfileComplete(userDataFromCloud)) {
+                    if (userDataFromCloud && (isAdminEmail || AuthService.isProfileComplete(userDataFromCloud))) {
                         AuthService.directLogin(userDataFromCloud);
                         onLogin(userDataFromCloud);
                         return;
@@ -6527,11 +6550,12 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
             if (!result) { setIsGoogleLoading(false); return; } // Redirect flow — result comes on page reload
             const firebaseUser = result.user;
 
+            const isAdminEmail = ADMIN_EMAILS.includes((firebaseUser.email || '').toLowerCase());
             // 1. FAST-TRACK: Check Local Storage first (Instant)
             const localUsers = AuthService.getUsers();
             const localUser = localUsers.find(u => u.email === firebaseUser.email);
 
-            if (localUser && AuthService.isProfileComplete(localUser)) {
+            if (localUser && (isAdminEmail || AuthService.isProfileComplete(localUser))) {
                 console.log('Fast-path: Found registered user locally.');
                 AuthService.directLogin(localUser);
                 onLogin(localUser);
@@ -6558,7 +6582,7 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
                 console.warn('Optimized cloud check failed:', cloudErr);
             }
 
-            if (userDataFromCloud && AuthService.isProfileComplete(userDataFromCloud)) {
+            if (userDataFromCloud && (isAdminEmail || AuthService.isProfileComplete(userDataFromCloud))) {
                 console.log('Cloud-path: Found registered user.');
                 AuthService.directLogin(userDataFromCloud);
                 onLogin(userDataFromCloud);
@@ -6654,8 +6678,8 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
             <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 animate-view-transition">
                 <div className="w-full max-w-md space-y-8">
                     <div className="text-center space-y-2">
-                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-black text-white shadow-xl mb-4 overflow-hidden border border-zinc-200 dark:border-zinc-800 relative">
-                            <Image src="/app-logo.jpg" alt="Logo" fill className="object-cover" />
+                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white/5 text-white shadow-xl mb-4 overflow-hidden border border-white/10 relative p-2">
+                            <Image src="/logo.png" alt="Logo" fill className="object-contain p-2 filter drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" />
                         </div>
                         <h1 className="text-3xl font-black font-display text-slate-900 dark:text-white">
                             Almost There!

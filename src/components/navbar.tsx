@@ -1,12 +1,19 @@
 import Link from "next/link";
-import { Stethoscope } from "lucide-react";
+import Image from "next/image";
 
 export function Navbar() {
   return (
     <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl h-16 glass-panel rounded-full z-[100] px-6 flex items-center justify-between border border-white/10 transition-all hover:bg-white/10">
       <Link href="/" className="flex items-center space-x-3 group">
-        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
-          <Stethoscope className="h-6 w-6 text-white" />
+        <div className="relative h-10 w-auto flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+          <Image 
+            src="/logo.png" 
+            alt="Dr. Astro Logo" 
+            width={40} 
+            height={40} 
+            className="h-10 w-auto object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]"
+            priority
+          />
         </div>
         <span className="font-black text-xl text-white tracking-tighter">
           DR.ASTRO
