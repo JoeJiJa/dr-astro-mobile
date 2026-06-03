@@ -10,6 +10,8 @@ jobs:
   build:
     name: Build APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Repository
@@ -46,3 +48,25 @@ jobs:
         with:
           name: app-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Generate Release Tag
+        id: generate_tag
+        run: echo "release_tag=v1.0.${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.release_tag }}
+          name: Dr. Astro Release ${{ env.release_tag }}
+          body: |
+            # Dr. Astro - Mobile Native App Release
+            
+            This release features the brand identity implementation and custom splash screen updates:
+            - **Universal Logo:** Replaced stethoscope icons with the custom transparent bodybuilder insignia.
+            - **Adaptive Suite:** Packaged 32x32, 192x192, and 512x512 icons, Apple touch icons, and favicons.
+            - **Premium Minimalist Splash:** Styled dynamic loaders with an obsidian background (`bg-neutral-950`) and a silver-toned metallic filter logo.
+          draft: false
+          prerelease: false
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
