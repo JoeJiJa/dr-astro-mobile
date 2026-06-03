@@ -62,6 +62,7 @@ export type SubjectData = Subject & {
     };
     practicalSections?: PracticalSection[];
     examSections?: PracticalSection[];
+    categories?: { key: string; label: string; description?: string }[];
 };
 
 export type QuizQuestion = {
@@ -107,5 +108,25 @@ export type UserActivity = {
     action: 'view_book' | 'view_subject' | 'start_quiz' | 'login' | 'download_book' | 'simulation_complete' | 'start_simulation';
     targetId: string;
     targetName: string;
+    timestamp: string;
+};
+
+export type AdminAction = 
+    | 'book_added' 
+    | 'book_edited' 
+    | 'book_deleted' 
+    | 'section_added' 
+    | 'section_removed' 
+    | 'section_renamed'
+    | 'section_reordered';
+
+export type AdminAuditLog = {
+    id?: string;
+    adminEmail: string;
+    action: AdminAction;
+    targetSubjectId: string;
+    targetSectionId?: string;
+    targetBookId?: string;
+    details: string;
     timestamp: string;
 };

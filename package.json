@@ -5,12 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "deploy": "next build && npx wrangler pages deploy out",
+    "deploy": "next build && npx wrangler pages deploy out --commit-dirty=true",
     "build-mobile": "next build && npx cap sync",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1054.0",
     "@capacitor/android": "^8.3.1",
     "@capacitor/core": "^8.3.1",
     "@codetrix-studio/capacitor-google-auth": "^3.4.0-rc.4",

@@ -1,9 +1,23 @@
-
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendPasswordResetEmail, confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
+    sendPasswordResetEmail,
+    confirmPasswordReset,
+    verifyPasswordResetCode
+} from "firebase/auth";
+import {
+    initializeFirestore,
+    persistentLocalCache,
+    persistentMultipleTabManager,
+    getFirestore
+} from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDkL97giZawPNhSnl8oKJiSIzS7_pgnkZA",
     authDomain: "drastroapp.firebaseapp.com",
@@ -16,25 +30,31 @@ const firebaseConfig = {
 // Initialize Firebase (Singleton pattern)
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const db = getFirestore(app);
 
-// Enable Offline Persistence for a truly "Stable" version
+// Initialize Firestore with modern persistent cache (replaces deprecated enableIndexedDbPersistence)
+// This ensures books and data survive browser refreshes and app restarts
+let db: ReturnType<typeof getFirestore>;
 if (typeof window !== 'undefined') {
-    enableIndexedDbPersistence(db).catch((err) => {
-        if (err.code === 'failed-precondition') {
-            console.warn("Multiple tabs open, persistence can only be enabled in one tab at a time.");
-        } else if (err.code === 'unimplemented') {
-            console.warn("The current browser does not support all of the features required to enable persistence.");
-        }
-    });
+    try {
+        db = initializeFirestore(app, {
+            localCache: persistentLocalCache({
+                tabManager: persistentMultipleTabManager()
+            })
+        });
+    } catch {
+        // Already initialized (singleton guard)
+        db = getFirestore(app);
+    }
+} else {
+    db = getFirestore(app);
 }
 
+const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
 // Detect if running inside a Capacitor native app (Android/iOS WebView)
 const isNativeApp = (): boolean => {
     if (typeof window === 'undefined') return false;
-    // Capacitor injects this object into the WebView
     return !!(window as any).Capacitor?.isNativePlatform?.();
 };
 
@@ -45,15 +65,24 @@ const isNativeApp = (): boolean => {
  */
 const signInWithGoogle = async () => {
     if (isNativeApp()) {
-        // In native app, redirect-based flow works reliably
         await signInWithRedirect(auth, googleProvider);
-        // After redirect, getRedirectResult will be called on page reload
-        return null; // Result will come from getRedirectResult on next load
+        return null;
     } else {
-        // In browser, popup is the best experience
         return signInWithPopup(auth, googleProvider);
     }
 };
 
-export { auth, db, googleProvider, signInWithPopup, signInWithGoogle, signInWithRedirect, getRedirectResult, sendPasswordResetEmail, confirmPasswordReset, verifyPasswordResetCode, isNativeApp };
-
+export {
+    auth,
+    db,
+    storage,
+    googleProvider,
+    signInWithPopup,
+    signInWithGoogle,
+    signInWithRedirect,
+    getRedirectResult,
+    sendPasswordResetEmail,
+    confirmPasswordReset,
+    verifyPasswordResetCode,
+    isNativeApp
+};

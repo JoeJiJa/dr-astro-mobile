@@ -43,6 +43,8 @@ import {
     RefreshCw,
     Copy,
     ArrowLeft,
+    ArrowUp,
+    ArrowDown,
     ChevronLeft,
     ChevronRight,
     Search,
@@ -74,7 +76,8 @@ import {
     deleteDoc,
     query,
     where,
-    limit
+    limit,
+    addDoc
 } from 'firebase/firestore';
 import { CLINICAL_CASES } from '../data/clinical-cases';
 import {
@@ -85,21 +88,21 @@ import {
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    Cell
+    Cell,
+    PieChart,
+    Pie,
+    LineChart,
+    Line,
+    AreaChart,
+    Area
 } from 'recharts';
+import { BookEditModal, SectionEditModal } from './BookAdminModals';
+import type { ViewState, Book, BookPart, SubjectData, QuizQuestion, ChatMessage, AppUser, UserActivity, AdminAction, AdminAuditLog } from '../types';
 import Image from 'next/image';
 import InstallPrompt from './InstallPrompt';
 import CarouselSection, { UnifiedCarousel, CarouselCard } from './Carousel';
 
-
-/**
- * ==========================================
- * TYPE DEFINITIONS
- * ==========================================
- */
-import { BookEditModal, SectionEditModal } from './BookAdminModals';
 import StudyMode from './StudyMode';
-import type { ViewState, Book, BookPart, SubjectData, QuizQuestion, ChatMessage, AppUser, UserActivity } from '../types';
 import { getAIAssistantResponse as getGeminiResponse } from '../lib/gemini';
 
 /**
@@ -4098,14 +4101,14 @@ const HomeView = ({ setView, onBookClick, subjects, currentUser, onManageBook, o
                         <div className="hidden md:flex flex-col items-center gap-2">
                             <div className="w-1 h-12 bg-gradient-to-b from-transparent via-red-500/30 to-transparent" />
                             <span className="text-[10px] font-mono font-black text-red-500/50 rotate-90 my-8 whitespace-nowrap uppercase tracking-[0.5em]">
-                                ACCESS_LOG
+                                CONTINUING_PHASE
                             </span>
                             <div className="w-1 h-12 bg-gradient-to-b from-transparent via-red-500/30 to-transparent" />
                         </div>
                     </div>
                     <div className="flex-1">
                         {recentBooksWithLoc.length > 0 ? (
-                            <UnifiedCarousel title="Recent Access">
+                            <UnifiedCarousel title="Continuing Phase">
                                 {recentBooksWithLoc.map(({ book, sId, secId }, idx) => (
                                     <div key={`${book.id}-${idx}`} className="snap-start">
                                         <BookCard
@@ -4287,38 +4290,7 @@ const HomeView = ({ setView, onBookClick, subjects, currentUser, onManageBook, o
                     </div>
                 )}
 
-                {/* Recently Viewed */}
-                {Object.values(subjects).length > 0 && (
-                    <div className="mb-12">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-red-600/20 flex items-center justify-center text-red-600">
-                                    <History size={24} />
-                                </div>
-                                <div>
-                                    <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">Continuing Phase</h2>
-                                    <p className="text-xs font-bold text-zinc-500 tracking-[0.2em] uppercase">Intelligence Hub • Persistent Memory</p>
-                                </div>
-                            </div>
-                        </div>
 
-                        <UnifiedCarousel>
-                            {Object.values(subjects)[0].materials.textbooks.slice(0, 5).map(book => (
-                                <div key={book.id} className="snap-start">
-                                    <BookCard 
-                                        book={book} 
-                                        onClick={() => onBookClick(book)}
-                                        isFavorite={currentUser?.favorites?.includes(book.id)}
-                                        onToggleFavorite={onToggleFavorite}
-                                        onSimulate={() => onSimulate(book)}
-                                    />
-                                </div>
-                            ))}
-                        </UnifiedCarousel>
-                    </div>
-                )}
-
-                <MedicalDirectorate />
 
                 <AnimatePresence>
                     {showOracle && <NeuralOracle onClose={() => setShowOracle(false)} />}
@@ -4402,11 +4374,33 @@ const TheoryView = ({ onSelectSubject, subjects, currentUser }: {
             </div>
 
             {/* Subject Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {filteredSubjects.map(subject => (
-                    <SubjectCard key={subject.id} subject={subject} onClick={() => onSelectSubject(subject.id)} />
-                ))}
-            </div>
+            {filterYear === 'All' ? (
+                <div className="space-y-12">
+                    {[1, 2, 3, 4].map(year => {
+                        const yearSubjects = filteredSubjects.filter(s => s.years.includes(year));
+                        if (yearSubjects.length === 0) return null;
+                        return (
+                            <div key={year} className="space-y-6">
+                                <h3 className="text-lg md:text-2xl font-black text-white uppercase tracking-widest border-b border-white/10 pb-3 flex items-center gap-3">
+                                    <span className="w-1.5 h-6 bg-red-600 rounded-full"></span>
+                                    {year === 1 ? '1st Year' : year === 2 ? '2nd Year' : year === 3 ? '3rd Year' : '4th Year'}
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                    {yearSubjects.map(subject => (
+                                        <SubjectCard key={`${year}-${subject.id}`} subject={subject} onClick={() => onSelectSubject(subject.id)} />
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    {filteredSubjects.map(subject => (
+                        <SubjectCard key={subject.id} subject={subject} onClick={() => onSelectSubject(subject.id)} />
+                    ))}
+                </div>
+            )}
 
             {filteredSubjects.length === 0 && (
                 <div className="text-center py-20">
@@ -4420,6 +4414,103 @@ const TheoryView = ({ onSelectSubject, subjects, currentUser }: {
     );
 };
 
+const AdminBookControls = ({
+    onEdit,
+    onDelete,
+    onDuplicate,
+    onMoveLeft,
+    onMoveRight,
+    isFirst,
+    isLast
+}: {
+    onEdit: () => void;
+    onDelete?: () => void;
+    onDuplicate?: () => void;
+    onMoveLeft?: () => void;
+    onMoveRight?: () => void;
+    isFirst?: boolean;
+    isLast?: boolean;
+}) => {
+    return (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-white/10 rounded-2xl shadow-2xl opacity-0 group-hover/book:opacity-100 scale-90 group-hover/book:scale-100 transition-all duration-300 z-30 ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                }}
+                className="p-2 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all"
+                title="Edit Details"
+            >
+                <Pencil size={14} />
+            </button>
+            {onDuplicate && (
+                <>
+                    <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDuplicate();
+                        }}
+                        className="p-2 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all"
+                        title="Duplicate"
+                    >
+                        <Copy size={14} />
+                    </button>
+                </>
+            )}
+            {onDelete && (
+                <>
+                    <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm("Are you sure you want to delete this book?")) {
+                                onDelete();
+                            }
+                        }}
+                        className="p-2 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-700 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all"
+                        title="Delete Book"
+                    >
+                        <Trash2 size={14} />
+                    </button>
+                </>
+            )}
+            {onMoveLeft && (
+                <>
+                    <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
+                    <button
+                        disabled={isFirst}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onMoveLeft();
+                        }}
+                        className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all disabled:opacity-20"
+                        title="Move Left"
+                    >
+                        <ArrowLeft size={14} />
+                    </button>
+                </>
+            )}
+            {onMoveRight && (
+                <>
+                    <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
+                    <button
+                        disabled={isLast}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onMoveRight();
+                        }}
+                        className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all disabled:opacity-20"
+                        title="Move Right"
+                    >
+                        <ArrowRight size={14} />
+                    </button>
+                </>
+            )}
+        </div>
+    );
+};
+
 const SubjectDetailView = ({ 
     subjectId, 
     subjects, 
@@ -4427,6 +4518,7 @@ const SubjectDetailView = ({
     onBack, 
     onBookClick, 
     onManageBook, 
+    onDeleteBook,
     onMoveBook,
     onDuplicateBook, 
     onReorderBooks,
@@ -4434,6 +4526,7 @@ const SubjectDetailView = ({
     onSimulate,
     onAddSection,
     onRemoveSection,
+    onReorderSections,
     setSectionEditConfig,
     navigate
 }: any) => {
@@ -4443,7 +4536,11 @@ const SubjectDetailView = ({
     // Auto-discover categories from materials if not explicitly defined
     const categories = useMemo(() => {
         if ((subject as any).categories && (subject as any).categories.length > 0) {
-            return (subject as any).categories;
+            return (subject as any).categories.map((c: any) => ({
+                ...c,
+                key: c.key || c.id,
+                id: c.id || c.key
+            }));
         }
         
         // Auto-generate from materials keys (only those with content)
@@ -4452,6 +4549,7 @@ const SubjectDetailView = ({
         );
         return keys.map(key => ({
             key,
+            id: key,
             label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()
         }));
     }, [subject]);
@@ -4463,6 +4561,14 @@ const SubjectDetailView = ({
                 <button onClick={onBack} className="group inline-flex items-center gap-3 text-zinc-500 hover:text-white transition-colors bg-white/5 border border-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest">
                     <ArrowRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={14} /> Back to Foundation
                 </button>
+                {currentUser?.role === 'admin' && (
+                    <button
+                        onClick={() => setSectionEditConfig({ isOpen: true, mode: 'add', type: 'general', subjectId })}
+                        className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 hover:shadow-red-600/40"
+                    >
+                        <Plus size={14} /> Create New Section
+                    </button>
+                )}
             </div>
 
             {/* Subject Hero Section */}
@@ -4494,28 +4600,69 @@ const SubjectDetailView = ({
                     const books: Book[] = materials[cat.key] || [];
                     const isEmpty = books.length === 0;
 
-                    if (isEmpty) return null;
+                    // Non-admins skip empty sections
+                    if (isEmpty && currentUser?.role !== 'admin') return null;
 
                     return (
                         <div key={cat.key} className="group/section relative mb-24">
                             <div className="space-y-6">
                                 <div id={cat.key} className="relative pl-6 border-l-4 border-red-600">
-                                    <h3 
-                                        className={`text-3xl md:text-5xl font-black text-white tracking-tighter uppercase transition-all duration-300 ${currentUser?.role === 'admin' ? 'hover:text-red-500 cursor-pointer' : ''}`}
-                                        onClick={() => {
-                                            if (currentUser?.role === 'admin') {
-                                                setSectionEditConfig({
-                                                    isOpen: true,
-                                                    mode: 'edit',
-                                                    type: 'general',
-                                                    subjectId,
-                                                    section: cat
-                                                });
-                                            }
-                                        }}
-                                    >
-                                        {cat.label}
-                                    </h3>
+                                    <div className="flex items-start justify-between gap-4">
+                                        <h3 
+                                            className={`text-3xl md:text-5xl font-black text-white tracking-tighter uppercase transition-all duration-300 ${currentUser?.role === 'admin' ? 'hover:text-red-500 cursor-pointer' : ''}`}
+                                            onClick={() => {
+                                                if (currentUser?.role === 'admin') {
+                                                    setSectionEditConfig({
+                                                        isOpen: true,
+                                                        mode: 'edit',
+                                                        type: 'general',
+                                                        subjectId,
+                                                        section: cat
+                                                    });
+                                                }
+                                            }}
+                                        >
+                                            {cat.label}
+                                        </h3>
+                                        {currentUser?.role === 'admin' && (
+                                            <div className="flex items-center gap-1.5 shrink-0 mt-1">
+                                                <button
+                                                    onClick={() => onManageBook('add', subjectId, cat.key)}
+                                                    className="flex items-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 hover:shadow-red-600/40"
+                                                    title="Add Book"
+                                                >
+                                                    <Plus size={12} /> Add Book
+                                                </button>
+                                                <button
+                                                    disabled={idx === 0}
+                                                    onClick={() => onReorderSections(subjectId, cat.key, 'up', 'general')}
+                                                    className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors disabled:opacity-20"
+                                                    title="Move Section Up"
+                                                >
+                                                    <ArrowUp size={14} />
+                                                </button>
+                                                <button
+                                                    disabled={idx === categories.length - 1}
+                                                    onClick={() => onReorderSections(subjectId, cat.key, 'down', 'general')}
+                                                    className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors disabled:opacity-20"
+                                                    title="Move Section Down"
+                                                >
+                                                    <ArrowDown size={14} />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        if (confirm(`Are you sure you want to delete the section "${cat.label}" and ALL its contents?`)) {
+                                                            onRemoveSection(subjectId, cat.key, 'general');
+                                                        }
+                                                    }}
+                                                    className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-red-600 hover:bg-red-100 transition-colors"
+                                                    title="Delete Section"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                     <div className="flex items-center gap-4 mt-2">
                                         <span className="text-[11px] font-mono font-bold text-zinc-600 uppercase tracking-widest">
                                             Sequence {(idx + 1).toString().padStart(2, '0')}
@@ -4528,7 +4675,18 @@ const SubjectDetailView = ({
                                 </div>
 
                                 <div className="mt-8">
-                                    {currentUser?.role === 'admin' ? (
+                                    {isEmpty ? (
+                                        // Admin sees empty section placeholder with Add Book CTA
+                                        <button
+                                            onClick={() => onManageBook('add', subjectId, cat.key)}
+                                            className="w-full py-10 border-2 border-dashed border-white/10 rounded-[2rem] flex flex-col items-center justify-center gap-3 text-zinc-500 hover:text-red-500 hover:border-red-500/40 transition-all group"
+                                        >
+                                            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-red-600/20 group-hover:text-red-500 transition-all">
+                                                <Plus size={24} />
+                                            </div>
+                                            <span className="font-black uppercase tracking-widest text-xs">Add First Book to {cat.label}</span>
+                                        </button>
+                                    ) : currentUser?.role === 'admin' ? (
                                         <UnifiedCarousel
                                             containerComponent={Reorder.Group}
                                             containerProps={{
@@ -4548,29 +4706,11 @@ const SubjectDetailView = ({
                                                         isFavorite={currentUser?.favorites?.includes(book.id)}
                                                         onSimulate={() => onSimulate(book)}
                                                     />
-                                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-white/10 rounded-2xl shadow-2xl opacity-0 group-hover/book:opacity-100 scale-90 group-hover/book:scale-100 transition-all duration-300 z-30 ring-1 ring-black/5">
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onManageBook('edit', subjectId, cat.key, book);
-                                                            }}
-                                                            className="p-2 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all"
-                                                            title="Edit Details"
-                                                        >
-                                                            <Pencil size={14} />
-                                                        </button>
-                                                        <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onDuplicateBook(subjectId, cat.key, book);
-                                                            }}
-                                                            className="p-2 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all"
-                                                            title="Duplicate"
-                                                        >
-                                                            <Copy size={14} />
-                                                        </button>
-                                                    </div>
+                                                    <AdminBookControls
+                                                        onEdit={() => onManageBook('edit', subjectId, cat.key, book)}
+                                                        onDelete={() => onDeleteBook(book.id, subjectId, cat.key)}
+                                                        onDuplicate={() => onDuplicateBook(subjectId, cat.key, book)}
+                                                    />
                                                 </Reorder.Item>
                                             ))}
                                         </UnifiedCarousel>
@@ -4634,12 +4774,15 @@ const ExamSubjectDetailView = ({
     onBack,
     onBookClick,
     onManageBook,
+    onDeleteBook,
     onMoveBook,
     onDuplicateBook,
     onReorderBooks,
     onToggleFavorite,
     onSimulate,
     onRemoveSection,
+    onAddSection,
+    onReorderSections,
     setSectionEditConfig
 }: any) => {
     const subject = subjects[subjectId];
@@ -4661,9 +4804,19 @@ const ExamSubjectDetailView = ({
 
     return (
         <div className="animate-view-transition px-4 md:px-12 pb-4">
-            <button onClick={onBack} className="group inline-flex items-center gap-3 text-zinc-500 hover:text-white mb-10 transition-colors bg-white/5 border border-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest">
-                <ArrowRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={14} /> Back to Hub
-            </button>
+            <div className="flex items-center justify-between mb-10">
+                <button onClick={onBack} className="group inline-flex items-center gap-3 text-zinc-500 hover:text-white transition-colors bg-white/5 border border-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    <ArrowRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={14} /> Back to Hub
+                </button>
+                {currentUser?.role === 'admin' && (
+                    <button
+                        onClick={() => setSectionEditConfig({ isOpen: true, mode: 'add', type: 'exam', subjectId })}
+                        className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 hover:shadow-red-600/40"
+                    >
+                        <Plus size={14} /> Create New Section
+                    </button>
+                )}
+            </div>
 
             <div className="relative group/header glass-card card-3d border-white/10 rounded-[2.5rem] md:rounded-[4rem] p-6 md:p-16 mb-12 md:mb-16 overflow-hidden shadow-2xl transform-gpu">
                 <div className={`absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-from),transparent_60%)] ${subject.color.replace('bg-', 'from-')}`}></div>
@@ -4690,7 +4843,7 @@ const ExamSubjectDetailView = ({
             </div>
 
             <div className="space-y-12">
-                {categories.map((cat: any) => {
+                {categories.map((cat: any, idx: number) => {
                     const materials = subject.materials as unknown as Record<string, Book[]>;
                     const books: Book[] = materials[cat.id] || [];
                     const isEmpty = books.length === 0;
@@ -4717,13 +4870,29 @@ const ExamSubjectDetailView = ({
                                             {cat.label}
                                         </h3>
                                         {currentUser?.role === 'admin' && (
-                                            <div className="flex items-center gap-1">
+                                            <div className="flex items-center gap-1.5">
                                                 <button
                                                     onClick={() => onManageBook('add', subjectId, cat.id)}
                                                     className="p-2 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 hover:bg-red-200 transition-colors"
                                                     title="Add Book"
                                                 >
                                                     <Plus size={16} />
+                                                </button>
+                                                <button
+                                                    disabled={idx === 0}
+                                                    onClick={() => onReorderSections(subjectId, cat.id, 'up', 'exam')}
+                                                    className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors disabled:opacity-20"
+                                                    title="Move Section Up"
+                                                >
+                                                    <ArrowUp size={16} />
+                                                </button>
+                                                <button
+                                                    disabled={idx === categories.length - 1}
+                                                    onClick={() => onReorderSections(subjectId, cat.id, 'down', 'exam')}
+                                                    className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors disabled:opacity-20"
+                                                    title="Move Section Down"
+                                                >
+                                                    <ArrowDown size={16} />
                                                 </button>
                                                 <button
                                                     onClick={() => {
@@ -4769,52 +4938,15 @@ const ExamSubjectDetailView = ({
                                                             isFavorite={currentUser?.favorites?.includes(book.id)}
                                                             onSimulate={() => onSimulate(book)}
                                                         />
-                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-white/10 rounded-2xl shadow-2xl opacity-0 group-hover/book:opacity-100 scale-90 group-hover/book:scale-100 transition-all duration-300 z-30 ring-1 ring-black/5">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onManageBook('edit', subjectId, cat.id, book);
-                                                                }}
-                                                                className="p-2 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all"
-                                                                title="Edit Details"
-                                                            >
-                                                                <Pencil size={14} />
-                                                            </button>
-                                                            <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onDuplicateBook(subjectId, cat.id, book);
-                                                                }}
-                                                                className="p-2 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all"
-                                                                title="Duplicate"
-                                                            >
-                                                                <Copy size={14} />
-                                                            </button>
-                                                            <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
-                                                            <button
-                                                                disabled={idx === 0}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onMoveBook(subjectId, cat.id, book.id, 'left');
-                                                                }}
-                                                                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all disabled:opacity-20"
-                                                                title="Move Left"
-                                                            >
-                                                                <ArrowLeft size={14} />
-                                                            </button>
-                                                            <button
-                                                                disabled={idx === books.length - 1}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onMoveBook(subjectId, cat.id, book.id, 'right');
-                                                                }}
-                                                                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all disabled:opacity-20"
-                                                                title="Move Right"
-                                                            >
-                                                                <ArrowRight size={14} />
-                                                            </button>
-                                                        </div>
+                                                    <AdminBookControls
+                                                        onEdit={() => onManageBook('edit', subjectId, cat.id, book)}
+                                                        onDelete={() => onDeleteBook(book.id, subjectId, cat.id)}
+                                                        onDuplicate={() => onDuplicateBook(subjectId, cat.id, book)}
+                                                        onMoveLeft={() => onMoveBook(subjectId, cat.id, book.id, 'left')}
+                                                        onMoveRight={() => onMoveBook(subjectId, cat.id, book.id, 'right')}
+                                                        isFirst={idx === 0}
+                                                        isLast={idx === books.length - 1}
+                                                    />
                                                     </Reorder.Item>
                                                 ))}
                                             </UnifiedCarousel>
@@ -4875,6 +5007,7 @@ const PracticalSubjectDetailView = ({
     navigate,
     onBookClick,
     onManageBook,
+    onDeleteBook,
     onMoveBook,
     onDuplicateBook,
     onReorderBooks,
@@ -4883,6 +5016,7 @@ const PracticalSubjectDetailView = ({
     onRenameSection,
     onRemoveSection,
     onAddSection,
+    onReorderSections,
     setSectionEditConfig
 }: any) => {
     const [showBlueprintModal, setShowBlueprintModal] = useState(false);
@@ -4928,6 +5062,20 @@ const PracticalSubjectDetailView = ({
 
     return (
         <div className="animate-view-transition px-4 md:px-12 pb-32 overflow-x-hidden">
+            {/* Header Navigation */}
+            <div className="flex items-center justify-between mb-10 mt-6">
+                <button onClick={onBack} className="group inline-flex items-center gap-3 text-zinc-500 hover:text-white transition-colors bg-white/5 border border-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    <ArrowRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={14} /> Back to Vault
+                </button>
+                {currentUser?.role === 'admin' && (
+                    <button
+                        onClick={() => setSectionEditConfig({ isOpen: true, mode: 'add', type: 'practical', subjectId })}
+                        className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 hover:shadow-red-600/40"
+                    >
+                        <Plus size={14} /> Create New Section
+                    </button>
+                )}
+            </div>
             <div className="relative group/header glass-card card-3d border-white/10 rounded-[2.5rem] md:rounded-[4rem] p-6 md:p-16 mb-12 md:mb-16 overflow-hidden shadow-2xl transform-gpu">
                 {/* Background Atmosphere - Optimized */}
                 <div className={`absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-from),transparent_60%)] ${subject.color.replace('bg-', 'from-')}`}></div>
@@ -5591,22 +5739,55 @@ const PracticalSubjectDetailView = ({
                         <div key={cat.id} className="group/section relative mb-24">
                             <div className="space-y-6">
                                 <div id={cat.id} className={`relative pl-6 border-l-4 ${accentBg}`}>
-                                    <h3 
-                                        className={`text-3xl md:text-5xl font-black text-white tracking-tighter uppercase transition-all duration-300 ${currentUser?.role === 'admin' ? 'hover:text-red-500 cursor-pointer' : ''}`}
-                                        onClick={() => {
-                                            if (currentUser?.role === 'admin') {
-                                                setSectionEditConfig({
-                                                    isOpen: true,
-                                                    mode: 'edit',
-                                                    type: 'practical',
-                                                    subjectId,
-                                                    section: cat
-                                                });
-                                            }
-                                        }}
-                                    >
-                                        {cat.label}
-                                    </h3>
+                                    <div className="flex items-center gap-4 justify-between md:justify-start">
+                                        <h3 
+                                            className={`text-3xl md:text-5xl font-black text-white tracking-tighter uppercase transition-all duration-300 ${currentUser?.role === 'admin' ? 'hover:text-red-500 cursor-pointer' : ''}`}
+                                            onClick={() => {
+                                                if (currentUser?.role === 'admin') {
+                                                    setSectionEditConfig({
+                                                        isOpen: true,
+                                                        mode: 'edit',
+                                                        type: 'practical',
+                                                        subjectId,
+                                                        section: cat
+                                                    });
+                                                }
+                                            }}
+                                        >
+                                            {cat.label}
+                                        </h3>
+                                        {currentUser?.role === 'admin' && (
+                                            <div className="flex items-center gap-1.5 ml-2">
+                                                <button
+                                                    disabled={idx === 0}
+                                                    onClick={() => onReorderSections(subjectId, cat.id, 'up', 'practical')}
+                                                    className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors disabled:opacity-20"
+                                                    title="Move Section Up"
+                                                >
+                                                    <ArrowUp size={16} />
+                                                </button>
+                                                <button
+                                                    disabled={idx === categories.length - 1}
+                                                    onClick={() => onReorderSections(subjectId, cat.id, 'down', 'practical')}
+                                                    className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors disabled:opacity-20"
+                                                    title="Move Section Down"
+                                                >
+                                                    <ArrowDown size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        if (confirm(`Are you sure you want to delete the section "${cat.label}" and ALL its contents?`)) {
+                                                            onRemoveSection(subjectId, cat.id);
+                                                        }
+                                                    }}
+                                                    className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-red-600 hover:bg-red-100 transition-colors"
+                                                    title="Delete Section"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                     <div className="flex items-center gap-4 mt-2">
                                         <span className="text-[11px] font-mono font-bold text-zinc-600 uppercase tracking-widest">
                                             Sequence {(idx + 1).toString().padStart(2, '0')}
@@ -5655,52 +5836,15 @@ const PracticalSubjectDetailView = ({
                                                             isFavorite={currentUser?.favorites?.includes(book.id)}
                                                             onSimulate={() => onSimulate(book)}
                                                         />
-                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-white/10 rounded-2xl shadow-2xl opacity-0 group-hover/book:opacity-100 scale-90 group-hover/book:scale-100 transition-all duration-300 z-30 ring-1 ring-black/5">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onManageBook('edit', subjectId, cat.id, book);
-                                                                }}
-                                                                className="p-2 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all"
-                                                                title="Edit Details"
-                                                            >
-                                                                <Pencil size={14} />
-                                                            </button>
-                                                            <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onDuplicateBook(subjectId, cat.id, book);
-                                                                }}
-                                                                className="p-2 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all"
-                                                                title="Duplicate"
-                                                            >
-                                                                <Copy size={14} />
-                                                            </button>
-                                                            <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
-                                                            <button
-                                                                disabled={idx === 0}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onMoveBook(subjectId, cat.id, book.id, 'left');
-                                                                }}
-                                                                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all disabled:opacity-20"
-                                                                title="Move Left"
-                                                            >
-                                                                <ArrowLeft size={14} />
-                                                            </button>
-                                                            <button
-                                                                disabled={idx === books.length - 1}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onMoveBook(subjectId, cat.id, book.id, 'right');
-                                                                }}
-                                                                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all disabled:opacity-20"
-                                                                title="Move Right"
-                                                            >
-                                                                <ArrowRight size={14} />
-                                                            </button>
-                                                        </div>
+                                                    <AdminBookControls
+                                                        onEdit={() => onManageBook('edit', subjectId, cat.id, book)}
+                                                        onDelete={() => onDeleteBook(book.id, subjectId, cat.id)}
+                                                        onDuplicate={() => onDuplicateBook(subjectId, cat.id, book)}
+                                                        onMoveLeft={() => onMoveBook(subjectId, cat.id, book.id, 'left')}
+                                                        onMoveRight={() => onMoveBook(subjectId, cat.id, book.id, 'right')}
+                                                        isFirst={idx === 0}
+                                                        isLast={idx === books.length - 1}
+                                                    />
                                                     </Reorder.Item>
                                                 ))}
                                             </UnifiedCarousel>
@@ -5720,6 +5864,17 @@ const PracticalSubjectDetailView = ({
                                             </UnifiedCarousel>
                                         )
                                     ) : (
+                                        currentUser?.role === 'admin' ? (
+                                            <button
+                                                onClick={() => onManageBook('add', subjectId, cat.id)}
+                                                className="w-full py-10 border-2 border-dashed border-white/10 rounded-[2rem] flex flex-col items-center justify-center gap-3 text-zinc-500 hover:text-emerald-400 hover:border-emerald-500/40 transition-all group"
+                                            >
+                                                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-emerald-600/20 group-hover:text-emerald-400 transition-all">
+                                                    <Plus size={24} />
+                                                </div>
+                                                <span className="font-black uppercase tracking-widest text-xs">Add First Book to {cat.label}</span>
+                                            </button>
+                                        ) : (
                                         <div id="practicalMaterials-bot" className="bg-gradient-to-r from-emerald-600/10 to-teal-600/10 border border-emerald-500/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 dark:from-emerald-900/10 dark:to-teal-900/10">
                                             <div className="space-y-2 text-center md:text-left">
                                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest">
@@ -5742,6 +5897,7 @@ const PracticalSubjectDetailView = ({
                                                 Open in Telegram
                                             </a>
                                         </div>
+                                        )
                                     )}
                                 </div>
                             </div>
@@ -7039,8 +7195,10 @@ const ProfileView = ({
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [editData, setEditData] = useState<AppUser>(user);
-    const [adminViewMode, setAdminViewMode] = useState<'users' | 'activities' | 'analytics'>('users');
+    const [adminViewMode, setAdminViewMode] = useState<'users' | 'activities' | 'analytics' | 'books'>('users');
     const [searchTerm, setSearchTerm] = useState('');
+    const [librarySearch, setLibrarySearch] = useState('');
+    const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
 
     const recentBooksWithLoc: { book: Book, sId: string, secId: string }[] = [];
     recentIds.forEach(id => {
@@ -7070,8 +7228,22 @@ const ProfileView = ({
         if (user.role === 'admin') {
             AuthService.getAllUsersCentralized().then(setAllUsers);
             ActivityService.getActivities(200).then(setAllActivities);
+
+            // Fetch audit logs
+            const auditCol = collection(db, 'admin-audit');
+            const q = query(auditCol, limit(50));
+            getDocs(q).then(snap => {
+                const logs: AdminAuditLog[] = [];
+                snap.forEach(docSnap => {
+                    logs.push({ id: docSnap.id, ...docSnap.data() } as AdminAuditLog);
+                });
+                logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+                setAuditLogs(logs);
+            }).catch(err => {
+                console.error("Failed to load audit logs:", err);
+            });
         }
-    }, [user]);
+    }, [user, adminViewMode]);
 
     const handleSave = async () => {
         setIsLoading(true);
@@ -7098,6 +7270,33 @@ const ProfileView = ({
             reader.readAsDataURL(file);
         }
     };
+
+    const allBooks = useMemo(() => {
+        const list: { book: Book; subjectId: string; sectionId: string; subjectName: string }[] = [];
+        Object.entries(subjects).forEach(([sId, sub]) => {
+            Object.entries(sub.materials || {}).forEach(([secId, rawBooks]) => {
+                if (Array.isArray(rawBooks)) {
+                    rawBooks.forEach(b => {
+                        list.push({ book: b, subjectId: sId, sectionId: secId, subjectName: sub.name });
+                    });
+                }
+            });
+        });
+        return list;
+    }, [subjects]);
+
+    const orphans = useMemo(() => {
+        return allBooks.filter(item => !item.book.downloadUrl || item.book.downloadUrl.trim() === '');
+    }, [allBooks]);
+
+    const filteredLibraryBooks = useMemo(() => {
+        if (!librarySearch) return allBooks;
+        const q = librarySearch.toLowerCase().trim();
+        return allBooks.filter(item => 
+            item.book.title.toLowerCase().includes(q) || 
+            (item.book.author || '').toLowerCase().includes(q)
+        );
+    }, [allBooks, librarySearch]);
 
     return (
         <div className="pt-6 md:pt-24 px-4 max-w-7xl mx-auto space-y-8 md:space-y-12 animate-view-transition pb-40 overflow-x-hidden">
@@ -7311,16 +7510,18 @@ const ProfileView = ({
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                            <div className="relative group/search flex-1 min-w-[240px]">
-                                <input
-                                    type="text"
-                                    placeholder="Search command registry..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl px-11 py-3 text-sm font-medium focus:ring-2 focus:ring-red-500 outline-none transition-all w-full shadow-sm"
-                                />
-                                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within/search:text-red-500 transition-colors" />
-                            </div>
+                            {adminViewMode !== 'books' && (
+                                <div className="relative group/search flex-1 min-w-[240px]">
+                                    <input
+                                        type="text"
+                                        placeholder="Search command registry..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl px-11 py-3 text-sm font-medium focus:ring-2 focus:ring-red-500 outline-none transition-all w-full shadow-sm"
+                                    />
+                                    <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within/search:text-red-500 transition-colors" />
+                                </div>
+                            )}
 
                             <div className="flex items-center gap-1.5 p-1.5 bg-zinc-200/50 dark:bg-zinc-800 rounded-[1.25rem] border border-zinc-200/50 dark:border-zinc-700 shadow-inner">
                                 <button
@@ -7336,7 +7537,13 @@ const ProfileView = ({
                                     Logs
                                 </button>
                                 <button
-                                    onClick={() => setAdminViewMode('analytics' as any)}
+                                    onClick={() => setAdminViewMode('books')}
+                                    className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${adminViewMode === 'books' ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+                                >
+                                    Library
+                                </button>
+                                <button
+                                    onClick={() => setAdminViewMode('analytics')}
                                     className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${adminViewMode === 'analytics' ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
                                 >
                                     Analytics
@@ -7462,6 +7669,131 @@ const ProfileView = ({
                                             </div>
                                         </div>
                                     ))}
+                            </div>
+                        </div>
+                    ) : adminViewMode === 'books' ? (
+                        <div className="space-y-8 animate-in fade-in duration-300">
+                            {/* Stats Cards Row */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div className="bg-white dark:bg-zinc-900 p-6 rounded-[2rem] border border-zinc-200 dark:border-white/5 shadow-xl flex flex-col justify-between">
+                                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Books Sourced</p>
+                                    <h4 className="text-4xl font-serif text-slate-900 dark:text-white">{allBooks.length}</h4>
+                                </div>
+                                <div className="bg-white dark:bg-zinc-900 p-6 rounded-[2rem] border border-zinc-200 dark:border-white/5 shadow-xl flex flex-col justify-between">
+                                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Orphaned Records (No Link)</p>
+                                    <h4 className={`text-4xl font-serif ${orphans.length > 0 ? 'text-red-500 animate-pulse font-black' : 'text-emerald-500'}`}>
+                                        {orphans.length}
+                                    </h4>
+                                </div>
+                                <div className="bg-white dark:bg-zinc-900 p-6 rounded-[2rem] border border-zinc-200 dark:border-white/5 shadow-xl flex flex-col justify-between">
+                                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Firestore Sync Status</p>
+                                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5 mt-2">
+                                        <span className="relative flex h-2.5 w-2.5">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                                        </span>
+                                        Authoritative & Active
+                                    </span>
+                                </div>
+                                <div className="bg-white dark:bg-zinc-900 p-6 rounded-[2rem] border border-zinc-200 dark:border-white/5 shadow-xl flex flex-col justify-between">
+                                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Quick Action</p>
+                                    <button
+                                        onClick={() => onManageBook('add', Object.keys(subjects)[0] || 'anatomy', 'textbooks')}
+                                        className="mt-2 px-4 py-2.5 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-center shadow-lg shadow-red-500/20"
+                                    >
+                                        + Add New Book
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Book Search Directory & Orphans */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                {/* Search List */}
+                                <div className="lg:col-span-2 bg-white dark:bg-zinc-950 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-2xl p-6 md:p-8 space-y-6">
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Active Inventory</h3>
+                                        <span className="text-xs font-mono text-zinc-500">{filteredLibraryBooks.length} records matching</span>
+                                    </div>
+                                    
+                                    <div className="relative group/library-search">
+                                        <input
+                                            type="text"
+                                            placeholder="Search book catalog by title or author..."
+                                            value={librarySearch}
+                                            onChange={e => setLibrarySearch(e.target.value)}
+                                            className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl px-11 py-3.5 text-sm font-medium focus:ring-2 focus:ring-red-500 outline-none text-slate-900 dark:text-white transition-all shadow-sm"
+                                        />
+                                        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within/library-search:text-red-500 transition-colors" />
+                                    </div>
+
+                                    <div className="space-y-3 max-h-[450px] overflow-y-auto pr-2 no-scrollbar">
+                                        {filteredLibraryBooks.map(item => (
+                                            <div key={item.book.id} className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-2xl hover:border-red-500/20 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
+                                                <div className="flex flex-col min-w-0 pr-4">
+                                                    <span className="text-sm font-bold text-slate-900 dark:text-zinc-200 truncate leading-tight">{item.book.title}</span>
+                                                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium mt-1">
+                                                        By {item.book.author} • <span className="text-red-500 font-bold">{item.subjectName}</span> &gt; <span className="text-blue-500 font-bold">{item.sectionId}</span>
+                                                    </span>
+                                                </div>
+                                                <button
+                                                    onClick={() => onManageBook('edit', item.subjectId, item.sectionId, item.book)}
+                                                    className="px-4 py-2 bg-zinc-200 hover:bg-red-600 dark:bg-zinc-800 dark:hover:bg-red-700 text-slate-900 hover:text-white dark:text-zinc-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0"
+                                                >
+                                                    Modify
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {filteredLibraryBooks.length === 0 && (
+                                            <p className="text-center text-zinc-500 py-10 text-sm font-medium">No inventory records match query.</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Sidebar: Orphans & Stats */}
+                                <div className="space-y-8">
+                                    {/* Orphans Panel */}
+                                    <div className="bg-white dark:bg-zinc-950 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-2xl p-6 space-y-4">
+                                        <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest">Broken Records Detector</h3>
+                                        <div className="space-y-3 max-h-[220px] overflow-y-auto pr-2 no-scrollbar">
+                                            {orphans.map(item => (
+                                                <div key={item.book.id} className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-500/20 rounded-xl flex items-center justify-between">
+                                                    <div className="flex flex-col max-w-[70%]">
+                                                        <span className="text-xs font-bold text-red-700 dark:text-red-200 truncate leading-tight">{item.book.title}</span>
+                                                        <span className="text-[9px] text-red-500/80 font-mono mt-0.5">{item.subjectName}</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => onManageBook('edit', item.subjectId, item.sectionId, item.book)}
+                                                        className="px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shrink-0"
+                                                    >
+                                                        Link
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {orphans.length === 0 && (
+                                                <p className="text-xs text-zinc-500 py-4 text-center font-medium">✓ No broken download links identified.</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Audit Logs */}
+                                    <div className="bg-white dark:bg-zinc-950 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-2xl p-6 space-y-4">
+                                        <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest">Admin Actions Audit</h3>
+                                        <div className="space-y-3 max-h-[260px] overflow-y-auto pr-2 no-scrollbar">
+                                            {auditLogs.map(log => (
+                                                <div key={log.id} className="p-3 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-xl space-y-1">
+                                                    <div className="flex justify-between text-[8px] font-bold text-zinc-500">
+                                                        <span>{log.adminEmail.split('@')[0]}</span>
+                                                        <span>{new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                                    </div>
+                                                    <p className="text-xs text-slate-800 dark:text-zinc-300 font-medium leading-normal">{log.details}</p>
+                                                </div>
+                                            ))}
+                                            {auditLogs.length === 0 && (
+                                                <p className="text-xs text-zinc-500 py-4 text-center font-medium">No admin actions recorded yet.</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ) : (
@@ -8012,6 +8344,30 @@ export default function DrAstroApp() {
         setToast({ message, type });
     };
 
+    const writeAuditLog = async (
+        action: AdminAction,
+        targetSubjectId: string,
+        details: string,
+        targetSectionId?: string,
+        targetBookId?: string
+    ) => {
+        try {
+            const auditCol = collection(db, 'admin-audit');
+            const logEntry: AdminAuditLog = {
+                adminEmail: currentUser?.email || 'unknown-admin',
+                action,
+                targetSubjectId,
+                targetSectionId,
+                targetBookId,
+                details,
+                timestamp: new Date().toISOString()
+            };
+            await addDoc(auditCol, logEntry);
+        } catch (err) {
+            console.error("Failed to write audit log:", err);
+        }
+    };
+
     const { addRecent } = useRecentlyViewed();
     const { saveScore } = useQuizPerformance();
 
@@ -8083,77 +8439,137 @@ export default function DrAstroApp() {
         try {
             const subjectsCol = collection(db, 'subjects-v2');
             const querySnap = await getDocs(subjectsCol);
-            if (!querySnap.empty) {
-                const cloudData: Record<string, SubjectData> = {};
-                querySnap.forEach(docSnap => {
-                    cloudData[docSnap.id] = docSnap.data() as SubjectData;
-                });
 
-                // SMART MERGE: Preserve architecture from code while keeping cloud data
-                const merged = { ...SUBJECTS };
-                Object.keys(cloudData).forEach(key => {
-                    const cloudSub = cloudData[key];
-                    const codeSub = SUBJECTS[key];
-                    
-                    if (codeSub) {
-                        merged[key] = {
-                            ...codeSub,
-                            ...cloudSub,
-                            // Prioritize Code for Architecture if Cloud is empty/stale
-                            practicalSections: (cloudSub.practicalSections && cloudSub.practicalSections.length > 0) 
-                                ? cloudSub.practicalSections 
-                                : codeSub.practicalSections,
-                            examSections: (cloudSub.examSections && cloudSub.examSections.length > 0)
-                                ? cloudSub.examSections
-                                : codeSub.examSections,
-                            // Merge Materials to prevent data loss
-                            materials: {
-                                ...(codeSub.materials || {}),
-                                ...(cloudSub.materials || {})
-                            }
-                        };
-                    } else {
-                        merged[key] = cloudSub;
-                    }
-                });
+            // ═══════════════════════════════════════════════════════════
+            // CLOUD-FIRST STRATEGY: Firestore is the ONLY source of truth
+            // If cloud is empty → one-time auto-seed from SUBJECTS defaults
+            // After seeding, only cloud data is ever used
+            // ═══════════════════════════════════════════════════════════
 
-                // DYNAMIC NORMALIZER
-                Object.keys(merged).forEach(sId => {
-                    const sub = merged[sId];
-                    if (sub.materials && sub.materials.grossAnatomy) {
-                        const gross = [...sub.materials.grossAnatomy];
-                        const bdcBooks = gross.filter(b => b.title.includes("BD Chaurasia") || b.title.includes("BDC"));
-                        
-                        if (bdcBooks.length > 1 && !bdcBooks.some(b => b.parts && b.parts.length > 0)) {
-                            const master = bdcBooks[0];
-                            const parts = bdcBooks.map((b, i) => ({
-                                id: b.id,
-                                title: b.title.includes("Vol") ? b.title : `Volume ${i + 1}`,
-                                downloadUrl: b.downloadUrl
-                            }));
-
-                            const filtered = gross.filter(b => !bdcBooks.find(bdc => bdc.id === b.id));
-                            sub.materials.grossAnatomy = [
-                                ...filtered,
-                                { ...master, title: "BD Chaurasia - Gross Anatomy", parts }
-                            ];
-                        }
-                    }
-                });
-                return merged;
+            if (querySnap.empty) {
+                // ONE-TIME SEED: Write all SUBJECTS to Firestore on first run
+                console.log('[DrAstro] Firestore empty — seeding from defaults...');
+                try {
+                    await Promise.all(
+                        Object.keys(SUBJECTS).map(key =>
+                            setDoc(doc(db, 'subjects-v2', key), sanitizeData(SUBJECTS[key]))
+                        )
+                    );
+                    console.log('[DrAstro] Cloud seeded successfully.');
+                } catch (seedErr) {
+                    console.warn('[DrAstro] Seeding failed (read-only mode):', seedErr);
+                }
+                return SUBJECTS;
             }
-            return SUBJECTS;
+
+            const cloudData: Record<string, SubjectData> = {};
+            querySnap.forEach(docSnap => {
+                cloudData[docSnap.id] = docSnap.data() as SubjectData;
+            });
+
+            // Build final subjects: cloud is authoritative, code provides icon/color/structure fallback
+            const merged: Record<string, SubjectData> = {};
+
+            // Include all subjects (cloud + any code-only ones not yet synced)
+            const allKeys = new Set([...Object.keys(SUBJECTS), ...Object.keys(cloudData)]);
+
+            allKeys.forEach(key => {
+                const cloudSub = cloudData[key];
+                const codeSub = SUBJECTS[key];
+
+                if (cloudSub && codeSub) {
+                    // STRICT CLOUD WINS: Use cloud materials entirely, only supplement with code structure
+                    const cloudMaterials = cloudSub.materials || {};
+                    const codeMaterials = codeSub.materials || {};
+
+                    // Build merged materials: cloud section completely replaces code section
+                    // For sections in code but NOT in cloud yet, keep code as initial state
+                    const mergedMaterials: Record<string, any> = {};
+                    const allSectionKeys = new Set([
+                        ...Object.keys(codeMaterials),
+                        ...Object.keys(cloudMaterials)
+                    ]);
+                    allSectionKeys.forEach(sectionKey => {
+                        const cloudBooks = (cloudMaterials as Record<string, any>)[sectionKey];
+                        const codeBooks = (codeMaterials as Record<string, any>)[sectionKey];
+                        // Cloud always wins if it has data for this section
+                        if (cloudBooks !== undefined) {
+                            mergedMaterials[sectionKey] = cloudBooks;
+                        } else {
+                            // Section exists in code but not in cloud yet → preserve as-is
+                            mergedMaterials[sectionKey] = codeBooks;
+                        }
+                    });
+
+                    merged[key] = {
+                        ...codeSub,
+                        ...cloudSub,
+                        id: codeSub.id || key,
+                        name: cloudSub.name || codeSub.name,
+                        icon: cloudSub.icon || codeSub.icon,
+                        color: cloudSub.color || codeSub.color,
+                        description: cloudSub.description || codeSub.description,
+                        years: cloudSub.years || codeSub.years,
+                        // Cloud wins for dynamic sections (admin-created)
+                        practicalSections: (cloudSub.practicalSections && cloudSub.practicalSections.length > 0)
+                            ? cloudSub.practicalSections
+                            : (codeSub.practicalSections || []),
+                        examSections: (cloudSub.examSections && cloudSub.examSections.length > 0)
+                            ? cloudSub.examSections
+                            : (codeSub.examSections || []),
+                        materials: mergedMaterials as SubjectData['materials']
+                    };
+                } else if (cloudSub) {
+                    // Cloud-only subject (added by admin, not in code) — use as-is
+                    merged[key] = {
+                        ...cloudSub,
+                        id: cloudSub.id || key,
+                        icon: cloudSub.icon || 'BookOpen',
+                        color: cloudSub.color || 'bg-slate-500'
+                    };
+                } else if (codeSub) {
+                    // Code-only subject (not yet in cloud) — use code defaults
+                    merged[key] = codeSub;
+                }
+            });
+
+            // DYNAMIC NORMALIZER: Consolidate multi-volume BDC entries
+            Object.keys(merged).forEach(sId => {
+                const sub = merged[sId];
+                if (sub.materials && sub.materials.grossAnatomy) {
+                    const gross = [...sub.materials.grossAnatomy];
+                    const bdcBooks = gross.filter(b => b.title.includes("BD Chaurasia") || b.title.includes("BDC"));
+
+                    if (bdcBooks.length > 1 && !bdcBooks.some(b => b.parts && b.parts.length > 0)) {
+                        const master = bdcBooks[0];
+                        const parts = bdcBooks.map((b, i) => ({
+                            id: b.id,
+                            title: b.title.includes("Vol") ? b.title : `Volume ${i + 1}`,
+                            downloadUrl: b.downloadUrl
+                        }));
+                        const filtered = gross.filter(b => !bdcBooks.find(bdc => bdc.id === b.id));
+                        sub.materials.grossAnatomy = [
+                            ...filtered,
+                            { ...master, title: "BD Chaurasia - Gross Anatomy", parts }
+                        ];
+                    }
+                }
+            });
+
+            return merged;
         } catch (error: any) {
             console.error("Cloud Sync Error:", error);
-            setSubjectsSyncError(error.code === 'permission-denied' ? 'Permission Denied' : error.message);
+            setSubjectsSyncError(error.code === 'permission-denied' ? 'Permission Denied — Check Firestore Rules' : error.message);
+            // Return code defaults as safe fallback when offline
             return SUBJECTS;
         }
     };
 
     const { data: subjectsData, error: swrError, mutate: mutateSubjects } = useSWR('subjects-v2', fetchSubjects, {
-        revalidateOnFocus: false,
-        dedupingInterval: 300000, // 5-minute cache
-        fallbackData: SUBJECTS
+        revalidateOnFocus: true,      // Re-fetch when user returns to tab
+        revalidateOnReconnect: true,  // Re-fetch on network reconnect
+        dedupingInterval: 5000,       // 5s dedup — fast local updates
+        refreshInterval: 30000,       // Auto-poll every 30s for live cross-tab updates
     });
 
     const subjects = subjectsData || SUBJECTS;
@@ -8168,7 +8584,7 @@ export default function DrAstroApp() {
     const [sectionEditConfig, setSectionEditConfig] = useState<{
         isOpen: boolean;
         mode: 'add' | 'edit';
-        type: 'practical' | 'exam';
+        type: 'practical' | 'exam' | 'general';
         subjectId: string;
         section?: { id: string, label: string, description?: string };
     }>({ isOpen: false, mode: 'add', type: 'practical', subjectId: '' });
@@ -8196,6 +8612,7 @@ export default function DrAstroApp() {
             
             try {
                 await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+                await writeAuditLog('section_renamed', subjectId, `Renamed practical section to ${newLabel}`, sectionId);
                 showToast(`Section ${newLabel} updated`, "success");
             } catch (error) {
                 console.error("Error updating section:", error);
@@ -8223,6 +8640,7 @@ export default function DrAstroApp() {
             
             try {
                 await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+                await writeAuditLog('section_renamed', subjectId, `Renamed exam section to ${newLabel}`, sectionId);
                 showToast(`Section ${newLabel} updated`, 'success');
             } catch (err) {
                 console.error('Failed to sync section update:', err);
@@ -8250,6 +8668,7 @@ export default function DrAstroApp() {
         
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await writeAuditLog('section_removed', subjectId, `Removed exam section ${sectionId}`, sectionId);
             showToast('Section removed permanently', 'success');
         } catch (err) {
             console.error('Failed to remove section:', err);
@@ -8284,6 +8703,7 @@ export default function DrAstroApp() {
 
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await writeAuditLog('section_added', subjectId, `Added exam section ${label}`, id);
             showToast(`Exam section ${label} created`, 'success');
         } catch (err) {
             console.error('Failed to sync new section:', err);
@@ -8343,6 +8763,7 @@ export default function DrAstroApp() {
         
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await writeAuditLog('section_added', subjectId, `Added practical section ${label}`, id);
             showToast("Section added successfully", "success");
         } catch (error) {
             console.error("Error adding section:", error);
@@ -8369,10 +8790,181 @@ export default function DrAstroApp() {
         
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await writeAuditLog('section_removed', subjectId, `Removed practical section ${sectionId}`, sectionId);
             showToast('Section removed permanently', 'success');
         } catch (err) {
             console.error('Failed to remove section:', err);
             showToast('Failed to sync removal.', 'error');
+        }
+    };
+
+    const handleGeneralAddSection = async (subjectId: string, label: string, description?: string) => {
+        if (!subjects[subjectId]) return;
+        const updatedSubjects = { ...subjects };
+        const subject = { ...updatedSubjects[subjectId] };
+        
+        if (!subject.categories) {
+            subject.categories = [];
+        }
+        
+        const key = label.toLowerCase().replace(/\s+/g, '-');
+        if (subject.categories.some(s => s.key === key)) {
+            showToast("Section already exists", "error");
+            return;
+        }
+        
+        subject.categories = [...subject.categories, { key, label, description }];
+        if (!subject.materials[key]) {
+            subject.materials = { ...subject.materials, [key]: [] };
+        }
+        
+        updatedSubjects[subjectId] = subject;
+        mutateSubjects(updatedSubjects, false);
+        
+        try {
+            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await writeAuditLog('section_added', subjectId, `Added general section ${label}`, key);
+            showToast("Section added successfully", "success");
+        } catch (error) {
+            console.error("Error adding section:", error);
+            showToast("Failed to add section", "error");
+        }
+    };
+
+    const handleGeneralRenameSection = async (subjectId: string, sectionId: string, newLabel: string, newDescription?: string) => {
+        if (!subjects[subjectId]) return;
+        const updatedSubjects = { ...subjects };
+        const subject = { ...updatedSubjects[subjectId] };
+        
+        if (!subject.categories) {
+            const keys = Object.keys(subject.materials || {}).filter(k => 
+                Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+            );
+            subject.categories = keys.map(key => ({
+                key,
+                label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()
+            }));
+        }
+        
+        const section = (subject.categories || []).find((s: any) => s.key === sectionId);
+        if (section) {
+            section.label = newLabel;
+            section.description = newDescription;
+            updatedSubjects[subjectId] = subject;
+            mutateSubjects(updatedSubjects, false);
+            
+            try {
+                await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+                await writeAuditLog('section_renamed', subjectId, `Renamed general section to ${newLabel}`, sectionId);
+                showToast(`Section ${newLabel} updated`, "success");
+            } catch (error) {
+                console.error("Error updating section:", error);
+                showToast("Failed to update section", "error");
+            }
+        }
+    };
+
+    const handleGeneralRemoveSection = async (subjectId: string, sectionId: string) => {
+        if (!subjects[subjectId]) return;
+        const updatedSubjects = { ...subjects };
+        const subject = { ...updatedSubjects[subjectId] };
+        
+        if (!subject.categories) {
+            const keys = Object.keys(subject.materials || {}).filter(k => 
+                Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+            );
+            subject.categories = keys.map(key => ({
+                key,
+                label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()
+            }));
+        }
+        
+        subject.categories = subject.categories.filter(s => s.key !== sectionId);
+        // Clean up materials
+        const newMaterials = { ...subject.materials };
+        delete (newMaterials as any)[sectionId];
+        subject.materials = newMaterials;
+        
+        updatedSubjects[subjectId] = subject;
+        mutateSubjects(updatedSubjects, false);
+        
+        try {
+            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await writeAuditLog('section_removed', subjectId, `Removed general section ${sectionId}`, sectionId);
+            showToast('Section removed permanently', 'success');
+        } catch (err) {
+            console.error('Failed to remove section:', err);
+            showToast('Failed to sync removal.', 'error');
+        }
+    };
+
+    const handleReorderSections = async (
+        subjectId: string, 
+        sectionId: string, 
+        direction: 'up' | 'down',
+        type: 'general' | 'exam' | 'practical'
+    ) => {
+        if (!subjects[subjectId]) return;
+        const updatedSubjects = { ...subjects };
+        const subject = { ...updatedSubjects[subjectId] };
+        
+        let sectionsList: any[] = [];
+        let key = '';
+        if (type === 'general') {
+            sectionsList = [...(subject.categories || [])];
+            key = 'categories';
+        } else if (type === 'exam') {
+            sectionsList = [...(subject.examSections || [])];
+            key = 'examSections';
+        } else {
+            sectionsList = [...(subject.practicalSections || [])];
+            key = 'practicalSections';
+        }
+
+        if (sectionsList.length === 0) {
+            if (type === 'general') {
+                const keys = Object.keys(subject.materials || {}).filter(k => 
+                    Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+                );
+                sectionsList = keys.map(k => ({
+                    key: k,
+                    label: k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g, ' $1').trim()
+                }));
+            } else if (type === 'exam') {
+                sectionsList = [];
+            } else {
+                const keys = Object.keys(subject.materials || {}).filter(k => 
+                    Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+                );
+                sectionsList = keys.map(k => ({
+                    id: k,
+                    label: k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g, ' $1').trim()
+                }));
+            }
+        }
+
+        const index = sectionsList.findIndex(s => (s.id || s.key) === sectionId);
+        if (index === -1) return;
+
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= sectionsList.length) return;
+
+        // Swap the elements
+        const temp = sectionsList[index];
+        sectionsList[index] = sectionsList[newIndex];
+        sectionsList[newIndex] = temp;
+
+        (subject as any)[key] = sectionsList;
+        updatedSubjects[subjectId] = subject;
+        mutateSubjects(updatedSubjects, false);
+
+        try {
+            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await writeAuditLog('section_reordered', subjectId, `Rearranged sections of type ${type} inside subject ${subjectId}`);
+            showToast("Section order updated permanently!", "success");
+        } catch (err) {
+            console.error("Failed to reorder sections:", err);
+            showToast("Failed to sync new order.", "error");
         }
     };
 
@@ -8396,9 +8988,9 @@ export default function DrAstroApp() {
                 oldMaterials[oldSecId] = (oldMaterials[oldSecId] || []).filter((b: Book) => b.id !== book.id);
                 oldSub.materials = oldMaterials;
                 next[oldSId] = oldSub;
-                
+
                 // Immediately persist the removal if it's a different subject
-                try { await setDoc(doc(db, 'subjects-v2', oldSId), oldSub); } catch { }
+                try { await setDoc(doc(db, 'subjects-v2', oldSId), sanitizeData(oldSub)); } catch { }
             }
         }
 
@@ -8421,18 +9013,29 @@ export default function DrAstroApp() {
             subjectToUpdate = newSub;
 
             setEditModalConfig(prev => ({ ...prev, isOpen: false }));
+            // Optimistically update UI immediately
             mutateSubjects(next, false);
 
-            // Persist to Cloud with extreme reliability
+            // Persist to Cloud with reliability
             try {
-                // Ensure we are writing to the v2 collection
                 await setDoc(doc(db, 'subjects-v2', targetSubjectId), sanitizeData(subjectToUpdate));
-                showToast("Changes Secured in Cloud!", "success");
+                const isEdit = editModalConfig.mode === 'edit';
+                await writeAuditLog(
+                    isEdit ? 'book_edited' : 'book_added',
+                    targetSubjectId,
+                    `${isEdit ? 'Edited' : 'Added'} book "${book.title}" in section ${targetSectionId}`,
+                    targetSectionId,
+                    book.id
+                );
+                showToast("📚 Book saved to cloud permanently!", "success");
+                // After successful save, force a fresh revalidation from Firestore
+                // to guarantee UI reflects actual persisted state
+                mutateSubjects();
             } catch (err: any) {
                 console.error("Cloud Save Failure:", err);
-                // Fallback to local storage if firestore fails
-                localStorage.setItem(`dr-astro-pending-sync-${targetSubjectId}`, JSON.stringify(subjectToUpdate));
-                showToast(`Cloud Sync Delayed: ${err.message || 'Check connection'}`, "error");
+                // Rollback optimistic update on failure
+                mutateSubjects();
+                showToast(`Cloud Sync Failed: ${err.message || 'Check connection & Firestore rules'}`, "error");
             }
         } else {
             showToast("Invalid subject target.", "error");
@@ -8458,10 +9061,10 @@ export default function DrAstroApp() {
         }
     };
 
-    const handleDeleteBook = async (bookId: string) => {
+    const handleDeleteBook = async (bookId: string, subjectId?: string, sectionId?: string) => {
         const nextSubjects = { ...subjects };
-        const sId = editModalConfig.subjectId;
-        const secId = editModalConfig.sectionId;
+        const sId = subjectId || editModalConfig.subjectId;
+        const secId = sectionId || editModalConfig.sectionId;
 
         if (nextSubjects[sId]) {
             const sub = { ...nextSubjects[sId] };
@@ -8475,6 +9078,7 @@ export default function DrAstroApp() {
 
             try {
                 await setDoc(doc(db, 'subjects-v2', sId), sanitizeData(sub));
+                await writeAuditLog('book_deleted', sId, `Deleted book ID ${bookId} from section ${secId}`, secId, bookId);
                 showToast("Book deleted from cloud!", "success");
             } catch (err) {
                 console.error("Delete failed:", err);
@@ -8978,11 +9582,15 @@ export default function DrAstroApp() {
                                     navigate={navigate}
                                     onBookClick={handleBookClick}
                                     onManageBook={handleManageBook}
+                                    onDeleteBook={handleDeleteBook}
                                     onMoveBook={handleMoveBook}
                                     onDuplicateBook={handleDuplicateBook}
                                     onReorderBooks={handleReorderBooks}
                                     onToggleFavorite={toggleFavorite}
                                     onSimulate={handleSimulate}
+                                    onAddSection={handleGeneralAddSection}
+                                    onRemoveSection={handleGeneralRemoveSection}
+                                    onReorderSections={handleReorderSections}
                                     setSectionEditConfig={setSectionEditConfig}
                                 />
                             </div>
@@ -8999,6 +9607,7 @@ export default function DrAstroApp() {
                                     }}
                                     onBookClick={handleBookClick}
                                     onManageBook={handleManageBook}
+                                    onDeleteBook={handleDeleteBook}
                                     onMoveBook={handleMoveBook}
                                     onDuplicateBook={handleDuplicateBook}
                                     onToggleFavorite={toggleFavorite}
@@ -9006,6 +9615,7 @@ export default function DrAstroApp() {
                                     onRenameSection={handleExamRenameSection}
                                     onRemoveSection={handleExamRemoveSection}
                                     onAddSection={handleExamAddSection}
+                                    onReorderSections={handleReorderSections}
                                     onReorderBooks={handleReorderBooks}
                                     setSectionEditConfig={setSectionEditConfig}
                                 />
@@ -9024,11 +9634,13 @@ export default function DrAstroApp() {
                                     navigate={navigate}
                                     onBookClick={handleBookClick}
                                     onManageBook={handleManageBook}
+                                    onDeleteBook={handleDeleteBook}
                                     onMoveBook={handleMoveBook}
                                     onDuplicateBook={handleDuplicateBook}
                                     onRenameSection={handleRenameSection}
                                     onRemoveSection={handleRemoveSection}
                                     onAddSection={handleAddSection}
+                                    onReorderSections={handleReorderSections}
                                     onReorderBooks={handleReorderBooks}
                                     onToggleFavorite={toggleFavorite}
                                     onSimulate={handleSimulate}
@@ -9116,6 +9728,12 @@ export default function DrAstroApp() {
                                     await handleExamAddSection(sectionEditConfig.subjectId, label, description);
                                 } else {
                                     await handleExamRenameSection(sectionEditConfig.subjectId, sectionEditConfig.section!.id, label, description);
+                                }
+                            } else if (sectionEditConfig.type === 'general') {
+                                if (sectionEditConfig.mode === 'add') {
+                                    await handleGeneralAddSection(sectionEditConfig.subjectId, label, description);
+                                } else {
+                                    await handleGeneralRenameSection(sectionEditConfig.subjectId, (sectionEditConfig.section as any).id || (sectionEditConfig.section as any).key, label, description);
                                 }
                             } else {
                                 // Practical logic...
