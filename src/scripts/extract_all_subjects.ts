@@ -23,7 +23,7 @@ async function extractAll() {
         allSubjects[doc.id] = doc.data();
     });
 
-    fs.writeFileSync('C:/Users/Administrator/.gemini/antigravity/brain/07c92556-3154-4a89-896e-04d8b5f5c5cb/all-subjects-lock.json', JSON.stringify(allSubjects, null, 2));
+    fs.writeFileSync('d:/Astro/subjects-dump.json', JSON.stringify(allSubjects, null, 2));
     console.log(`Extracted ${Object.keys(allSubjects).length} subjects successfully to all-subjects-lock.json`);
 }
 

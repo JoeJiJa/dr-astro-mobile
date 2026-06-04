@@ -1,0 +1,2913 @@
+{
+  "anatomy": {
+    "examCategories": [
+      {
+        "label": "Previous Year Questions",
+        "id": "previousYearQuestions"
+      },
+      {
+        "label": "Question Bank",
+        "id": "questionBank"
+      }
+    ],
+    "practicalSections": [],
+    "categories": [
+      {
+        "key": "textbooks",
+        "label": "Textbooks"
+      },
+      {
+        "key": "generalAnatomy",
+        "label": "General Anatomy"
+      },
+      {
+        "label": "Gross Anatomy",
+        "key": "grossAnatomy"
+      },
+      {
+        "key": "histology",
+        "label": "Histology"
+      },
+      {
+        "key": "embryology",
+        "label": "Embryology"
+      },
+      {
+        "label": "Clinical Books",
+        "key": "clinicalBooks"
+      },
+      {
+        "label": "Anatomy Atlas",
+        "key": "anatomyAtlas"
+      },
+      {
+        "label": "Study Materials",
+        "key": "studyMaterials"
+      }
+    ],
+    "id": "anatomy",
+    "examSections": [],
+    "materials": {
+      "practicalMaterials": [
+        {
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "title": "Anatomy Practical Resources",
+          "author": "@DrAstroBot",
+          "coverColor": "bg-red-600",
+          "id": "anat-prac-tg"
+        }
+      ],
+      "histology": [
+        {
+          "author": "6th Edition",
+          "title": "Histology: Text and Atlas",
+          "downloadUrl": "https://www.febbox.com/share/vxfQYPw5",
+          "type": "textbook",
+          "coverColor": "bg-purple-600",
+          "id": "histo-atlas",
+          "coverUrl": "https://m.media-amazon.com/images/I/61raBu9HfhL._UF1000,1000_QL80_.jpg"
+        },
+        {
+          "title": "IB Singh Histology",
+          "author": "Standard",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/p4ynoHwa",
+          "id": "ib-singh-histo",
+          "coverColor": "bg-purple-500",
+          "coverUrl": "https://d45jl3w9libvn.cloudfront.net/jaypee/static/books/9789351523222/9789351523222.png"
+        }
+      ],
+      "generalAnatomy": [
+        {
+          "downloadUrl": "https://www.febbox.com/share/kgODmydR",
+          "type": "textbook",
+          "title": "BDC General Anatomy",
+          "author": "4th Edition",
+          "coverUrl": "https://rukminim2.flixcart.com/image/480/640/ki4w0i80-0/book/2/w/h/bd-chaurasia-s-handbook-of-general-anatomy-original-imafyy55wmyx9q7s.jpeg?q=90",
+          "coverColor": "bg-red-600",
+          "id": "bdc-gen-anat"
+        },
+        {
+          "title": "Vishram General Anatomy",
+          "author": "Standard",
+          "downloadUrl": "https://www.febbox.com/share/HbUqwQK5",
+          "type": "textbook",
+          "coverColor": "bg-red-500",
+          "id": "vishram-gen-anat",
+          "coverUrl": "https://m.media-amazon.com/images/I/51o2GaWwC+L.jpg"
+        }
+      ],
+      "previousYearQuestions": [
+        {
+          "author": "@DrAstroBot",
+          "title": "Anatomy University PYQs",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "textbook",
+          "id": "anat-pyq-tg",
+          "coverColor": "bg-red-600"
+        },
+        {
+          "downloadUrl": "https://www.febbox.com/share/Ffgv3Anl",
+          "type": "textbook",
+          "author": "University",
+          "title": "Anatomy PYQs (2015-2023)",
+          "id": "anat-pyq-1",
+          "coverColor": "bg-indigo-600"
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/81Abkn0-sXL._UF1000,1000_QL80_.jpg",
+          "coverColor": "bg-emerald-600",
+          "id": "cunningham-hn",
+          "downloadUrl": "https://www.febbox.com/share/RrGrgcty",
+          "type": "clinical",
+          "author": "14th Edition",
+          "title": "Cunningham's Head & Neck"
+        },
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/51DXvHxoXJL._UF350,350_QL50_.jpg",
+          "coverColor": "bg-emerald-600",
+          "id": "cunningham-limbs",
+          "type": "clinical",
+          "downloadUrl": "https://www.febbox.com/share/Yi7QvQ7S",
+          "author": "14th Edition",
+          "title": "Cunningham's Limbs"
+        },
+        {
+          "title": "Cunningham's Thorax & Abd",
+          "author": "14th Edition",
+          "type": "clinical",
+          "downloadUrl": "https://www.febbox.com/share/ZwrWRoIY",
+          "coverColor": "bg-emerald-600",
+          "id": "cunningham-abdomen",
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTuASM_l596FYGOr5kobKUfFP3tBk4PpqYTbvYpF8Ez1MDUXf9Q-TBNCE5aRsvjTPHByI&usqp=CAU"
+        },
+        {
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnNVbVxeptBmAF0HPTquI-riRJS6R67W0xSw&s",
+          "coverColor": "bg-emerald-700",
+          "id": "moore-clin",
+          "downloadUrl": "https://www.febbox.com/share/SwJhLNBL",
+          "type": "clinical",
+          "title": "Moore's Clinically Oriented",
+          "author": "Standard"
+        }
+      ],
+      "questionBank": [
+        {
+          "coverColor": "bg-red-600",
+          "id": "anat-qb-tg",
+          "author": "@DrAstroBot",
+          "title": "Anatomy High-Yield Q-Bank",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "question-bank"
+        },
+        {
+          "id": "anat-qb-1",
+          "coverColor": "bg-blue-600",
+          "type": "question-bank",
+          "downloadUrl": "https://www.febbox.com/share/Ffgv3Anl",
+          "title": "Anatomy Q-Bank",
+          "author": "Standard"
+        }
+      ],
+      "anatomyAtlas": [
+        {
+          "title": "Anatomy 360",
+          "author": "Visual Guide",
+          "downloadUrl": "https://www.febbox.com/share/2GOSwZaq",
+          "type": "textbook",
+          "id": "anat-360",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJyyaItbw8sO6Eyx7MTAnL8Y5xQXqFMWdqNA&s"
+        },
+        {
+          "id": "cadaver-atlas",
+          "coverColor": "bg-blue-700",
+          "coverUrl": "https://www.kenhub.com/thumbor/KstJrZKjPGZFC1nDFTPcmOm9TKc=/fit-in/800x1600/filters:watermark(/images/logo_url.png,-10,-10,0):background_color(FFFFFF):format(jpeg)/images/library/6939/Color_Atlas_of_Anatomy_-_A_Photog._Study_of_the_Human_Body_.pdf__page_1_of_548__2018-03-18_23-32-38.jpg",
+          "title": "Anatomy Cadaveric Atlas",
+          "author": "Standard",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/3qypmZxF"
+        },
+        {
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpZknEE8GodW2w1oCTjPU4UP1SrrzCzfcEhg&s",
+          "id": "clin-atlas",
+          "coverColor": "bg-blue-500",
+          "downloadUrl": "https://www.febbox.com/share/oTzT668X",
+          "type": "textbook",
+          "author": "7th Edition",
+          "title": "Clinical Atlas of Human Anatomy"
+        }
+      ],
+      "studyMaterials": [
+        {
+          "coverColor": "bg-amber-500",
+          "id": "marrow-anat",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/jr01LMulVAYkftlU2QPp.png",
+          "author": "8th Edition",
+          "title": "Marrow Anatomy",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/AgwtUL7T"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/iIRAvlzLlE9X4LpXDSSo.png",
+          "id": "prepladder-anat",
+          "coverColor": "bg-amber-600",
+          "type": "notes",
+          "downloadUrl": "https://drive.google.com/file/d/16ziRbuV1GKjHK_zZeg7wXKalCIs_MdsQ/view?usp=drive_link",
+          "author": "X Edition",
+          "title": "Prepladder Anatomy"
+        }
+      ],
+      "embryology": [
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/CDUF3ofBC3KUA5R7mP1h.png",
+          "id": "embryo-pims",
+          "coverColor": "bg-pink-600",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/YPEz2Y8z",
+          "author": "Seniors",
+          "title": "Embryology Notes: PIMS"
+        },
+        {
+          "coverUrl": "https://imgv2-2-f.scribdassets.com/img/document/697515802/original/ed7f418732/1?v=1",
+          "coverColor": "bg-pink-500",
+          "id": "embryo-notes",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/az6meS80",
+          "title": "Embryology Notes",
+          "author": "Standard"
+        },
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/516GZXQju+L._UF1000,1000_QL80_.jpg",
+          "id": "vishram-embryo",
+          "coverColor": "bg-pink-700",
+          "downloadUrl": "https://www.febbox.com/share/mXLoBdUu",
+          "type": "textbook",
+          "title": "Vishram's Embryology",
+          "author": "Standard"
+        }
+      ],
+      "grossAnatomy": [
+        {
+          "author": "10th Edition",
+          "title": "BD Chaurasia - Gross Anatomy",
+          "downloadUrl": "#",
+          "type": "textbook",
+          "coverColor": "bg-red-700",
+          "id": "bdc-main",
+          "parts": [
+            {
+              "id": "bdc-1",
+              "title": "Volume 1: Upper Limb & Thorax",
+              "downloadUrl": "https://www.febbox.com/share/K2aJpwDv"
+            },
+            {
+              "downloadUrl": "https://www.febbox.com/share/L83xvpQO",
+              "title": "Volume 2: Lower Limb, Abdomen & Pelvis",
+              "id": "bdc-2"
+            },
+            {
+              "downloadUrl": "https://www.febbox.com/share/W1FFCCHF",
+              "title": "Volume 3: Head, Neck & Brain",
+              "id": "bdc-3"
+            }
+          ],
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNeQUmp4EjImNXLTHoZHs6aH1XF_UasJLOJw&s"
+        },
+        {
+          "type": "textbook",
+          "downloadUrl": "#",
+          "title": "Vishram Singh - Gross Anatomy",
+          "author": "Standard",
+          "parts": [
+            {
+              "id": "vishram-1",
+              "downloadUrl": "https://www.febbox.com/share/7fXisDdE",
+              "title": "Volume 1: Upper Limb & Thorax"
+            },
+            {
+              "id": "vishram-2",
+              "title": "Volume 2: Lower Limb & Abdomen",
+              "downloadUrl": "https://www.febbox.com/share/ZiXWOrBw"
+            },
+            {
+              "title": "Volume 3: Head, Neck & Brain",
+              "downloadUrl": "https://www.febbox.com/share/XCK9YUSY",
+              "id": "vishram-3"
+            }
+          ],
+          "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1422992570i/24819691.jpg",
+          "coverColor": "bg-amber-600",
+          "id": "vishram-main"
+        }
+      ],
+      "textbooks": [
+        {
+          "coverColor": "bg-red-700",
+          "id": "select-anat",
+          "coverUrl": "https://m.media-amazon.com/images/I/71B1Qa31k8L._UF1000,1000_QL80_.jpg",
+          "author": "Standard",
+          "title": "Selective Anatomy: Prep Manual",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/Ffgv3Anl"
+        }
+      ]
+    },
+    "icon": "User",
+    "name": "Human Anatomy",
+    "color": "bg-red-500",
+    "years": [
+      1
+    ],
+    "description": "Study of the structure of the human body."
+  },
+  "anesthesiology": {
+    "materials": {
+      "textbooks": [],
+      "clinicalBooks": [],
+      "studyMaterials": [
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/7g8gFBZyLKxRzFf94qle.png",
+          "coverColor": "bg-amber-600",
+          "id": "prepladder-anesthesia",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/JkYj4Sf2",
+          "title": "Prepladder Anesthesia",
+          "author": "X Edition"
+        }
+      ],
+      "questionBank": []
+    },
+    "examSections": [],
+    "color": "bg-emerald-500",
+    "description": "Pain relief and total care of the surgical patient.",
+    "years": [
+      4
+    ],
+    "icon": "Syringe",
+    "name": "Anesthesiology",
+    "id": "anesthesiology"
+  },
+  "biochemistry": {
+    "icon": "Microscope",
+    "years": [
+      1
+    ],
+    "color": "bg-yellow-500",
+    "description": "Chemical processes within and relating to living organisms.",
+    "name": "Biochemistry",
+    "materials": {
+      "textbooks": [
+        {
+          "id": "dm-vasudevan",
+          "coverColor": "bg-yellow-600",
+          "coverUrl": "https://rukminim2.flixcart.com/image/480/640/jx0prbk0/book/9/8/1/textbook-of-biochemistry-original-imafhkkzqnetezss.jpeg?q=20",
+          "author": "Vasudevan",
+          "title": "DM Vasudevan Biochemistry",
+          "downloadUrl": "https://www.febbox.com/share/1YRlhVKQ",
+          "type": "textbook"
+        },
+        {
+          "downloadUrl": "https://www.febbox.com/share/FdBkbWeC",
+          "type": "textbook",
+          "author": "Manjeshwar",
+          "title": "R Manjeshwar PRASAD Biochemistry",
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGMv_6OOjlyDIeWZiqhSELLOC0uBhn9dokog&s",
+          "id": "prasad-bio",
+          "coverColor": "bg-yellow-500"
+        }
+      ],
+      "studyMaterials": [
+        {
+          "title": "Marrow Biochemistry",
+          "author": "8th Edition",
+          "downloadUrl": "https://www.febbox.com/share/OG1lnYI3",
+          "type": "notes",
+          "id": "marrow-bio",
+          "coverColor": "bg-amber-500",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/zALXfU5bOPShm0wIt7gj.png"
+        },
+        {
+          "id": "prepladder-bio",
+          "coverColor": "bg-amber-600",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/8WuFdOFnoBqwaVKEteqH.png",
+          "author": "X Edition",
+          "title": "Prepladder Biochemistry",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/nh4oMus9"
+        }
+      ],
+      "questionBank": [
+        {
+          "author": "@DrAstroBot",
+          "title": "Biochemistry Q-Bank",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "question-bank",
+          "coverColor": "bg-yellow-600",
+          "id": "bio-qb-tg"
+        }
+      ],
+      "clinicalBooks": [],
+      "previousYearQuestions": [
+        {
+          "title": "Biochemistry PYQs",
+          "author": "@DrAstroBot",
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "id": "bio-pyq-tg",
+          "coverColor": "bg-yellow-600"
+        }
+      ],
+      "practicalMaterials": [
+        {
+          "id": "bio-prac-tg",
+          "coverColor": "bg-yellow-600",
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "title": "Biochemistry Practical Resources",
+          "author": "@DrAstroBot"
+        }
+      ]
+    },
+    "examSections": [],
+    "id": "biochemistry"
+  },
+  "community-medicine": {
+    "id": "community-medicine",
+    "materials": {
+      "previousYearQuestions": [
+        {
+          "id": "cm-pyq-tg",
+          "coverColor": "bg-green-600",
+          "title": "Community Medicine PYQs",
+          "author": "@DrAstroBot",
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot"
+        }
+      ],
+      "practicalMaterials": [
+        {
+          "title": "Community Medicine Practical Resources",
+          "author": "@DrAstroBot",
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "id": "cm-prac-tg",
+          "coverColor": "bg-green-600"
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "downloadUrl": "https://www.febbox.com/share/8yiq8Tpa",
+          "type": "clinical",
+          "author": "Practical",
+          "title": "Essentials of CM Practical",
+          "coverUrl": "https://m.media-amazon.com/images/I/8120yCbXBUL.jpg",
+          "coverColor": "bg-emerald-600",
+          "id": "essentials-cm"
+        }
+      ],
+      "studyMaterials": [
+        {
+          "type": "notes",
+          "downloadUrl": "#",
+          "author": "8th Edition",
+          "title": "Marrow Community Med",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/fkEzRwmDxRDYtz0BtKxz.png",
+          "id": "marrow-cm",
+          "coverColor": "bg-amber-500"
+        },
+        {
+          "title": "Prepladder Community Med",
+          "author": "X Edition",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/2xBr5JX3",
+          "coverColor": "bg-amber-600",
+          "id": "prepladder-cm",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/8D1Wqbd3LDx03FnlzEUS.png"
+        }
+      ],
+      "questionBank": [
+        {
+          "coverColor": "bg-green-600",
+          "id": "cm-qb-tg",
+          "title": "Community Medicine Q-Bank",
+          "author": "@DrAstroBot",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "question-bank"
+        }
+      ],
+      "textbooks": [
+        {
+          "downloadUrl": "https://www.febbox.com/share/Ur4WqfI0",
+          "type": "textbook",
+          "author": "30th Edition",
+          "title": "Park's Textbook of PSM",
+          "coverUrl": "https://rukminim2.flixcart.com/image/480/640/xif0q/book/l/i/n/parks-textbook-of-preventive-and-social-medicine-original-imah96sbgtyqbtva.jpeg?q=90",
+          "coverColor": "bg-green-700",
+          "id": "park-30"
+        },
+        {
+          "title": "AH Suryakantha ComMed",
+          "author": "3rd Edition",
+          "downloadUrl": "https://www.febbox.com/share/rk9DzkEx",
+          "type": "textbook",
+          "id": "suryakantha-3",
+          "coverColor": "bg-green-600",
+          "coverUrl": "https://m.media-amazon.com/images/I/81A4xoiHazL._UF1000,1000_QL80_.jpg"
+        },
+        {
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/ON1COGX1",
+          "author": "Standard",
+          "title": "CM FALCON",
+          "coverUrl": "https://m.media-amazon.com/images/I/51xPiZTxUmL.jpg",
+          "coverColor": "bg-green-800",
+          "id": "cm-falcon"
+        },
+        {
+          "coverColor": "bg-green-500",
+          "id": "commed-shet",
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqQyJ8Ft-DWo8MIu2Q5mfX54Nv_uBMZ8fKWw&s",
+          "author": "2nd Edition",
+          "title": "Commed Notes- Dr. Shetty",
+          "downloadUrl": "https://www.febbox.com/share/UGqO1EQT",
+          "type": "textbook"
+        },
+        {
+          "title": "Review book Vivek Jain",
+          "author": "7th Edition",
+          "downloadUrl": "https://www.febbox.com/share/Xc0e7VOU",
+          "type": "textbook",
+          "id": "vivek-review-7",
+          "coverColor": "bg-green-700",
+          "coverUrl": "https://m.media-amazon.com/images/I/91QshXYf2yL._UF1000,1000_QL80_.jpg"
+        },
+        {
+          "title": "SIA Commed TEXTBOOK",
+          "author": "Review",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/es5xHlNe",
+          "id": "sia-commed",
+          "coverColor": "bg-green-600",
+          "coverUrl": "https://rukmini1.flixcart.com/image/300/300/xif0q/regionalbooks/s/a/2/preparatory-manual-of-preventive-and-social-medicine-3rd-revised-original-imah235emmezzsvj.jpeg"
+        },
+        {
+          "author": "3rd Edition",
+          "title": "Vivek Jain Prep Manual",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/VRfSE7yl",
+          "coverColor": "bg-green-500",
+          "id": "vivek-prep-3",
+          "coverUrl": "https://images-eu.ssl-images-amazon.com/images/I/81Mz2bWKOmL._AC_UL600_SR600,600_.jpg"
+        }
+      ]
+    },
+    "examSections": [],
+    "name": "Community Medicine",
+    "description": "Health of a population and preventing disease.",
+    "color": "bg-green-500",
+    "icon": "Users",
+    "years": [
+      3
+    ]
+  },
+  "dermatology": {
+    "id": "dermatology",
+    "description": "Diagnosis and treatment of skin disorders.",
+    "color": "bg-rose-400",
+    "years": [
+      4
+    ],
+    "icon": "User",
+    "name": "Dermatology",
+    "materials": {
+      "questionBank": [],
+      "studyMaterials": [
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/l9Jmt0PxC4nDMFkPehnA.png",
+          "coverColor": "bg-amber-600",
+          "id": "prepladder-derma",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/4vnQc6RI",
+          "title": "Prepladder Dermatology",
+          "author": "X Edition"
+        }
+      ],
+      "clinicalBooks": [],
+      "textbooks": [
+        {
+          "coverColor": "bg-rose-500",
+          "id": "neena",
+          "downloadUrl": "#",
+          "type": "textbook",
+          "title": "Textbook of Dermatology",
+          "author": "Khanna"
+        }
+      ]
+    },
+    "examSections": []
+  },
+  "ent": {
+    "description": "Diseases of the Ear, Nose, and Throat.",
+    "color": "bg-violet-500",
+    "years": [
+      4
+    ],
+    "practicalSections": [
+      {
+        "id": "clinicalBooks",
+        "label": "Clinical Books"
+      },
+      {
+        "id": "caseNotesAndViva",
+        "label": "Case notes ",
+        "description": ""
+      },
+      {
+        "description": "",
+        "label": "Cases Proforma",
+        "id": "exam-cases"
+      },
+      {
+        "description": "20 Marks",
+        "id": "osce",
+        "label": "OSCE"
+      },
+      {
+        "description": "20 Marks\n(Spotters, X-Rays & Osteology, Gen VIVA)",
+        "label": "VIVA",
+        "id": "viva"
+      }
+    ],
+    "id": "ent",
+    "examSections": [
+      {
+        "label": "Question Bank",
+        "id": "question-bank",
+        "description": ""
+      },
+      {
+        "description": "",
+        "id": "previous-year-question-papers",
+        "label": "Previous Year Question Papers"
+      }
+    ],
+    "materials": {
+      "textbooks": [
+        {
+          "author": "4th Edition",
+          "title": "ENT for Entrance Exam: Manisha",
+          "downloadUrl": "https://drive.google.com/file/d/1rwHSFDav5X8ojHzN0QsXd4_B27WvmfHh/view?usp=drive_link",
+          "type": "textbook",
+          "id": "ent-manisha-4",
+          "coverColor": "bg-violet-500",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/hjnRHuoufIDIhCdsdF1t.jpg",
+          "recommendationLevel": "exam-oriented"
+        },
+        {
+          "recommendationLevel": "preferred",
+          "id": "dhingra-ent",
+          "coverColor": "bg-violet-600",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/J40VGKCiuBITUz5uGHVX.jpg",
+          "title": "Diseases of Ear, Nose and Throat: Dhingra",
+          "author": "Dhingra",
+          "downloadUrl": "https://drive.google.com/file/d/1Ztk7e0WSqzgnQySUB-dCUz1Z45GHiDHl/view?usp=drive_link",
+          "type": "textbook"
+        },
+        {
+          "coverUrl": "https://rukmini1.flixcart.com/image/1500/1500/kndi4y80/book/y/n/a/diseases-of-ear-nose-throat-original-imag22pqycyzdd9v.jpeg?q=70",
+          "id": "mohan-bansal-2",
+          "coverColor": "bg-violet-700",
+          "downloadUrl": "https://drive.google.com/file/d/1G_un-Bwk1HnJSNcyWg0AY8gd7nwcIe9_/view?usp=drive_link",
+          "type": "textbook",
+          "author": "2nd Edition",
+          "title": "Mohan bansal - Diseases of ENT"
+        },
+        {
+          "downloadUrl": "https://drive.google.com/file/d/1t9bkt0cmMtsArHmSmeybucWyyWQ4GdRH/view?usp=drive_link",
+          "type": "textbook",
+          "title": "Sakshi Arora Hans - ENT",
+          "author": "6th Edition",
+          "coverUrl": "https://m.media-amazon.com/images/I/81zaoni4krL._AC_UF1000,1000_QL80_.jpg",
+          "coverColor": "bg-violet-600",
+          "id": "sakshi-arora-6"
+        }
+      ],
+      "previous-year-question-papers": [
+        {
+          "description": "",
+          "author": "(2020-2000)",
+          "driveId": "https://drive.google.com/file/d/1jFhrctFcGTZuNJ6TLz1t0iF0RsBD-hDm/view?usp=drive_link",
+          "type": "textbook",
+          "title": "Ent prev Qns paper ",
+          "downloadUrl": "https://drive.google.com/file/d/1jFhrctFcGTZuNJ6TLz1t0iF0RsBD-hDm/view?usp=drive_link",
+          "coverColor": "bg-blue-600",
+          "id": "db9615fb-2013-4826-bb5c-6578ddf11d37",
+          "coverUrl": ""
+        },
+        {
+          "author": "Internals",
+          "driveId": "https://drive.google.com/file/d/1WFJiGMGuHN1DhOSCbcrWiFndtOMTpL4o/view?usp=drive_link",
+          "type": "textbook",
+          "description": "",
+          "coverColor": "bg-blue-600",
+          "id": "6c9df055-761e-4338-98c3-55a5a50c02ab",
+          "coverUrl": "",
+          "title": "ENT Internals",
+          "downloadUrl": "https://drive.google.com/file/d/1WFJiGMGuHN1DhOSCbcrWiFndtOMTpL4o/view?usp=drive_link"
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "type": "clinical",
+          "downloadUrl": "https://www.febbox.com/share/vJk1avun",
+          "title": "Neha shah Clinical ENT",
+          "author": "Standard",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/LowiB35xko5toKaY6DvV.webp",
+          "id": "neha-shah-ent",
+          "coverColor": "bg-indigo-500"
+        },
+        {
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/1qsst4jzb5QAAMPySRMIBIuDcQ1yrGey8/view?usp=drive_link",
+          "title": "Hazarika ENT",
+          "author": "3rd Edition",
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8HnOojQdFKgOutlHRU7QYVjA1zqagaaLysA&s",
+          "id": "hazarika-ent-3",
+          "coverColor": "bg-indigo-600"
+        },
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/71qbvpoxwML._UF1000,1000_QL80_.jpg",
+          "id": "vikas-sinha-3",
+          "coverColor": "bg-indigo-700",
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/1zHKsoS0kpHMXVPl4QgztXM_mmB1jwsR0/view?usp=drive_link",
+          "title": "Practical ENT Vikas Sinha",
+          "author": "3rd Edition"
+        }
+      ],
+      "question-bank": [
+        {
+          "type": "textbook",
+          "driveId": "https://drive.google.com/file/d/1T3u372MG3k83u6tS2LYQRjoFJCB8pAtj/view?usp=drive_link",
+          "author": "Univ",
+          "description": "",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "b4cf29b0-ccbd-4ea2-9af4-9150679032a6",
+          "downloadUrl": "https://drive.google.com/file/d/1T3u372MG3k83u6tS2LYQRjoFJCB8pAtj/view?usp=drive_link",
+          "title": "University ENT Qns"
+        },
+        {
+          "description": "",
+          "driveId": "https://drive.google.com/file/d/1boCHzBsy_KM2v9xmigXl8DgUTLaqu5ya/view?usp=drive_link",
+          "author": "All",
+          "type": "textbook",
+          "id": "6049f6fe-a51a-49f4-a4ce-4367c6aa992a",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "title": "ENT imp questions",
+          "downloadUrl": "https://drive.google.com/file/d/1boCHzBsy_KM2v9xmigXl8DgUTLaqu5ya/view?usp=drive_link"
+        },
+        {
+          "title": "Wrt all Univ ENT Questions",
+          "downloadUrl": "https://drive.google.com/file/d/1oBk2zbkfNuTN1BQ5csSbEz3Syae-cX_D/view?usp=drive_link",
+          "coverColor": "bg-blue-600",
+          "id": "a7bef5c9-83fc-44a4-b36a-01718acd57ff",
+          "coverUrl": "",
+          "driveId": "https://drive.google.com/file/d/1oBk2zbkfNuTN1BQ5csSbEz3Syae-cX_D/view?usp=drive_link",
+          "author": "Newer Qns added",
+          "type": "textbook",
+          "description": ""
+        }
+      ],
+      "caseNotesAndViva": [
+        {
+          "coverColor": "bg-red-600",
+          "id": "ent_case_4",
+          "downloadUrl": "https://drive.google.com/file/d/1Ig3Z6DZ5KAxvW0obVQJi5obCO4BSRtHo/view?usp=drive_link",
+          "type": "clinical",
+          "author": "Dr. Sitha Sir Notes",
+          "title": "ENT Notes"
+        },
+        {
+          "recommendationLevel": "gold-standard",
+          "id": "ent_ppt_collection",
+          "coverColor": "bg-blue-600",
+          "parts": [
+            {
+              "downloadUrl": "https://drive.google.com/file/d/11cmaT15f7LUX_6kWdagX6WZPVJmB_KWl/view?usp=drive_link",
+              "title": "Complications of CSOM",
+              "id": "ppt_part_1"
+            },
+            {
+              "title": "Ear disease (Symptom oriented approach)",
+              "downloadUrl": "https://drive.google.com/file/d/1lsStSi-ZPO_bXWpLmI2HL5gidJ9qm_r2/view?usp=drive_link",
+              "id": "ppt_part_2"
+            },
+            {
+              "id": "ppt_part_3",
+              "title": "ENT ear practical notes",
+              "downloadUrl": "https://drive.google.com/file/d/1Cr5R0_DaaadqhqT7KvhP8ej3d2QHe1N2/view?usp=drive_link"
+            },
+            {
+              "id": "ppt_part_4",
+              "title": "nose examination and diagnosis sid",
+              "downloadUrl": "https://drive.google.com/file/d/1q449bQBUe-ZioVATs6b3d_oPkx2jeRMp/view?usp=drive_link"
+            },
+            {
+              "title": "nose history sid",
+              "downloadUrl": "https://drive.google.com/file/d/1j3rVciTrAlGMofIjc46bAZSwR2VpvrNx/view?usp=drive_link",
+              "id": "ppt_part_5"
+            },
+            {
+              "id": "ppt_part_6",
+              "title": "Symptomatology Of Throat sid",
+              "downloadUrl": "https://drive.google.com/file/d/1GZSYVfzViyySDDW5DKqr9pgyTTUIrY4R/view?usp=drive_link"
+            },
+            {
+              "downloadUrl": "https://drive.google.com/file/d/1FkceYyyyFikY1QgeXM8KekEiGN9SC67W/view?usp=drive_link",
+              "title": "throat examination by dr Rajeswari",
+              "id": "ppt_part_7"
+            },
+            {
+              "id": "ppt_part_8",
+              "downloadUrl": "https://drive.google.com/file/d/1qZZ4bjOZbzHHnWhwn0pdXKS-_hAggmEQ/view?usp=drive_link",
+              "title": "throat history and examination by dr Vikram"
+            }
+          ],
+          "author": "PPTs",
+          "title": "All Dr. Sitha PPTs",
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/11cmaT15f7LUX_6kWdagX6WZPVJmB_KWl/view?usp=drive_link"
+        },
+        {
+          "coverColor": "bg-red-600",
+          "id": "ent_case_1",
+          "title": "Approach to ear case",
+          "author": "Dr. Astro",
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/1H4Gt71kWBrGc3qVbcI6tApBPp7C8HTZD/view?usp=drive_link"
+        },
+        {
+          "author": "Dr. Astro",
+          "title": "Ear anatomy",
+          "downloadUrl": "https://drive.google.com/file/d/1FraqWaUqcG_JkuTqxy_69l6ANN5UAwYJ/view?usp=drive_link",
+          "type": "clinical",
+          "coverColor": "bg-red-600",
+          "id": "ent_case_2"
+        },
+        {
+          "id": "ent_case_3",
+          "coverColor": "bg-red-600",
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/1G37nT1vgYSicbtqJtinIJW9CfX5iLZJW/view?usp=drive_link",
+          "title": "ENT 101 Probable Viva Questions",
+          "author": "Dr. Astro"
+        },
+        {
+          "id": "ent_case_5",
+          "coverColor": "bg-red-600",
+          "downloadUrl": "https://drive.google.com/file/d/1GxZSeziTuUGdt8ZGY8R5QGZunQa5uPVd/view?usp=drive_link",
+          "type": "clinical",
+          "author": "Dr. Astro",
+          "title": "ENT viva questions bank"
+        },
+        {
+          "downloadUrl": "https://drive.google.com/file/d/11VHDpbePECT8-7rbivEHbDJQlivzgkxX/view?usp=drive_link",
+          "type": "clinical",
+          "author": "Dr. Astro",
+          "title": "Key to ENT Diagnosis",
+          "coverColor": "bg-red-600",
+          "id": "ent_case_6"
+        },
+        {
+          "coverColor": "bg-red-600",
+          "id": "ent_case_7",
+          "author": "Dr. Astro",
+          "title": "Syndromes and signs in ENT",
+          "downloadUrl": "https://drive.google.com/file/d/1wmzwmUq0-6jckWGPNTnMppLqHvUtZ5if/view?usp=drive_link",
+          "type": "clinical"
+        },
+        {
+          "id": "ent_case_8",
+          "coverColor": "bg-red-600",
+          "title": "Theory for major case",
+          "author": "Dr. Astro",
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/1B5ON4yzhVRDVCbOWceCYXPUlb7vZZcx8/view?usp=drive_link"
+        },
+        {
+          "coverColor": "bg-red-600",
+          "id": "ent_case_9",
+          "downloadUrl": "https://drive.google.com/file/d/1aINbFmKnUtuVQ1dY1jawlSBjeD6oOv8R/view?usp=drive_link",
+          "type": "clinical",
+          "author": "Dr. Astro",
+          "title": "Tonsillitis Viva Questions ENT"
+        }
+      ],
+      "viva": [
+        {
+          "type": "textbook",
+          "driveId": "",
+          "author": "ENT Instruments ",
+          "parts": [
+            {
+              "id": "0d2f9131-9e7e-4cd1-be11-5dfd38a9ead0",
+              "title": "1. ENT Instruments ",
+              "downloadUrl": "https://drive.google.com/file/d/1Esaz6vUA5WEOXJuQE1umqeAQZkDAoPdg/view?usp=drive_link"
+            },
+            {
+              "id": "cf174578-728f-4e1a-8f2a-61edec8af829",
+              "downloadUrl": "https://drive.google.com/file/d/1Esaz6vUA5WEOXJuQE1umqeAQZkDAoPdg/view?usp=drive_link",
+              "title": "2. ENT instruments UG"
+            },
+            {
+              "downloadUrl": "https://drive.google.com/file/d/1zAN96Nyf5Qy0vPuOlwfNQ5YKk0EKE56R/view?usp=drive_link",
+              "title": "3. ENT INSTRUMENTS",
+              "id": "16c9771d-42ed-4ddd-b0b0-1e69bfdb141e"
+            }
+          ],
+          "description": "dkdwdwwdwdwdwdwd",
+          "downloadUrl": "",
+          "title": "Instruments",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "6fce9cb6-240d-4bf1-b0f9-eee40a15fa69"
+        },
+        {
+          "id": "732db3a0-1f3c-4b99-ae6a-9799cbafe3e7",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "title": "X-Rays ",
+          "downloadUrl": "",
+          "parts": [
+            {
+              "id": "80ba203c-d845-4c3b-8f5b-14f28f0be6e7",
+              "downloadUrl": "https://drive.google.com/file/d/1EvI9xx0YPlepxPZgU3ZAXDe8L6BOv19G/view?usp=drive_link",
+              "title": "ENT X-Rays (24th April 2025)"
+            },
+            {
+              "id": "77c8a6dc-a92e-4134-89d0-664f2d9a8026",
+              "downloadUrl": "https://drive.google.com/file/d/1EvI9xx0YPlepxPZgU3ZAXDe8L6BOv19G/view?usp=drive_link",
+              "title": "Xray"
+            },
+            {
+              "title": "Radiology in ENT",
+              "downloadUrl": "https://drive.google.com/file/d/1YkJAgJCfX8PyP-A5ohya2DMJUuiWBFFe/view?usp=drive_link",
+              "id": "64f59b43-7289-46c1-8022-1ae541c8ae9c"
+            },
+            {
+              "id": "7a168d68-8f8c-4d1c-b102-10064cf499d6",
+              "downloadUrl": "https://drive.google.com/file/d/1MuWAfftTP8SUgUZaOQhWwDUcEMTjGBbI/view?usp=drive_link",
+              "title": "Unknown Xray"
+            },
+            {
+              "id": "be5752e8-203c-4d62-8355-29c19e4d4b5e",
+              "title": "X-ray & Instruments ENT",
+              "downloadUrl": "https://drive.google.com/file/d/1JVPEKlhtZg54aOMKIS4yIUGb3AL-lr4d/view?usp=drive_link"
+            }
+          ],
+          "author": "ENT Xray",
+          "driveId": "",
+          "type": "textbook",
+          "description": ""
+        },
+        {
+          "type": "textbook",
+          "driveId": "https://drive.google.com/file/d/1DAWbRcj_LQ7prL2GCoWqkylnR1JCmujT/view?usp=drive_link",
+          "author": "🦴",
+          "description": "",
+          "downloadUrl": "https://drive.google.com/file/d/1DAWbRcj_LQ7prL2GCoWqkylnR1JCmujT/view?usp=drive_link",
+          "title": "Osteology",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "01a8d9df-baaf-4e84-b2e0-0e689001b392"
+        }
+      ],
+      "osce": [
+        {
+          "id": "78c1a750-9ecd-46bd-8674-7e090a9c2b33",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "title": "OSCE ENT - Spotters, Audiogram, X-Rays & Osteology+ Sample OSCE",
+          "downloadUrl": "https://drive.google.com/file/d/1G-Uouxq9F4JQkCqUrwftLhjsaHc-tVv7/view?usp=drive_link",
+          "driveId": "https://drive.google.com/file/d/1G-Uouxq9F4JQkCqUrwftLhjsaHc-tVv7/view?usp=drive_link",
+          "author": "OSCE ENT",
+          "type": "textbook",
+          "description": ""
+        },
+        {
+          "title": "Ans for OSCE notes (Spotters, Instruments, Audiogram, Tymphanogram & Xray)",
+          "downloadUrl": "https://drive.google.com/file/d/1gmws4o2nUYjM8le69eROqU8z7bA0oBA4/view?usp=drive_link",
+          "coverColor": "bg-blue-600",
+          "id": "5139145f-0aab-44ca-b521-d121e61bb9dc",
+          "coverUrl": "",
+          "driveId": "https://drive.google.com/file/d/1gmws4o2nUYjM8le69eROqU8z7bA0oBA4/view?usp=drive_link",
+          "author": "OSCE Ans",
+          "type": "textbook",
+          "description": ""
+        },
+        {
+          "id": "f534ea86-a4f5-4435-a31d-607a49009e0b",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "title": "PTA & Impedence audiometry (ENT)",
+          "downloadUrl": "https://drive.google.com/file/d/1i6h79iPnvNyaQUqEcPyBBANvMVI48Q5l/view?usp=drive_link",
+          "description": "",
+          "author": "Audiometry",
+          "driveId": "https://drive.google.com/file/d/1i6h79iPnvNyaQUqEcPyBBANvMVI48Q5l/view?usp=drive_link",
+          "type": "textbook"
+        }
+      ],
+      "exam-cases": [
+        {
+          "id": "04d34ee8-afe4-4b72-a755-0388e57c809e",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "title": "ENT DETAILED Case Proforma (ALL SYMPTOMS)",
+          "downloadUrl": "https://drive.google.com/file/d/1lPBbL4jBzlIi4kvtkDKXVLXC4sdaIxF_/view?usp=drive_link",
+          "description": "",
+          "parts": [
+            {
+              "downloadUrl": "https://drive.google.com/file/d/1lPBbL4jBzlIi4kvtkDKXVLXC4sdaIxF_/view?usp=drive_link",
+              "title": "Newer Version",
+              "id": "2d5c9463-5017-43ec-acb4-ee26b7323e57"
+            },
+            {
+              "title": "Untouched Version",
+              "downloadUrl": "https://drive.google.com/file/d/11xXNSOyqG0PryEmVjQBoMIpXdvniFDL_/view?usp=drive_link",
+              "id": "3cb2aa02-7def-4137-b7fa-f26a50117414"
+            }
+          ],
+          "driveId": "https://drive.google.com/file/d/1lPBbL4jBzlIi4kvtkDKXVLXC4sdaIxF_/view?usp=drive_link",
+          "author": "Case Proforma",
+          "type": "textbook"
+        },
+        {
+          "driveId": "https://drive.google.com/file/d/1z2iLcjcYyuQ_C26IyMNsh-LZL5Yev3JA/view?usp=drive_link",
+          "author": "Written format",
+          "type": "textbook",
+          "description": "",
+          "id": "6afeb86b-e81a-460f-a80c-473e0581f356",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "title": "All imp cases ",
+          "downloadUrl": "https://drive.google.com/file/d/1z2iLcjcYyuQ_C26IyMNsh-LZL5Yev3JA/view?usp=drive_link"
+        },
+        {
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "f02a0027-52e2-49ed-bbbb-18b86b0d78c4",
+          "downloadUrl": "https://drive.google.com/file/d/1FJmQRutXlqFyNF8epnT1A2Mn9S-ebOUR/view?usp=drive_link",
+          "title": "All cases (PPTs)",
+          "description": "",
+          "type": "textbook",
+          "author": "PPTs",
+          "driveId": "https://drive.google.com/file/d/1FJmQRutXlqFyNF8epnT1A2Mn9S-ebOUR/view?usp=drive_link"
+        },
+        {
+          "type": "textbook",
+          "driveId": "https://drive.google.com/file/d/139liqIV80w1avdj_wM1K8-pup4POQW80/view?usp=drive_link",
+          "author": "Qn charts",
+          "description": "",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "12646c76-6be6-45e4-a99e-d9caf27735ec",
+          "downloadUrl": "https://drive.google.com/file/d/139liqIV80w1avdj_wM1K8-pup4POQW80/view?usp=drive_link",
+          "title": "Case Scenarios qn charts"
+        }
+      ],
+      "studyMaterials": [
+        {
+          "author": "Standard",
+          "title": "ENT Agam Notes",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/0eVWUIb8",
+          "id": "agam-ent",
+          "coverColor": "bg-amber-500",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/pDouUh5kEmp5mriYIIOM.png"
+        },
+        {
+          "id": "marrow-ent",
+          "coverColor": "bg-amber-600",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/06cNKfRpJAtlyGEsI9kI.png",
+          "author": "8th Edition",
+          "title": "Marrow ENT",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/jqrAdI4u"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/DCt9pZ4PNZBPSh77E1ME.png",
+          "coverColor": "bg-amber-500",
+          "id": "prepladder-ent",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/WkLhRgam",
+          "author": "X Edition",
+          "title": "Prepladder ENT"
+        },
+        {
+          "title": "MCQ in ENT: Dhingra",
+          "author": "Standard",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/uifrPRMo",
+          "id": "dhingra-mcq",
+          "coverColor": "bg-amber-700",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/90YnixDSZAfLizbf0xJ8.jpg"
+        },
+        {
+          "coverColor": "bg-red-600",
+          "id": "6fb07268-a5bd-458a-94e6-0cbf78086ff3",
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/11VHDpbePECT8-7rbivEHbDJQlivzgkxX/view?usp=drive_link",
+          "title": "Key to ENT Diagnosis ",
+          "author": "Dr. Astro"
+        }
+      ],
+      "questionBank": []
+    },
+    "icon": "Ear",
+    "name": "ENT"
+  },
+  "fmt": {
+    "years": [
+      3
+    ],
+    "icon": "Skull",
+    "color": "bg-slate-600",
+    "description": "Application of medical knowledge to the investigation of crime.",
+    "name": "Forensic Medicine",
+    "materials": {
+      "practicalMaterials": [
+        {
+          "id": "fmt-prac-tg",
+          "coverColor": "bg-slate-600",
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "author": "@DrAstroBot",
+          "title": "Forensic Medicine Practical Resources"
+        }
+      ],
+      "previousYearQuestions": [
+        {
+          "coverColor": "bg-slate-600",
+          "id": "fmt-pyq-tg",
+          "title": "Forensic Medicine PYQs",
+          "author": "@DrAstroBot",
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot"
+        }
+      ],
+      "clinicalBooks": [],
+      "studyMaterials": [
+        {
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/2RiO9iUd",
+          "title": "Marrow Forensic Med",
+          "author": "8th Edition",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/P65Rr2bZg1hKO5TGN70z.png",
+          "coverColor": "bg-amber-500",
+          "id": "marrow-fmt"
+        },
+        {
+          "coverColor": "bg-amber-600",
+          "id": "prepladder-fmt",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/fOsOs9TxzNGYFdfnKOvz.png",
+          "author": "X Edition",
+          "title": "Prepladder Forensic Med",
+          "downloadUrl": "https://www.febbox.com/share/vtDffOr8",
+          "type": "notes"
+        }
+      ],
+      "questionBank": [
+        {
+          "coverColor": "bg-slate-600",
+          "id": "fmt-qb-tg",
+          "title": "Forensic Medicine Q-Bank",
+          "author": "@DrAstroBot",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "question-bank"
+        }
+      ],
+      "textbooks": [
+        {
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/P2zwVZAa",
+          "author": "3rd Edition",
+          "title": "Biswas Forensic Med",
+          "coverUrl": "https://rukminim2.flixcart.com/image/480/640/xif0q/book/e/p/m/forensic-medicine-toxicology-for-medical-students-original-imagxu8agjfkpfqk.jpeg?q=90",
+          "id": "biswas-fmt-3",
+          "coverColor": "bg-slate-700"
+        },
+        {
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/rgrQO8k3",
+          "author": "33rd Edition",
+          "title": "K.S.Narayan FM",
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXGwBvbfVb_zhH9wL7n4ZPuW2tYK5UhNQudQ&s",
+          "id": "narayan-fm-33",
+          "coverColor": "bg-slate-800"
+        },
+        {
+          "author": "Standard",
+          "title": "Rajesh - Principles of FM",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/JKJKxR5i",
+          "coverColor": "bg-slate-600",
+          "id": "rajesh-fm",
+          "coverUrl": "https://0.academia-photos.com/attachment_thumbnails/57595499/mini_magick20201005-19341-1tl4og0.png?1601942398"
+        },
+        {
+          "downloadUrl": "https://www.febbox.com/share/aV5H2Qdh",
+          "type": "textbook",
+          "author": "V V Pillay",
+          "title": "Modern Medical Toxicology",
+          "coverUrl": "https://m.media-amazon.com/images/I/916pbG3xRZL._UF1000,1000_QL80_.jpg",
+          "id": "pillay-tox",
+          "coverColor": "bg-slate-700"
+        },
+        {
+          "coverColor": "bg-slate-500",
+          "id": "vision-fmt-4",
+          "coverUrl": "https://m.media-amazon.com/images/I/81M24lxDoSL._UF1000,1000_QL80_.jpg",
+          "author": "4th Edition",
+          "title": "Vision FMT",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/2Cj0vAfS"
+        }
+      ]
+    },
+    "examSections": [],
+    "id": "fmt"
+  },
+  "general-medicine": {
+    "description": "Diagnosis, treatment, and prevention of disease in adults.",
+    "color": "bg-blue-500",
+    "years": [
+      4
+    ],
+    "practicalSections": [
+      {
+        "label": "Clinical Books",
+        "id": "clinical-books"
+      },
+      {
+        "id": "case-proforma",
+        "label": "Case Proforma"
+      },
+      {
+        "label": "Case Notes",
+        "id": "case-notes"
+      },
+      {
+        "id": "osce",
+        "label": "OSCE"
+      },
+      {
+        "label": "VIVA",
+        "id": "viva"
+      }
+    ],
+    "id": "general-medicine",
+    "name": "General Medicine",
+    "icon": "Stethoscope",
+    "examSections": [
+      {
+        "id": "cases",
+        "label": "Cases",
+        "description": ""
+      },
+      {
+        "id": "clinical-books",
+        "label": "Clinical Books",
+        "description": ""
+      },
+      {
+        "description": "",
+        "label": "Case Notes",
+        "id": "case-notes"
+      },
+      {
+        "description": "Skilled & Unskilled OSCE\n",
+        "id": "osce",
+        "label": "OSCE"
+      },
+      {
+        "description": "",
+        "label": "VIVA",
+        "id": "viva"
+      }
+    ],
+    "materials": {
+      "textbooks": [
+        {
+          "downloadUrl": "https://drive.google.com/file/d/1Yt6i8DdqKqebx2GMSqXsgbC41zCD4sld/view?usp=drive_link",
+          "type": "textbook",
+          "author": "24th Edition",
+          "title": "Davidson's Principles & Practice",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/Gw2bBPXe0UnmApT4ws0q.jpeg",
+          "id": "davidson-24",
+          "coverColor": "bg-blue-700"
+        },
+        {
+          "author": "4th Edition",
+          "title": "Exam Prep Medicine (Boloor)",
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/1E7AjS6S0Ygn8-aE1bVWRxw8IWg7rLWHs/view?usp=drive_link",
+          "coverColor": "bg-blue-600",
+          "id": "boloor-4",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/zaGvKTDIUzoP3tfkT4T1.webp"
+        },
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/91whfQj74hL._UF1000,1000_QL80_.jpg",
+          "id": "boloor-2",
+          "coverColor": "bg-blue-600",
+          "downloadUrl": "https://drive.google.com/file/d/1FI8404Qo86qz5kGDX-RgbqFck3UbTgBl/view?usp=drive_link",
+          "type": "textbook",
+          "title": "Exam Prep Medicine (Boloor)",
+          "author": "2nd Edition"
+        },
+        {
+          "coverColor": "bg-blue-800",
+          "id": "harrisons-21",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/XUu5MYYMLFSnN1SrpW9P.jpg",
+          "title": "Harrison's Principles",
+          "author": "21st Edition",
+          "downloadUrl": "https://drive.google.com/file/d/1zIXHyBFiIJ4WSCoykmF4_oSxCAgh3mVW/view?usp=drive_link",
+          "type": "textbook"
+        },
+        {
+          "downloadUrl": "https://drive.google.com/file/d/1tynCEpsXzmxY9TktczqR78ruj3TNx9m8/view?usp=drive_link",
+          "type": "textbook",
+          "author": "3rd Edition",
+          "title": "Manipal Prep Manual",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/2mvOkF8HpH6uFeLQNX5c.jpg",
+          "coverColor": "bg-blue-500",
+          "id": "manipal-3"
+        }
+      ],
+      "cases": [
+        {
+          "description": "",
+          "recommendationLevel": "gold-standard",
+          "author": "Proforma",
+          "driveId": "https://drive.google.com/file/d/1YofBkJLHCZfp55N8oFqKvK76Ew-T6Bwa/view?usp=drive_link",
+          "type": "textbook",
+          "title": "Case Proforma Formats ",
+          "downloadUrl": "https://drive.google.com/file/d/1YofBkJLHCZfp55N8oFqKvK76Ew-T6Bwa/view?usp=drive_link",
+          "coverColor": "bg-blue-600",
+          "id": "52f6484c-b515-47c2-86f1-c4a8ced3dd9c",
+          "coverUrl": ""
+        },
+        {
+          "id": "cf4c9007-3909-4301-819b-e896d8e62f82",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "title": "All G.Med Case Files ",
+          "downloadUrl": "https://drive.google.com/file/d/11opC330VgvAsKtqwiGrOk1N_4Ao8cfXF/view?usp=drive_link",
+          "description": "",
+          "driveId": "https://drive.google.com/file/d/11opC330VgvAsKtqwiGrOk1N_4Ao8cfXF/view?usp=drive_link",
+          "author": "Exam Cases",
+          "type": "textbook"
+        },
+        {
+          "driveId": "https://drive.google.com/file/d/1lRT-yByXJitcOWsEkap6V2yk7KB_4XbK/view?usp=drive_link",
+          "author": "Long Cases",
+          "type": "textbook",
+          "description": "",
+          "title": "Long Case Scenarios",
+          "downloadUrl": "https://drive.google.com/file/d/1lRT-yByXJitcOWsEkap6V2yk7KB_4XbK/view?usp=drive_link",
+          "id": "2f52ec30-7d80-4177-9338-0184356a5843",
+          "coverColor": "bg-blue-600",
+          "coverUrl": ""
+        },
+        {
+          "type": "textbook",
+          "author": "Short Cases",
+          "driveId": "https://drive.google.com/file/d/19Cg-fNVDM32Py_MD9Sm5mTLVZxcHT5bw/view?usp=drive_link",
+          "description": "",
+          "coverUrl": "",
+          "id": "e9d5df6e-8461-4b33-87ed-3127a082007a",
+          "coverColor": "bg-blue-600",
+          "downloadUrl": "https://drive.google.com/file/d/19Cg-fNVDM32Py_MD9Sm5mTLVZxcHT5bw/view?usp=drive_link",
+          "title": "Short Case Scenarios"
+        }
+      ],
+      "case-proforma": [
+        {
+          "description": "",
+          "author": "Complied ",
+          "driveId": "https://drive.google.com/file/d/11opC330VgvAsKtqwiGrOk1N_4Ao8cfXF/view?usp=drive_link",
+          "type": "textbook",
+          "title": "All G.Med Case Files ",
+          "downloadUrl": "https://drive.google.com/file/d/11opC330VgvAsKtqwiGrOk1N_4Ao8cfXF/view?usp=drive_link",
+          "coverColor": "bg-blue-600",
+          "id": "2e07b7d2-fcb6-4885-978d-a12c2ad2e895",
+          "coverUrl": ""
+        },
+        {
+          "type": "textbook",
+          "author": "Formats ",
+          "driveId": "https://drive.google.com/file/d/1YofBkJLHCZfp55N8oFqKvK76Ew-T6Bwa/view?usp=drive_link",
+          "description": "",
+          "coverUrl": "",
+          "id": "1da94535-72dc-4bbc-ad69-a7e7e2bc376b",
+          "coverColor": "bg-blue-600",
+          "downloadUrl": "https://drive.google.com/file/d/1YofBkJLHCZfp55N8oFqKvK76Ew-T6Bwa/view?usp=drive_link",
+          "title": "Case profoma Formats "
+        },
+        {
+          "coverUrl": "",
+          "id": "3807e5ef-ee44-4c22-a6ee-407b2a5d78ef",
+          "coverColor": "bg-blue-600",
+          "downloadUrl": "https://drive.google.com/file/d/1lRT-yByXJitcOWsEkap6V2yk7KB_4XbK/view?usp=drive_link",
+          "title": "Med - Long Case Scenarios",
+          "type": "textbook",
+          "author": "Case Scenarios",
+          "driveId": "https://drive.google.com/file/d/1lRT-yByXJitcOWsEkap6V2yk7KB_4XbK/view?usp=drive_link",
+          "description": ""
+        },
+        {
+          "description": "",
+          "driveId": "https://drive.google.com/file/d/1T7CU7biw87Asoedz_srhftgwCJyPu0k2/view?usp=drive_link",
+          "author": "Case Scenarios",
+          "type": "textbook",
+          "title": "Long Case Scenarios 2",
+          "downloadUrl": "https://drive.google.com/file/d/1T7CU7biw87Asoedz_srhftgwCJyPu0k2/view?usp=drive_link",
+          "id": "752e8a03-c354-4877-820e-ea50aabf7242",
+          "coverColor": "bg-blue-600",
+          "coverUrl": ""
+        },
+        {
+          "downloadUrl": "https://drive.google.com/file/d/19Cg-fNVDM32Py_MD9Sm5mTLVZxcHT5bw/view?usp=drive_link",
+          "title": "Short Case Scenarios ",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "ba0206f6-702e-41f8-98d5-1f2902e56af1",
+          "description": "",
+          "type": "textbook",
+          "driveId": "https://drive.google.com/file/d/19Cg-fNVDM32Py_MD9Sm5mTLVZxcHT5bw/view?usp=drive_link",
+          "author": "Case Scenarios"
+        }
+      ],
+      "clinical-books": [
+        {
+          "recommendationLevel": "gold-standard",
+          "title": "Macleod's Clinical Exam",
+          "author": "Standard",
+          "downloadUrl": "https://drive.google.com/file/d/1zGD10aa5KVqxnw4a1fVQaxhqbYPi077U/view?usp=drive_link",
+          "type": "clinical",
+          "id": "macleod",
+          "coverColor": "bg-emerald-600",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/IoxTKkOA0LOtRrmacs6Z.jpg"
+        },
+        {
+          "downloadUrl": "https://drive.google.com/file/d/13Yhh679vpY2-yP6Q9uBNI2i3PfP0xgMT/view?usp=drive_link",
+          "type": "clinical",
+          "title": "Alagappan Manual of Practical Medicine",
+          "author": "Practical Medicine",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/Tc2e0XDZhc6AmNGUKVqm.jpg",
+          "coverColor": "bg-emerald-500",
+          "id": "alagappan",
+          "recommendationLevel": "preferred"
+        },
+        {
+          "title": "Clinical Med (Boloor)",
+          "author": "Archith Boloor",
+          "downloadUrl": "https://drive.google.com/file/d/1KE8ESOJLJYOphLl924uWnB0Ucc9-rw-V/view?usp=drive_link",
+          "type": "clinical",
+          "id": "boloor-clin",
+          "coverColor": "bg-emerald-600",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/KXd6WIUGVeTjOwEX2EL0.jpg",
+          "recommendationLevel": "preferred"
+        },
+        {
+          "driveId": "https://drive.google.com/file/d/1spJfWEbfpgpRUoi8_s05ZhrD_k_7Nq0B/view?usp=drive_link",
+          "author": "Examination Newer Edition",
+          "type": "textbook",
+          "recommendationLevel": "preferred",
+          "description": "",
+          "title": "Archit baloor Examination",
+          "downloadUrl": "https://drive.google.com/file/d/1spJfWEbfpgpRUoi8_s05ZhrD_k_7Nq0B/view?usp=drive_link",
+          "coverColor": "bg-blue-600",
+          "id": "9c568967-e69e-4191-9156-0d826545cc9e",
+          "coverUrl": "https://dnamart.in/cdn/shop/files/boloor_3rd_edition.jpg?v=1753950627"
+        },
+        {
+          "coverColor": "bg-emerald-700",
+          "id": "hutchinson-24",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/2GssRSKi8PEoMQ6IQVUn.jpg",
+          "author": "24th Edition",
+          "title": "Hutchison's Clinical Methods",
+          "downloadUrl": "https://drive.google.com/file/d/1XFyronrEZuBu2IY731U6cAGTBLvCPM2r/view?usp=drive_link",
+          "type": "clinical"
+        },
+        {
+          "coverColor": "bg-blue-600",
+          "id": "bb8696a8-614f-4066-a637-d9850e0cbd09",
+          "coverUrl": "",
+          "title": "Medicine all practicals",
+          "downloadUrl": "https://drive.google.com/file/d/1ccTFTne67ojIzfgoJbbCK2rnYnyoa3mj/view?usp=drive_link",
+          "driveId": "https://drive.google.com/file/d/1ccTFTne67ojIzfgoJbbCK2rnYnyoa3mj/view?usp=drive_link",
+          "author": "Other Clg",
+          "type": "textbook",
+          "description": ""
+        }
+      ],
+      "case-notes": [
+        {
+          "title": "CNS Basic Clinical Questions",
+          "downloadUrl": "https://drive.google.com/file/d/136RqOR7nMiJ2YMRsBQF6HhBFxdsa7l4l/view?usp=drive_link",
+          "id": "8c32ac77-64a6-4b24-bbf0-05df61b7bcae",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "author": "CNS",
+          "driveId": "https://drive.google.com/file/d/136RqOR7nMiJ2YMRsBQF6HhBFxdsa7l4l/view?usp=drive_link",
+          "type": "textbook",
+          "description": ""
+        },
+        {
+          "type": "textbook",
+          "author": "CNS",
+          "driveId": "https://drive.google.com/file/d/1i6ZHkyt0nL16gll3YG8uIjvqFwWOwu99/view?usp=drive_link",
+          "description": "",
+          "downloadUrl": "https://drive.google.com/file/d/1i6ZHkyt0nL16gll3YG8uIjvqFwWOwu99/view?usp=drive_link",
+          "title": "CNS Examination Notes",
+          "coverUrl": "",
+          "id": "3f21f8a9-2e6b-485c-8e11-9723c81316f7",
+          "coverColor": "bg-blue-600"
+        },
+        {
+          "description": "",
+          "author": "CNS",
+          "driveId": "https://drive.google.com/file/d/1UvkYPYJN60THI8nk4ZHY9GxxVzWs-hhy/view?usp=drive_link",
+          "type": "textbook",
+          "id": "ab83eb7a-6743-4626-8771-65305e267f30",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "title": "Stroke localisation notes",
+          "downloadUrl": "https://drive.google.com/file/d/1UvkYPYJN60THI8nk4ZHY9GxxVzWs-hhy/view?usp=drive_link"
+        },
+        {
+          "downloadUrl": "https://drive.google.com/file/d/1EWr3QxIvAvD85PnNW2dWuljEfACTqQk9/view?usp=drive_link",
+          "title": "CVS Basic Clinical Questions",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "4ec6fbe8-40a8-4cc0-abf3-40ace2aa6f6c",
+          "description": "",
+          "type": "textbook",
+          "author": "CVS",
+          "driveId": "https://drive.google.com/file/d/1EWr3QxIvAvD85PnNW2dWuljEfACTqQk9/view?usp=drive_link"
+        },
+        {
+          "description": "",
+          "type": "textbook",
+          "driveId": "https://drive.google.com/file/d/12dAJKbu6wdDtFEITLgibOCdT8WAVq8h3/view?usp=drive_link",
+          "author": "CVS",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "ad5e1048-615f-44bf-92ba-9842eecec49d",
+          "downloadUrl": "https://drive.google.com/file/d/12dAJKbu6wdDtFEITLgibOCdT8WAVq8h3/view?usp=drive_link",
+          "title": "CVS Examination"
+        },
+        {
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "5bab2032-9a05-4e9a-93fd-fec7bae7b3b6",
+          "downloadUrl": "https://drive.google.com/file/d/1MfPNXujxudVODLtL171VkmmFY9JPh1Bs/view?usp=drive_link",
+          "title": "GIT Clinical Questions",
+          "description": "",
+          "type": "textbook",
+          "driveId": "https://drive.google.com/file/d/1MfPNXujxudVODLtL171VkmmFY9JPh1Bs/view?usp=drive_link",
+          "author": "GIT "
+        },
+        {
+          "downloadUrl": "https://drive.google.com/file/d/1xykIxADmo9psF4T8wTe4OH9JvhvrB941/view?usp=drive_link",
+          "title": "RS Clinical Questions",
+          "coverUrl": "",
+          "id": "efe5ed16-c66a-42e1-b43e-9d0d4372951d",
+          "coverColor": "bg-blue-600",
+          "type": "textbook",
+          "author": "RS",
+          "driveId": "https://drive.google.com/file/d/1xykIxADmo9psF4T8wTe4OH9JvhvrB941/view?usp=drive_link",
+          "description": ""
+        },
+        {
+          "type": "textbook",
+          "driveId": "https://drive.google.com/file/d/1bmvH7uWE0wP6f2v3lBtz3zeBVel3ltfO/view?usp=drive_link",
+          "author": "General",
+          "description": "",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "65052877-db91-45ce-b67b-d120b1b476ae",
+          "downloadUrl": "https://drive.google.com/file/d/1bmvH7uWE0wP6f2v3lBtz3zeBVel3ltfO/view?usp=drive_link",
+          "title": "Medicine Gradings"
+        },
+        {
+          "title": "Med - Practicals MUST KNOW",
+          "downloadUrl": "https://drive.google.com/file/d/1qkwicRgzuV8joEXncL6bk2xh5ogoryIA/view?usp=drive_link",
+          "id": "4887fa75-e8eb-4aa5-aadb-5222268c18c2",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "author": "MUST KNOW",
+          "driveId": "https://drive.google.com/file/d/1qkwicRgzuV8joEXncL6bk2xh5ogoryIA/view?usp=drive_link",
+          "type": "textbook",
+          "description": ""
+        },
+        {
+          "driveId": "https://drive.google.com/file/d/1nAa5eVOvh8tne-tgfgGfKKezAfyi_y83/view?usp=drive_link",
+          "author": "Qns",
+          "type": "textbook",
+          "description": "",
+          "title": "Med EOP questionnaire",
+          "downloadUrl": "https://drive.google.com/file/d/1nAa5eVOvh8tne-tgfgGfKKezAfyi_y83/view?usp=drive_link",
+          "coverColor": "bg-blue-600",
+          "id": "7c3d4db2-f275-42b5-b729-d12f8049e210",
+          "coverUrl": ""
+        }
+      ],
+      "studyMaterials": [
+        {
+          "coverColor": "bg-amber-500",
+          "id": "marrow-gen-med",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/GqBFXEbqoIvscsgSRjta.png",
+          "author": "8th Edition",
+          "title": "Marrow Gen Medicine",
+          "downloadUrl": "https://drive.google.com/file/d/15Icc-0KGV-XyOm7GBrPLLHC4vJsXaE56/view?usp=drive_link",
+          "type": "notes"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/tXZYPkhAMT37iukSPpZM.png",
+          "coverColor": "bg-amber-600",
+          "id": "prepladder-gen-med",
+          "downloadUrl": "https://drive.google.com/drive/folders/1GgGQwIebIkymf3drbC2G3c8MxgQDex-U?usp=drive_link",
+          "type": "notes",
+          "author": "X Edition",
+          "title": "Prepladder Gen Medicine"
+        }
+      ],
+      "questionBank": [],
+      "viva": [
+        {
+          "author": "ECG",
+          "driveId": "",
+          "type": "textbook",
+          "parts": [
+            {
+              "id": "d81717cf-b091-46ed-8e85-ff9eb04ac0aa",
+              "downloadUrl": "https://drive.google.com/file/d/1x5RcrDiFR5IKy-E26GLeKkZDfHS0NjhB/view?usp=drive_link",
+              "title": "ECG Basic"
+            },
+            {
+              "title": "ECG Compiled ",
+              "downloadUrl": "https://drive.google.com/file/d/1Ivv3m4RF_VjecFZBo4Y5GkPUaIKpDJPe/view?usp=drive_link",
+              "id": "8e07aa0c-eb77-433b-b131-231a4abf3c08"
+            }
+          ],
+          "description": "",
+          "title": "ECG",
+          "downloadUrl": "",
+          "id": "4c66fd32-070c-4ed1-ad8c-ffc5e37a4681",
+          "coverColor": "bg-blue-600",
+          "coverUrl": ""
+        },
+        {
+          "description": "",
+          "author": "Drugs",
+          "driveId": "https://drive.google.com/file/d/1Flp__zD24MG_vLBhNIVkH_bB6KNCqnbq/view?usp=drive_link",
+          "type": "textbook",
+          "title": "Med Drugs",
+          "downloadUrl": "https://drive.google.com/file/d/1Flp__zD24MG_vLBhNIVkH_bB6KNCqnbq/view?usp=drive_link",
+          "id": "773a38cb-36ff-4d35-b03b-1bf580d5fe3d",
+          "coverColor": "bg-blue-600",
+          "coverUrl": ""
+        },
+        {
+          "author": "Instruments",
+          "driveId": "https://drive.google.com/file/d/15VkZXnuNtlI0yrOZm4n2z7ylalA1EETJ/view?usp=drive_link",
+          "type": "textbook",
+          "description": "",
+          "id": "fd9eb53f-e2e5-4b8f-be25-c309bf4caf0b",
+          "coverColor": "bg-blue-600",
+          "coverUrl": "",
+          "title": "Med Instruments",
+          "downloadUrl": "https://drive.google.com/file/d/15VkZXnuNtlI0yrOZm4n2z7ylalA1EETJ/view?usp=drive_link"
+        },
+        {
+          "type": "textbook",
+          "author": "Xray",
+          "driveId": "",
+          "parts": [
+            {
+              "id": "027db0a7-4ad5-4966-b0b7-23840f0be67c",
+              "title": "X-ray identify",
+              "downloadUrl": "https://drive.google.com/file/d/1BOH0MdP61jDTQCZgaoxMBpQCjfFN27fH/view?usp=drive_link"
+            },
+            {
+              "id": "dd41f283-23aa-4524-8133-d7902f07932e",
+              "title": "Xray Complied ",
+              "downloadUrl": "https://drive.google.com/file/d/1mPjgakY0VUHHEpqkHp2MNHsygXHwqgGq/view?usp=drive_link"
+            },
+            {
+              "title": "Xray Med",
+              "downloadUrl": "https://drive.google.com/file/d/1i7DBbrE29bMdYFlf_h73rxDsT04lfW7x/view?usp=drive_link",
+              "id": "4113622b-1aad-4563-8b4b-287b3f71725c"
+            },
+            {
+              "id": "4a30b316-5c2f-4a8c-867d-89adbf371452",
+              "downloadUrl": "https://drive.google.com/file/d/1mPjgakY0VUHHEpqkHp2MNHsygXHwqgGq/view?usp=drive_link",
+              "title": "Xray"
+            }
+          ],
+          "description": "",
+          "downloadUrl": "",
+          "title": "X-Ray",
+          "coverUrl": "",
+          "id": "5690cf34-c31a-429a-b007-920600d3f64b",
+          "coverColor": "bg-blue-600"
+        }
+      ],
+      "osce": [
+        {
+          "coverUrl": "",
+          "id": "c9f82108-ef34-4cf4-93e7-0f35c0d7edd5",
+          "coverColor": "bg-blue-600",
+          "downloadUrl": "",
+          "title": "Unskilled osce ",
+          "description": "",
+          "parts": [
+            {
+              "id": "8d02a256-94ee-4078-a182-9159a54fa055",
+              "downloadUrl": "https://drive.google.com/file/d/1vQtg5nhTFtR1anx46H5AOh-RgNMonxtc/view?usp=drive_link",
+              "title": "Unskilled OSCE main "
+            },
+            {
+              "id": "e6950fdc-fc55-46f1-ab8e-bcefb7efa0d5",
+              "title": "Unskilled OSCE 99 pdf",
+              "downloadUrl": "https://drive.google.com/file/d/1gQAcIDmmC_TAnKMDXQ2it0kEiYjCQJAz/view?usp=drive_link"
+            },
+            {
+              "title": "Unskilled osce med",
+              "downloadUrl": "https://drive.google.com/file/d/1J-pUNj3g6eksIvenaZBjTd8jCHsGcaTY/view?usp=drive_link",
+              "id": "ce7ba515-d7ba-468e-97ff-95231be301e3"
+            }
+          ],
+          "type": "textbook",
+          "author": "OSCE",
+          "driveId": ""
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "id": "alagappan",
+          "coverColor": "bg-emerald-500",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/Tc2e0XDZhc6AmNGUKVqm.jpg",
+          "author": "Practical Medicine",
+          "title": "Alagappan Manual of Practical Medicine",
+          "downloadUrl": "https://drive.google.com/file/d/13Yhh679vpY2-yP6Q9uBNI2i3PfP0xgMT/view?usp=drive_link",
+          "type": "clinical"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/KXd6WIUGVeTjOwEX2EL0.jpg",
+          "id": "boloor-clin",
+          "coverColor": "bg-emerald-600",
+          "downloadUrl": "https://drive.google.com/file/d/1KE8ESOJLJYOphLl924uWnB0Ucc9-rw-V/view?usp=drive_link",
+          "type": "clinical",
+          "author": "Archith Boloor",
+          "title": "Clinical Med (Boloor)"
+        },
+        {
+          "id": "hutchinson-24",
+          "coverColor": "bg-emerald-700",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/2GssRSKi8PEoMQ6IQVUn.jpg",
+          "title": "Hutchison's Clinical Methods",
+          "author": "24th Edition",
+          "downloadUrl": "https://drive.google.com/file/d/1XFyronrEZuBu2IY731U6cAGTBLvCPM2r/view?usp=drive_link",
+          "type": "clinical"
+        },
+        {
+          "id": "macleod",
+          "coverColor": "bg-emerald-600",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/IoxTKkOA0LOtRrmacs6Z.jpg",
+          "author": "Standard",
+          "title": "Macleod's Clinical Exam",
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/1zGD10aa5KVqxnw4a1fVQaxhqbYPi077U/view?usp=drive_link"
+        }
+      ]
+    }
+  },
+  "general-surgery": {
+    "name": "General Surgery",
+    "years": [
+      4
+    ],
+    "icon": "Scissors",
+    "color": "bg-red-600",
+    "description": "Surgical treatment of abdominal organs.",
+    "examSections": [],
+    "materials": {
+      "questionBank": [],
+      "studyMaterials": [
+        {
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/Emhi8CW0",
+          "title": "Marrow Gen Surgery",
+          "author": "8th Edition",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/eq5ViOdbQ9QedFfZMKHu.jpeg",
+          "coverColor": "bg-amber-600",
+          "id": "marrow-surg"
+        },
+        {
+          "author": "X Edition",
+          "title": "Prepladder Gen Surgery",
+          "downloadUrl": "https://www.febbox.com/share/j59BLhCJ",
+          "type": "notes",
+          "coverColor": "bg-amber-500",
+          "id": "prepladder-surg",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/JO2LfttNUcBTNEjXeI5B.png"
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "coverColor": "bg-orange-600",
+          "id": "das-clinical",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/YLnh0qhVk9UwKU8JVEjH.jpg",
+          "author": "13th Edition",
+          "title": "A Manual On Clinical Surgery",
+          "downloadUrl": "https://drive.google.com/file/d/1evFDv_wqhhpn39Xn4X5N1VQYyafadclB/view?usp=drive_link",
+          "type": "clinical"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/wKa7Aut3zbogpIqsaOwM.jpg",
+          "id": "long-cases-surg",
+          "coverColor": "bg-orange-500",
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/1HA_2W04fphjtJjqN-GkbdygiWlijOnfz/view?usp=drive_link",
+          "title": "Long Cases in Surgery",
+          "author": "Rajamahendran"
+        },
+        {
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/1GoMzy-92XQC1zkg8igXgjBvotcSkewo9/view?usp=drive_link",
+          "title": "Short Cases in Surgery",
+          "author": "Rajamahendran",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/1xEEhqDgGUlrLDN2qmRN.jpg",
+          "coverColor": "bg-orange-500",
+          "id": "short-cases-surg"
+        }
+      ],
+      "textbooks": [
+        {
+          "id": "bailey-love",
+          "coverColor": "bg-red-700",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/1cKM3jTDVpLFP2fjqYfi.webp",
+          "title": "Bailey & Love's Surgery",
+          "author": "Short Practice",
+          "downloadUrl": "https://drive.google.com/file/d/184CYOHUeRxV4NueLYhYUpEKgqg2VsO3j/view?usp=drive_link",
+          "type": "textbook"
+        },
+        {
+          "coverColor": "bg-red-600",
+          "id": "manipal-surg-5",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/JI3xJnMLwC8pSHy3tbtK.jpg",
+          "title": "Manipal Manual of Surgery",
+          "author": "5th Edition",
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/19RvZ8bcr06_q6zZG4Sj8nQze0FCZe9Gh/view?usp=drive_link"
+        },
+        {
+          "author": "6th Edition",
+          "title": "SRB's Manual of Surgery",
+          "downloadUrl": "https://drive.google.com/file/d/1cr1kOBwvFMAUla9qg15xdLCleQ6PbbAE/view?usp=drive_link",
+          "type": "textbook",
+          "coverColor": "bg-red-800",
+          "id": "srb-6",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/8zHhKLqPMhUKNVfQgkU4.jpg"
+        },
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/91W1dqrz3XL._AC_UF1000,1000_QL80_.jpg",
+          "id": "exam-prep-surg",
+          "coverColor": "bg-red-500",
+          "downloadUrl": "https://drive.google.com/file/d/1qb1WcTR46mieZ2ynn1CqDJRcFtOo8CMg/view?usp=drive_link",
+          "type": "textbook",
+          "author": "Undergraduates",
+          "title": "Exam Prep Manual Surgery"
+        },
+        {
+          "author": "21st Edition",
+          "title": "Sabiston Textbook of Surgery",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/dtTK9lN0",
+          "coverColor": "bg-red-900",
+          "id": "sabiston-21",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/VCEAiJATZxsUhXqK5cCH.jpg"
+        }
+      ]
+    },
+    "id": "general-surgery"
+  },
+  "microbiology": {
+    "id": "microbiology",
+    "examSections": [],
+    "materials": {
+      "textbooks": [
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/81BNmVuMulL._UF1000,1000_QL80_.jpg",
+          "coverColor": "bg-lime-700",
+          "id": "sastry-micro-3",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/kbA8Yn6i",
+          "author": "Apurba Sastry (3rd)",
+          "title": "Essentials of Microbiology"
+        },
+        {
+          "author": "Apurba Sastry",
+          "title": "Essentials of Parasitology",
+          "downloadUrl": "https://www.febbox.com/share/ErvlySs0",
+          "type": "textbook",
+          "id": "sastry-para",
+          "coverColor": "bg-lime-600",
+          "coverUrl": "https://rukminim2.flixcart.com/image/480/480/kndi4y80/book/7/q/l/essentials-of-medical-parasitology-original-imag22phgbnvjkhz.jpeg?q=90"
+        }
+      ],
+      "studyMaterials": [
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/1P9X9RRKwVxczXAOahUW.png",
+          "id": "marrow-micro",
+          "coverColor": "bg-amber-500",
+          "downloadUrl": "https://www.febbox.com/share/VbrDJ71S",
+          "type": "notes",
+          "author": "8th Edition",
+          "title": "Marrow Microbiology"
+        },
+        {
+          "downloadUrl": "https://www.febbox.com/share/2PRZC3Ys",
+          "type": "textbook",
+          "title": "Micro MCQs",
+          "author": "Question Bank",
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbZpxiOInp4Isghi7zlq8r1AGkMCB5Ka34-Q&s",
+          "id": "micro-mcq",
+          "coverColor": "bg-amber-400"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/od5eoJR93Hs4FhVpPWEf.png",
+          "coverColor": "bg-amber-600",
+          "id": "prepladder-micro",
+          "downloadUrl": "https://drive.google.com/file/d/1Fb9LEo509ufdox6la3cAq3RW82NYvpjU/view?usp=drive_link",
+          "type": "notes",
+          "author": "X Edition",
+          "title": "Prepladder Microbiology"
+        }
+      ],
+      "questionBank": [
+        {
+          "id": "micro-qb-tg",
+          "coverColor": "bg-lime-600",
+          "title": "Microbiology Q-Bank",
+          "author": "@DrAstroBot",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "question-bank"
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "author": "Standard",
+          "title": "Microbiology Clinical Cases",
+          "type": "clinical",
+          "downloadUrl": "https://www.febbox.com/share/UXMnN8eK",
+          "coverColor": "bg-emerald-600",
+          "id": "micro-cases",
+          "coverUrl": "https://m.media-amazon.com/images/I/710Z1si7VBL._UF1000,1000_QL80_.jpg"
+        }
+      ],
+      "practicalMaterials": [
+        {
+          "title": "Microbiology Practical Resources",
+          "author": "@DrAstroBot",
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "coverColor": "bg-lime-600",
+          "id": "micro-prac-tg"
+        }
+      ],
+      "previousYearQuestions": [
+        {
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "title": "Microbiology PYQs",
+          "author": "@DrAstroBot",
+          "coverColor": "bg-lime-600",
+          "id": "micro-pyq-tg"
+        }
+      ]
+    },
+    "years": [
+      2
+    ],
+    "description": "Study of microscopic organisms, such as bacteria, viruses, archaea, fungi and protozoa.",
+    "color": "bg-lime-600",
+    "icon": "Microscope",
+    "name": "Microbiology"
+  },
+  "obg": {
+    "id": "obg",
+    "materials": {
+      "studyMaterials": [
+        {
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/rnnlaUsq",
+          "author": "8th Edition",
+          "title": "Marrow OBG",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/gm6xDxpZ44keKdoTTFMW.webp",
+          "coverColor": "bg-amber-500",
+          "id": "marrow-obg"
+        },
+        {
+          "id": "prepladder-obg",
+          "coverColor": "bg-amber-600",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/u1oABJJ9HtrrAYH3wock.png",
+          "title": "Prepladder OBG",
+          "author": "X Edition",
+          "downloadUrl": "https://www.febbox.com/share/mYO9Sd0w",
+          "type": "notes"
+        }
+      ],
+      "questionBank": [],
+      "textbooks": [
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/91H1g0iBWfL._AC_UF1000,1000_QL80_.jpg",
+          "id": "obg-exam-prep",
+          "coverColor": "bg-pink-600",
+          "downloadUrl": "https://drive.google.com/file/d/1Nzgs3PpeV5e5-yq-KOF-9L10DChV7mhB/view?usp=drive_link",
+          "type": "textbook",
+          "author": "Punit S Bhojani",
+          "title": "ObGy Exam Prep Manual"
+        }
+      ],
+      "gynecologyTextbooks": [
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/4psw1kWg1JY4G8RXE2tY.webp",
+          "coverColor": "bg-pink-400",
+          "id": "dutta-gyn",
+          "downloadUrl": "https://drive.google.com/file/d/1XoqnRXPsZqH0fEJPAsjCyEPrCEFwE0jO/view?usp=drive_link",
+          "type": "textbook",
+          "author": "Standard",
+          "title": "DC Dutta Textbook of Gynecology"
+        },
+        {
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/1rmCe-eGJP9rkI1HflO1vw8lXvu9cuUVu/view?usp=drive_link",
+          "author": "Lakshmi Seshadri",
+          "title": "Essentials of Gynecology",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/g3rghfsGtPvQCWn0aamK.jpg",
+          "id": "seshadri-gyn",
+          "coverColor": "bg-pink-300"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/2zdNPGYq9NPM77Jasy4l.jpg",
+          "id": "shaws-gyn",
+          "coverColor": "bg-pink-500",
+          "downloadUrl": "https://drive.google.com/file/d/18wwGJfTyBBrqWKLJZb9jthfGlHr1DbLh/view?usp=drive_link",
+          "type": "textbook",
+          "author": "Standard",
+          "title": "Shaw's Textbook of Gynecology"
+        }
+      ],
+      "obstetricsTextbooks": [
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/cfaCyGPt7c71CxTUP5zq.webp",
+          "coverColor": "bg-pink-400",
+          "id": "dutta-obs",
+          "downloadUrl": "https://drive.google.com/file/d/1ovytZch00yW5lfPQYdKhAOoQIV7W00pU/view?usp=drive_link",
+          "type": "textbook",
+          "author": "Standard",
+          "title": "DC Dutta Textbook of Obstetrics"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/gC1sE4H2smSXJnkw4yBS.jpg",
+          "id": "mudaliar-obs",
+          "coverColor": "bg-pink-500",
+          "downloadUrl": "https://drive.google.com/file/d/1fTatsE70VKSX2nd7qaursNiv7SbY4Chw/view?usp=drive_link",
+          "type": "textbook",
+          "author": "13th Edition",
+          "title": "Mudaliar & Menon's Clinical Obs"
+        },
+        {
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRP3AixDTijCqHHt1-cA35jGXM1kAsM4HtHIw&s",
+          "coverColor": "bg-pink-300",
+          "id": "seshadri-obs",
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/1rmCe-eGJP9rkI1HflO1vw8lXvu9cuUVu/view?usp=drive_link",
+          "title": "Essentials of Obstretric",
+          "author": "Lakshmi Seshadri"
+        },
+        {
+          "author": "26th Edition",
+          "title": "Williams Obstetrics",
+          "downloadUrl": "https://drive.google.com/file/d/1vC5fQT6blk3xDPY-wubGiFpO67qscct7/view?usp=drive_link",
+          "type": "textbook",
+          "id": "williams-obs",
+          "coverColor": "bg-pink-700",
+          "coverUrl": "https://m.media-amazon.com/images/I/61-3vXSZP+L.jpg"
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "downloadUrl": "https://drive.google.com/file/d/1d33hokgld56GC0kcIbQcXVhhGx4eflld/view?usp=drive_link",
+          "type": "clinical",
+          "title": "Clinical Obs & Gyn",
+          "author": "Sharmila Arun Babu",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/beAkbYua0U9hyPUxn8sf.jpg",
+          "id": "sharmila-clin",
+          "coverColor": "bg-rose-400"
+        }
+      ]
+    },
+    "examSections": [],
+    "icon": "Baby",
+    "description": "Care of women during pregnancy and childbirth.",
+    "years": [
+      4
+    ],
+    "color": "bg-pink-500",
+    "name": "Obstetrics & Gynaecology"
+  },
+  "ophthalmology": {
+    "years": [
+      4
+    ],
+    "description": "Diagnosis and treatment of eye disorders.",
+    "color": "bg-cyan-500",
+    "practicalSections": [
+      {
+        "description": "",
+        "id": "practicalMaterials",
+        "label": "Case"
+      },
+      {
+        "description": "",
+        "label": "OSCE",
+        "id": "osce"
+      },
+      {
+        "label": "VIVA",
+        "id": "viva",
+        "description": "(Instruments, Drugs, Lens & AETCOM - Programmes)"
+      }
+    ],
+    "id": "ophthalmology",
+    "materials": {
+      "osce": [
+        {
+          "type": "textbook",
+          "driveId": "https://drive.google.com/file/d/1wmiIOn1-gE3zFEH2gyN8paDMuPTwluHk/view?usp=drive_link",
+          "author": "OSCE",
+          "description": "",
+          "downloadUrl": "https://drive.google.com/file/d/1wmiIOn1-gE3zFEH2gyN8paDMuPTwluHk/view?usp=drive_link",
+          "title": "OSCE Final",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "7b3b8621-28f4-4616-8e69-8c904a720ae9"
+        }
+      ],
+      "viva": [
+        {
+          "downloadUrl": "https://drive.google.com/file/d/10gcEJT_qkvWi8FttMup4V-CiLo-YNlQA/view?usp=drivesdk",
+          "type": "textbook",
+          "author": "None",
+          "title": "Drugs in ophthalmology ",
+          "coverUrl": "",
+          "coverColor": "bg-blue-600",
+          "id": "28040514-2725-4983-a7e5-a45145494e69"
+        },
+        {
+          "downloadUrl": "https://drive.google.com/file/d/1bIqid3-US3LOILfxFar4JETFzv1KRBdw/view?usp=drivesdk",
+          "type": "textbook",
+          "title": "Instruments and lens",
+          "author": "None ",
+          "coverUrl": "",
+          "id": "aa76ff1d-cff5-42e8-b8c7-d37f1bc4c633",
+          "coverColor": "bg-blue-600"
+        },
+        {
+          "title": "Ophthalmology viva notes  ",
+          "author": "None",
+          "downloadUrl": "https://drive.google.com/file/d/1_nw7X6eYDf_ej4HMXp4P7mlEXzjytjUC/view?usp=drivesdk",
+          "type": "textbook",
+          "coverColor": "bg-blue-600",
+          "id": "b4dc49d9-9390-437c-b992-14bb9b38531c",
+          "coverUrl": ""
+        }
+      ],
+      "questionBank": [
+        {
+          "coverUrl": "",
+          "id": "0e345f0b-a8bb-4db6-afc5-71920c33e24e",
+          "coverColor": "bg-blue-600",
+          "downloadUrl": "https://drive.google.com/file/d/1j8mMU-1DCqq8n_t7OAv0qt0BiyPygh4q/view?usp=drivesdk",
+          "type": "textbook",
+          "author": "None ",
+          "title": "Ophthalmology important questions "
+        },
+        {
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/1RKzjJQ9cQI3o-ouE6M5_jAU5TrKsKs1W/view?usp=drivesdk",
+          "author": "None ",
+          "title": "Ophthalmology important q",
+          "coverUrl": "",
+          "id": "0991c8cc-a20a-4352-885d-9a6fe99c6851",
+          "coverColor": "bg-blue-600"
+        }
+      ],
+      "studyMaterials": [
+        {
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/RGbyhgqW",
+          "title": "Marrow Ophthalmology",
+          "author": "8th Edition",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/8p9nr6GqHe0yIUHZVVNM.png",
+          "coverColor": "bg-amber-500",
+          "id": "marrow-oph"
+        },
+        {
+          "title": "Ophthalmology Agam Notes",
+          "author": "Standard",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/pr0Z4Ky6",
+          "coverColor": "bg-amber-600",
+          "id": "agam-oph",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/kscKtPcDyKuORrcefJOy.png"
+        },
+        {
+          "author": "X Edition",
+          "title": "Prepladder Ophthalmology",
+          "downloadUrl": "https://www.febbox.com/share/IdKcSlM0",
+          "type": "notes",
+          "coverColor": "bg-amber-500",
+          "id": "prepladder-oph",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/6pSZsVdW8ZDbWonmQr2k.png"
+        },
+        {
+          "coverUrl": "",
+          "id": "399a4f54-c900-47ac-b244-c231353636ed",
+          "coverColor": "bg-blue-600",
+          "downloadUrl": "https://drive.google.com/file/d/1FQtzMoKn5HBWYf6bQ7ortEYAdyFomj3m/view?usp=drivesdk",
+          "type": "textbook",
+          "author": "Notes ",
+          "title": "Ophthalmology concept maps "
+        },
+        {
+          "title": "Ophthalmology case identification points ",
+          "author": "Notes ",
+          "downloadUrl": "https://drive.google.com/file/d/19nbajb3IEWmtpWwGvh1NzA41sl_3tt8n/view?usp=drivesdk",
+          "type": "textbook",
+          "id": "9add5e79-d66b-4cb7-a758-224909d80711",
+          "coverColor": "bg-blue-600",
+          "coverUrl": ""
+        },
+        {
+          "author": "Diginerve ",
+          "title": "Ophthalmology Diginerve ",
+          "downloadUrl": "https://drive.google.com/file/d/1HY2BYOI6nUJnXau3aeHfQrKbzDHnOZ5F/view?usp=drivesdk",
+          "type": "textbook",
+          "id": "d3258b82-567b-4205-82c6-bd681fa70653",
+          "coverColor": "bg-blue-600",
+          "coverUrl": ""
+        }
+      ],
+      "caseNotesAndViva": [],
+      "clinicalBooks": [
+        {
+          "coverColor": "bg-teal-600",
+          "id": "oph-cases",
+          "coverUrl": "https://prithvibooks.com/wp-content/uploads/2020/09/agarwal.jpg",
+          "author": "Standard",
+          "title": "Ophthal Cases Identification",
+          "type": "clinical",
+          "downloadUrl": "https://drive.google.com/file/d/19nbajb3IEWmtpWwGvh1NzA41sl_3tt8n/view?usp=drive_link"
+        }
+      ],
+      "previousYearQuestions": [
+        {
+          "coverUrl": "",
+          "id": "7ad3a27d-ea54-4c3d-bf73-7fb7f10fea05",
+          "coverColor": "bg-blue-600",
+          "downloadUrl": "https://drive.google.com/file/d/1PLQyXreWWODfsfsXtawTMhcjeyHWmO3V/view?usp=drivesdk",
+          "type": "textbook",
+          "author": "None",
+          "title": "Ophthalmology IA Papers "
+        },
+        {
+          "author": "None ",
+          "title": "Ophthalmology previous year questions (Uni)",
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/1JNT1TzHHLBOc2yyxPLIXet8vrqSrTdBX/view?usp=drivesdk",
+          "id": "048d0aa0-77cc-4fdf-aa04-75a260cdde4e",
+          "coverColor": "bg-blue-600",
+          "coverUrl": ""
+        }
+      ],
+      "practicalMaterials": [
+        {
+          "title": "Ophthalmology case performa",
+          "author": "None ",
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/1TvwubeWMZ9o2_8cju2qTD_aL07esefkB/view?usp=drivesdk",
+          "coverColor": "bg-blue-600",
+          "id": "91d01b9c-a534-4cce-88cc-ff2b1fbc3e18",
+          "coverUrl": ""
+        },
+        {
+          "title": "Ophthalmology viva notes ",
+          "author": "None",
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/1_nw7X6eYDf_ej4HMXp4P7mlEXzjytjUC/view?usp=drivesdk",
+          "id": "d6305e74-5659-4fbe-bcad-0ae8bf027d65",
+          "coverColor": "bg-blue-600",
+          "coverUrl": ""
+        },
+        {
+          "coverColor": "bg-blue-600",
+          "id": "1788f076-55c3-4e5c-abfb-f4b3aad9eed7",
+          "coverUrl": "",
+          "title": "Cataract pathogenesis ",
+          "author": "None",
+          "downloadUrl": "https://drive.google.com/file/d/12G7V_LCLYKXqV-yG6siI_qsIwjVomevU/view?usp=drivesdk",
+          "type": "textbook"
+        }
+      ],
+      "textbooks": [
+        {
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/1zuOxjhOQ-0fr__HsWK2Y-2h0-_S2bMbX/view?usp=drive_link",
+          "title": "Comprehensive Ophthalmology",
+          "author": "Ak Khurana",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/5ZWffexykUftNOFpb1fB.jpg",
+          "id": "khurana-oph",
+          "coverColor": "bg-cyan-600"
+        },
+        {
+          "coverColor": "bg-cyan-700",
+          "id": "parsons-eye",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/37jDPlTnTkWV8DB7vjJO.jpg",
+          "title": "Parsons' Diseases of the Eye",
+          "author": "Standard",
+          "downloadUrl": "https://drive.google.com/file/d/11884J-Uwxz2FYlK_r7dYSZ-HrQ0njbBM/view?usp=drive_link",
+          "type": "textbook"
+        },
+        {
+          "id": "soch-oph",
+          "coverColor": "bg-cyan-500",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/leke7jKYwalkWpZ14zVu.jpg",
+          "author": "Standard",
+          "title": "SOCH SIMPLIFIED OPHTHALMOLOGY",
+          "downloadUrl": "https://drive.google.com/file/d/1NEyHnJcot1p7TWRsh8JI4LKwm3uunqep/view?usp=drive_link",
+          "type": "textbook"
+        },
+        {
+          "author": "Jogi Renu",
+          "title": "Basic Ophthalmology",
+          "type": "textbook",
+          "downloadUrl": "https://drive.google.com/file/d/14K2G7M08ftp3FTSVi7BmhZ-cGCFUFX6Z/view?usp=drive_link",
+          "coverColor": "bg-cyan-800",
+          "id": "jogi-renu",
+          "coverUrl": "https://rukminim2.flixcart.com/image/480/640/kidgnm80-0/book/m/5/p/basic-ophthalmology-original-imafy6paazhzrxr8.jpeg?q=90"
+        }
+      ]
+    },
+    "examSections": [],
+    "icon": "Eye",
+    "name": "Ophthalmology"
+  },
+  "orthopaedics": {
+    "id": "orthopaedics",
+    "examSections": [],
+    "materials": {
+      "textbooks": [
+        {
+          "id": "maheshwari-ortho",
+          "coverColor": "bg-stone-600",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/ybkaKYsedFXpTiGsTDSt.jpg",
+          "title": "Essential Orthopaedics",
+          "author": "Maheshwari",
+          "downloadUrl": "https://www.febbox.com/share/2ZIw7ss3",
+          "type": "textbook"
+        }
+      ],
+      "clinicalBooks": [],
+      "studyMaterials": [
+        {
+          "downloadUrl": "https://www.febbox.com/share/gVciGgHn",
+          "type": "notes",
+          "title": "Prepladder Orthopedics",
+          "author": "X Edition",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/scVrCojjgaMBWYdXEDXj.png",
+          "coverColor": "bg-amber-600",
+          "id": "prepladder-ortho"
+        },
+        {
+          "coverColor": "bg-amber-500",
+          "id": "marrow-ortho",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/zHKgDytmbZZERUF6rZoh.png",
+          "author": "8th Edition",
+          "title": "Marrow Orthopedics",
+          "downloadUrl": "https://www.febbox.com/share/ToBJXH10",
+          "type": "notes"
+        }
+      ],
+      "questionBank": []
+    },
+    "name": "Orthopaedics",
+    "years": [
+      4
+    ],
+    "color": "bg-stone-500",
+    "description": "Treatment of disorders of the bones, joints and muscles.",
+    "icon": "Bone"
+  },
+  "pathology": {
+    "name": "Pathology",
+    "years": [
+      2
+    ],
+    "description": "The study of the causes and effects of disease or injury.",
+    "color": "bg-pink-600",
+    "icon": "Microscope",
+    "examSections": [],
+    "materials": {
+      "studyMaterials": [
+        {
+          "title": "Marrow Pathology",
+          "author": "8th Edition",
+          "downloadUrl": "https://www.febbox.com/share/kDnvzQtb",
+          "type": "notes",
+          "coverColor": "bg-amber-500",
+          "id": "marrow-path",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/irWcjZYoq0DcGrCo4tTC.png"
+        },
+        {
+          "coverColor": "bg-amber-600",
+          "id": "prepladder-path",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/9cPPoAwcFHf9IO0bFuPm.png",
+          "title": "Prepladder Pathology",
+          "author": "X Edition",
+          "downloadUrl": "https://www.febbox.com/share/WjAklXtV",
+          "type": "notes"
+        }
+      ],
+      "questionBank": [
+        {
+          "author": "@DrAstroBot",
+          "title": "Pathology Q-Bank",
+          "type": "question-bank",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "coverColor": "bg-pink-600",
+          "id": "path-qb-tg"
+        }
+      ],
+      "textbooks": [
+        {
+          "author": "Geetika Khanna",
+          "title": "Geetika Khanna Pathology",
+          "downloadUrl": "https://www.febbox.com/share/iqhm5qK9",
+          "type": "textbook",
+          "coverColor": "bg-indigo-600",
+          "id": "geetika-path",
+          "coverUrl": "https://m.media-amazon.com/images/I/81FriBx-rGL._UF1000,1000_QL80_.jpg"
+        },
+        {
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/WQLgcfKH",
+          "title": "Harsh Mohan Pathology",
+          "author": "6th Edition",
+          "coverUrl": "https://m.media-amazon.com/images/I/71owLs+t70L._UF1000,1000_QL80_.jpg",
+          "id": "harsh-mohan-6",
+          "coverColor": "bg-indigo-700"
+        },
+        {
+          "title": "Harsh Mohan Pathology",
+          "author": "7th Edition",
+          "downloadUrl": "https://www.febbox.com/share/lFq2aImQ",
+          "type": "textbook",
+          "coverColor": "bg-indigo-800",
+          "id": "harsh-mohan-7",
+          "coverUrl": "https://booksjugaad.com/wp-content/uploads/2020/12/Textbook-of-Pathology-By-Harsh-Mohan-1.png"
+        },
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/91ZjUUTWTcL._UF1000,1000_QL80_.jpg",
+          "coverColor": "bg-indigo-500",
+          "id": "ramdas-nayak-4",
+          "downloadUrl": "https://www.febbox.com/share/0laUbNv7",
+          "type": "textbook",
+          "title": "Ramdas Nayak Pathology",
+          "author": "4th Edition"
+        },
+        {
+          "coverColor": "bg-indigo-900",
+          "id": "robbins-10",
+          "coverUrl": "https://www.aibh.in/backend/images/products/cover-9780323531139.jpg",
+          "title": "Robbins Pathology",
+          "author": "10th Edition",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/fIRZozyT"
+        },
+        {
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxqJViYDlJD-nUROKD1mGS_xy2dGj6EjoFbQ&s",
+          "id": "tejindar-hem",
+          "coverColor": "bg-indigo-400",
+          "downloadUrl": "https://www.febbox.com/share/wb96FIDx",
+          "type": "textbook",
+          "author": "Atlas",
+          "title": "Tejindar Singh Hematology"
+        }
+      ],
+      "previousYearQuestions": [
+        {
+          "coverColor": "bg-pink-600",
+          "id": "path-pyq-tg",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "textbook",
+          "title": "Pathology PYQs",
+          "author": "@DrAstroBot"
+        }
+      ],
+      "practicalMaterials": [
+        {
+          "id": "path-prac-tg",
+          "coverColor": "bg-pink-600",
+          "title": "Pathology Practical Resources",
+          "author": "@DrAstroBot",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "textbook"
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "id": "path-cases",
+          "coverColor": "bg-violet-600",
+          "coverUrl": "https://m.media-amazon.com/images/I/71Vb3q1dpFL._UF1000,1000_QL80_.jpg",
+          "title": "Pathology Clinical Cases",
+          "author": "Standard",
+          "downloadUrl": "https://www.febbox.com/share/cX603dXp",
+          "type": "clinical"
+        }
+      ]
+    },
+    "id": "pathology"
+  },
+  "pediatrics": {
+    "examSections": [],
+    "materials": {
+      "questionBank": [],
+      "studyMaterials": [
+        {
+          "downloadUrl": "https://www.febbox.com/share/paTwP63h",
+          "type": "notes",
+          "title": "Marrow Pediatrics",
+          "author": "8th Edition",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/PJY4TeWNDe2V831vO0Pu.jpeg",
+          "coverColor": "bg-purple-500",
+          "id": "marrow-peds"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/ntgDyC4qdJNYszLkTHqN.png",
+          "coverColor": "bg-purple-600",
+          "id": "prepladder-peds",
+          "downloadUrl": "https://www.febbox.com/share/PrcthRON",
+          "type": "notes",
+          "title": "Prepladder Pediatrics",
+          "author": "X Edition"
+        }
+      ],
+      "textbooks": [
+        {
+          "coverColor": "bg-sky-500",
+          "id": "ghai-10",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/SHPwTXsBat2AnVXsF5Tv.jpg",
+          "author": "10th Edition",
+          "title": "GHAI Essential Pediatrics",
+          "downloadUrl": "https://drive.google.com/file/d/1AQvbJ6QkqJ46MELyXa0dAu9KKpNVSoKn/view?usp=drive_link",
+          "type": "textbook"
+        },
+        {
+          "downloadUrl": "https://drive.google.com/file/d/1kaG-Qok92CJ0Sy4gJb3o7bf7L6xZipJa/view?usp=drive_link",
+          "type": "textbook",
+          "author": "Arun Babu",
+          "title": "Pediatrics for Medical",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/cKIpG4AhTZbYbghF3IuW.jpg",
+          "coverColor": "bg-sky-600",
+          "id": "arun-babu-peds"
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "author": "Aruchamy",
+          "title": "Clinical Pediatrics",
+          "type": "clinical",
+          "downloadUrl": "https://www.febbox.com/share/Evzk3A8d",
+          "id": "aruchamy-clin",
+          "coverColor": "bg-cyan-500",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/GAp6q9UQS6NTvxSVI1In.jpg"
+        }
+      ]
+    },
+    "icon": "Baby",
+    "color": "bg-sky-400",
+    "description": "Medical care of infants, children, and adolescents.",
+    "years": [
+      4
+    ],
+    "name": "Pediatrics",
+    "id": "pediatrics"
+  },
+  "pharmacology": {
+    "materials": {
+      "practicalMaterials": [
+        {
+          "coverColor": "bg-teal-600",
+          "id": "pharma-prac-tg",
+          "title": "Pharmacology Practical Resources",
+          "author": "@DrAstroBot",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "textbook"
+        }
+      ],
+      "previousYearQuestions": [
+        {
+          "id": "pharma-pyq-tg",
+          "coverColor": "bg-teal-600",
+          "title": "Pharmacology PYQs",
+          "author": "@DrAstroBot",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "textbook"
+        }
+      ],
+      "clinicalBooks": [
+        {
+          "coverColor": "bg-emerald-600",
+          "id": "pharm-cases",
+          "coverUrl": "https://m.media-amazon.com/images/I/71wb4Q6YzML._UF1000,1000_QL80_.jpg",
+          "title": "Pharmacology Clinical Cases",
+          "author": "Standard",
+          "downloadUrl": "https://www.febbox.com/share/LwxxdiWS",
+          "type": "clinical"
+        }
+      ],
+      "questionBank": [
+        {
+          "title": "Pharmacology Q-Bank",
+          "author": "@DrAstroBot",
+          "type": "question-bank",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "coverColor": "bg-teal-600",
+          "id": "pharma-qb-tg"
+        }
+      ],
+      "studyMaterials": [
+        {
+          "downloadUrl": "https://www.febbox.com/share/WnlVn2Vi",
+          "type": "notes",
+          "title": "Marrow Pharmacology",
+          "author": "8th Edition",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/jaWUhBLppnRcqO1FVpDG.png",
+          "coverColor": "bg-amber-500",
+          "id": "marrow-pharma"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/wyOpgfFRPXR6ZJGNvfuM.png",
+          "coverColor": "bg-amber-600",
+          "id": "prepladder-pharma",
+          "type": "notes",
+          "downloadUrl": "https://drive.google.com/file/d/1Ibauj06c_hN8y68_J2ot5t9ti1_FARFU/view?usp=drive_link",
+          "author": "X Edition",
+          "title": "Prepladder Pharmacology"
+        }
+      ],
+      "textbooks": [
+        {
+          "title": "Essentials of Pharmacology",
+          "author": "KD Tripathi",
+          "downloadUrl": "https://www.febbox.com/share/749MvKTc",
+          "type": "textbook",
+          "id": "kdt-8",
+          "coverColor": "bg-teal-700",
+          "coverUrl": "https://m.media-amazon.com/images/I/41gyxkHYxCL._UF1000,1000_QL80_.jpg"
+        },
+        {
+          "coverUrl": "https://m.media-amazon.com/images/I/71XTpPEMz+L._UF1000,1000_QL80_.jpg",
+          "coverColor": "bg-teal-600",
+          "id": "kdt-class",
+          "downloadUrl": "https://www.febbox.com/share/CdOErBHF",
+          "type": "textbook",
+          "author": "KD Tripathi",
+          "title": "Drug Classification"
+        },
+        {
+          "coverColor": "bg-teal-500",
+          "id": "tara-4",
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfhDIHwoHIFOGr4zocMu9xEK4XZ9f2lC2fMA&s",
+          "title": "Tara Pharmacology",
+          "author": "4th Edition",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/2p5gJwLY"
+        }
+      ]
+    },
+    "examSections": [],
+    "years": [
+      2
+    ],
+    "description": "The study of drug action and interaction.",
+    "icon": "Pill",
+    "color": "bg-teal-500",
+    "name": "Pharmacology",
+    "id": "pharmacology"
+  },
+  "physiology": {
+    "color": "bg-orange-500",
+    "years": [
+      1
+    ],
+    "icon": "Activity",
+    "description": "Study of the functions of living organisms and their parts.",
+    "name": "Physiology",
+    "materials": {
+      "textbooks": [
+        {
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/2sRxldyF",
+          "title": "G K Pal Physiology",
+          "author": "G K Pal",
+          "coverUrl": "https://d45jl3w9libvn.cloudfront.net/jaypee/static/books/9789386056979/9789386056979.png",
+          "coverColor": "bg-orange-600",
+          "id": "gk-pal-physio"
+        },
+        {
+          "title": "Ganong's Review of Physiology",
+          "author": "25th Edition",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/15qy5bRK",
+          "id": "ganong-25",
+          "coverColor": "bg-orange-700",
+          "coverUrl": "https://m.media-amazon.com/images/I/71ZoZrkuKmL._UF1000,1000_QL80_.jpg"
+        },
+        {
+          "coverUrl": "https://secure-ecsd.elsevier.com/covers/80/Tango2/largest/9780323597128.jpg",
+          "id": "guyton-mech",
+          "coverColor": "bg-orange-500",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/eL17L8EA",
+          "author": "Guyton",
+          "title": "Guyton - Mechanisms of Disease"
+        },
+        {
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/9nmX3d8J",
+          "title": "Guyton and Hall Textbook",
+          "author": "Standard",
+          "coverUrl": "https://m.media-amazon.com/images/I/71n6+bDeUjL._UF1000,1000_QL80_.jpg",
+          "id": "guyton-hall",
+          "coverColor": "bg-orange-600"
+        },
+        {
+          "coverColor": "bg-orange-500",
+          "id": "sembulingam-6",
+          "coverUrl": "https://m.media-amazon.com/images/I/8151ww8COEL._UF1000,1000_QL80_.jpg",
+          "title": "Essentials of Medical Physiology",
+          "author": "K Sembulingam",
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/KljmmEn1"
+        }
+      ],
+      "studyMaterials": [
+        {
+          "type": "textbook",
+          "downloadUrl": "https://www.febbox.com/share/2TuqTIoB",
+          "author": "Senthamilselvi",
+          "title": "Senthamilselvi Physiology Notes",
+          "coverUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-3QUur0j4_VXGz9dJeJQrFRRNB-VBEQoD-g&s",
+          "id": "senthamilselvi-physio",
+          "coverColor": "bg-orange-400"
+        },
+        {
+          "id": "marrow-physio",
+          "coverColor": "bg-amber-500",
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/KjZCALelKjYhl1xsDUEb.png",
+          "title": "Marrow Physiology",
+          "author": "8th Edition",
+          "downloadUrl": "https://www.febbox.com/share/DPnRrFcp",
+          "type": "notes"
+        },
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/oYS3uwBmwpCgHWfhO1vm.png",
+          "id": "prepladder-physio",
+          "coverColor": "bg-amber-600",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/7QvTdcLe",
+          "title": "Prepladder Physiology",
+          "author": "X Edition"
+        }
+      ],
+      "questionBank": [
+        {
+          "coverColor": "bg-orange-600",
+          "id": "physio-qb-tg",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "type": "question-bank",
+          "title": "Physiology Q-Bank",
+          "author": "@DrAstroBot"
+        }
+      ],
+      "clinicalBooks": [],
+      "practicalMaterials": [
+        {
+          "coverColor": "bg-orange-600",
+          "id": "physio-prac-tg",
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "title": "Physiology Practical Resources",
+          "author": "@DrAstroBot"
+        }
+      ],
+      "previousYearQuestions": [
+        {
+          "author": "@DrAstroBot",
+          "title": "Physiology PYQs",
+          "type": "textbook",
+          "downloadUrl": "https://t.me/DrAstroBot",
+          "coverColor": "bg-orange-600",
+          "id": "physio-pyq-tg"
+        }
+      ]
+    },
+    "examSections": [],
+    "id": "physiology"
+  },
+  "psychiatry": {
+    "id": "psychiatry",
+    "description": "Diagnosis, prevention, and treatment of mental disorders.",
+    "color": "bg-purple-500",
+    "icon": "Brain",
+    "years": [
+      4
+    ],
+    "name": "Psychiatry",
+    "materials": {
+      "textbooks": [
+        {
+          "author": "Ahuja",
+          "title": "Short Textbook of Psychiatry",
+          "type": "textbook",
+          "downloadUrl": "#",
+          "coverColor": "bg-purple-600",
+          "id": "ahuja"
+        }
+      ],
+      "clinicalBooks": [],
+      "questionBank": [],
+      "studyMaterials": [
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/AC88UoUHwpBDpABUBwAv.png",
+          "id": "prepladder-psych",
+          "coverColor": "bg-amber-600",
+          "downloadUrl": "https://www.febbox.com/share/M4sZGeJE",
+          "type": "notes",
+          "author": "X Edition",
+          "title": "Prepladder Psychiatry"
+        }
+      ]
+    },
+    "examSections": []
+  },
+  "radiology": {
+    "id": "radiology",
+    "name": "Radiology",
+    "years": [
+      4
+    ],
+    "description": "Medical imaging to diagnose and treat diseases.",
+    "color": "bg-indigo-500",
+    "icon": "Zap",
+    "materials": {
+      "studyMaterials": [
+        {
+          "coverUrl": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/jogRQQ7NL14vh4LDNK8n/pub/aOgLocmMmpqovc7uyzFX.png",
+          "id": "prepladder-radio",
+          "coverColor": "bg-amber-600",
+          "type": "notes",
+          "downloadUrl": "https://www.febbox.com/share/iDnzVkGL",
+          "author": "X Edition",
+          "title": "Prepladder Radiology"
+        }
+      ],
+      "questionBank": [],
+      "clinicalBooks": [],
+      "textbooks": []
+    },
+    "examSections": []
+  }
+}
