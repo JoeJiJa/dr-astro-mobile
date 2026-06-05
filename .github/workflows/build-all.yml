@@ -78,12 +78,6 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Create Android platform project
-        run: flutter create --platforms=android .
-
-      - name: Copy google-services.json into generated project
-        run: cp android/app/google-services.json android/app/google-services.json || true
-
       - name: Install dependencies
         run: flutter pub get
 
