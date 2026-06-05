@@ -1,0 +1,263 @@
+name: Build & Release Dr. Astro Flutter
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'flutter_app/**'
+      - '.github/workflows/build-release-flutter.yml'
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'flutter_app/**'
+      - '.github/workflows/build-release-flutter.yml'
+  workflow_dispatch:
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Build Android APK
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-android:
+    name: 🤖 Build Android APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flutter_app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java (required for Android build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Create assets directories
+        run: |
+          mkdir -p assets/images assets/icons assets/animations assets/fonts
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+        continue-on-error: true
+
+      - name: Build APK (release)
+        run: flutter build apk --release --split-per-abi
+
+      - name: Build APK (universal)
+        run: flutter build apk --release
+
+      - name: Rename APK artifacts
+        run: |
+          mkdir -p dist/android
+          cp build/app/outputs/apk/release/app-release.apk dist/android/DrAstro-universal.apk
+          cp build/app/outputs/apk/release/app-arm64-v8a-release.apk dist/android/DrAstro-arm64.apk || true
+          cp build/app/outputs/apk/release/app-armeabi-v7a-release.apk dist/android/DrAstro-armv7.apk || true
+          cp build/app/outputs/apk/release/app-x86_64-release.apk dist/android/DrAstro-x86_64.apk || true
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: flutter_app/dist/android/
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Build Windows MSIX/EXE
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-windows:
+    name: 🪟 Build Windows App
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: flutter_app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Create assets directories
+        run: |
+          New-Item -ItemType Directory -Force -Path assets/images, assets/icons, assets/animations, assets/fonts
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      - name: Package Windows app as ZIP
+        run: |
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath DrAstro-Windows.zip
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: flutter_app/DrAstro-Windows.zip
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Create GitHub Release (only on version tags)
+  # ─────────────────────────────────────────────────────────────────────────────
+  create-release:
+    name: 🚀 Create GitHub Release
+    needs: [build-android, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Android APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apks
+          path: dist/android/
+
+      - name: Download Windows app
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-app
+          path: dist/windows/
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: "Dr. Astro Flutter ${{ steps.version.outputs.VERSION }}"
+          body: |
+            # Dr. Astro Flutter ${{ steps.version.outputs.VERSION }} 🌟
+
+            **Dr. Astro** — Your Medical Education Companion for MBBS Students (Flutter cross-platform edition).
+
+            ## 📥 Downloads
+
+            ### 📱 Android APK
+            | File | Architecture | Size |
+            |------|-------------|------|
+            | `DrAstro-universal.apk` | All devices | Universal |
+            | `DrAstro-arm64.apk` | Modern phones (recommended) | Smaller |
+            | `DrAstro-armv7.apk` | Older phones | Smaller |
+
+            > **How to install:** Download the APK → Open it on your Android phone → Allow "Install from unknown sources" → Install
+
+            ### 🪟 Windows App
+            Download `DrAstro-Windows.zip`, extract it, and run `dr_astro.exe`.
+
+            ## ✨ Key Features
+            - Full subject library synced from Firebase
+            - Neural Lab AI chat (Gemini-powered)
+            - Exam Hub & Practical Vault
+            - Dark/Light mode
+            - Admin book management
+
+            ---
+            *Built with Flutter ❤️*
+          files: |
+            dist/android/DrAstro-universal.apk
+            dist/android/DrAstro-arm64.apk
+            dist/android/DrAstro-armv7.apk
+            dist/android/DrAstro-x86_64.apk
+            dist/windows/DrAstro-Windows.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Auto-release on every push to main (dev builds)
+  # ─────────────────────────────────────────────────────────────────────────────
+  auto-release-dev:
+    name: 🔄 Auto Release (Dev Build)
+    needs: [build-android, build-windows]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Android APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apks
+          path: dist/android/
+
+      - name: Download Windows app
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-app
+          path: dist/windows/
+
+      - name: Delete existing dev release
+        run: |
+          gh release delete dev-build-flutter --yes || true
+          git push --delete origin dev-build-flutter || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create/Update dev release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dev-build-flutter
+          name: "🔄 Latest Flutter Dev Build"
+          body: |
+            # Dr. Astro Flutter — Latest Dev Build 🔄
+
+            **Automatically built** from the latest `main` branch commit.
+
+            > ⚠️ This is a development build of the Flutter application.
+
+            ## 📥 Download
+
+            ### 📱 Android (All phones)
+            👉 **[DrAstro-universal.apk](DrAstro-universal.apk)** ← Click to download
+
+            ### 📱 Android (Modern phones — recommended)
+            👉 **[DrAstro-arm64.apk](DrAstro-arm64.apk)**
+
+            ### 🪟 Windows
+            👉 **[DrAstro-Windows.zip](DrAstro-Windows.zip)** — Extract and run `dr_astro.exe`
+
+            ---
+            Built from commit: `${{ github.sha }}`
+            Date: ${{ github.event.head_commit.timestamp }}
+          files: |
+            dist/android/DrAstro-universal.apk
+            dist/android/DrAstro-arm64.apk
+            dist/android/DrAstro-armv7.apk
+            dist/android/DrAstro-x86_64.apk
+            dist/windows/DrAstro-Windows.zip
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
