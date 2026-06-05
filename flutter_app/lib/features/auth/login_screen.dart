@@ -77,6 +77,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
   }
 
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      final authService = ref.read(authServiceProvider);
+      final user = await authService.signInWithGoogle();
+      if (user != null && mounted) {
+        context.go('/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar(e.toString().replaceAll('Exception: ', ''));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _forgotPassword() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
@@ -432,6 +449,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ],
             ),
             const SizedBox(height: 20),
+            _buildGoogleButton(isDark, textColor),
+            const SizedBox(height: 24),
 
             // Create account
             Row(
@@ -589,6 +608,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     ),
                   ],
                 ),
+        ),
+      ),
+  Widget _buildGoogleButton(bool isDark, Color textColor) {
+    return SizedBox(
+      height: 52,
+      child: OutlinedButton(
+        onPressed: _isLoading ? null : _signInWithGoogle,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            width: 1.2,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Standard styled G icon
+            Container(
+              width: 20,
+              height: 20,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+              child: const Center(
+                child: Text(
+                  'G',
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Continue with Google',
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: textColor,
+              ),
+            ),
+          ],
         ),
       ),
     );

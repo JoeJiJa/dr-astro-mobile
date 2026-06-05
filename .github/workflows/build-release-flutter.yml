@@ -42,9 +42,14 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Create assets directories
-        run: |
-          mkdir -p assets/images assets/icons assets/animations assets/fonts
+      - name: Create platform projects (generates missing gradle files)
+        run: flutter create --platforms=android .
+
+      - name: Generate App Icons
+        run: flutter pub run flutter_launcher_icons
+
+      - name: Generate Splash Screen (removes white screens, configures transparent icon)
+        run: flutter pub run flutter_native_splash:create
 
       - name: Install dependencies
         run: flutter pub get
@@ -75,7 +80,7 @@ jobs:
           retention-days: 30
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Build Windows MSIX/EXE
+  # Build Windows EXE installer
   # ─────────────────────────────────────────────────────────────────────────────
   build-windows:
     name: 🪟 Build Windows App
@@ -94,9 +99,8 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Create assets directories
-        run: |
-          New-Item -ItemType Directory -Force -Path assets/images, assets/icons, assets/animations, assets/fonts
+      - name: Create platform projects (generates windows runner folders)
+        run: flutter create --platforms=windows .
 
       - name: Install dependencies
         run: flutter pub get
@@ -107,15 +111,15 @@ jobs:
       - name: Build Windows release
         run: flutter build windows --release
 
-      - name: Package Windows app as ZIP
+      - name: Package Windows app as EXE installer (Inno Setup)
         run: |
-          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath DrAstro-Windows.zip
+          iscc installer.iss
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-app
-          path: flutter_app/DrAstro-Windows.zip
+          path: flutter_app/dist/windows/DrAstro-Setup.exe
           retention-days: 30
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -169,8 +173,8 @@ jobs:
 
             > **How to install:** Download the APK → Open it on your Android phone → Allow "Install from unknown sources" → Install
 
-            ### 🪟 Windows App
-            Download `DrAstro-Windows.zip`, extract it, and run `dr_astro.exe`.
+            ### 🪟 Windows Desktop Installer
+            👉 **[DrAstro-Setup.exe](DrAstro-Setup.exe)** — Double-click to install the Windows app.
 
             ## ✨ Key Features
             - Full subject library synced from Firebase
@@ -186,7 +190,7 @@ jobs:
             dist/android/DrAstro-arm64.apk
             dist/android/DrAstro-armv7.apk
             dist/android/DrAstro-x86_64.apk
-            dist/windows/DrAstro-Windows.zip
+            dist/windows/DrAstro-Setup.exe
           draft: false
           prerelease: false
         env:
@@ -245,8 +249,8 @@ jobs:
             ### 📱 Android (Modern phones — recommended)
             👉 **[DrAstro-arm64.apk](DrAstro-arm64.apk)**
 
-            ### 🪟 Windows
-            👉 **[DrAstro-Windows.zip](DrAstro-Windows.zip)** — Extract and run `dr_astro.exe`
+            ### 🪟 Windows Desktop Installer
+            👉 **[DrAstro-Setup.exe](DrAstro-Setup.exe)** — Double-click to install the Windows app.
 
             ---
             Built from commit: `${{ github.sha }}`
@@ -256,7 +260,7 @@ jobs:
             dist/android/DrAstro-arm64.apk
             dist/android/DrAstro-armv7.apk
             dist/android/DrAstro-x86_64.apk
-            dist/windows/DrAstro-Windows.zip
+            dist/windows/DrAstro-Setup.exe
           draft: false
           prerelease: true
         env:

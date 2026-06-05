@@ -3,13 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'firebase_options.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/theme_provider.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   // Initialize Firebase
   await Firebase.initializeApp(
@@ -18,6 +20,9 @@ void main() async {
 
   // Load shared preferences for persistent state
   final prefs = await SharedPreferences.getInstance();
+
+  // Remove native splash screen
+  FlutterNativeSplash.remove();
 
   // Set preferred orientations on mobile
   await SystemChrome.setPreferredOrientations([
