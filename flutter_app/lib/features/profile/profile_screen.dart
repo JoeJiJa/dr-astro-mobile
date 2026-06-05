@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../core/providers/subjects_provider.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/firestore_service.dart';
 
 // ---------------------------------------------------------------------------
 // Models / helpers (assumed available via providers)
@@ -117,7 +119,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       builder: (_) => _SignOutDialog(),
     );
     if (confirmed == true && mounted) {
-      await AuthService().signOut();
+      await ref.read(authServiceProvider).signOut();
       if (mounted) context.go('/login');
     }
   }
@@ -657,6 +659,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           ),
           _buildDivider(isDark),
           _buildNavTile(
+            icon: Icons.history_rounded,
+            iconColor: AppColors.success,
+            title: 'Study History',
+            subtitle: 'Review your recent book & AI activities',
+            isDark: isDark,
+            onTap: () => _showStudyHistoryDialog(context, user, isDark),
+          ),
+          _buildDivider(isDark),
+          _buildNavTile(
             icon: Icons.logout_rounded,
             iconColor: AppColors.error,
             title: 'Sign Out',
@@ -1114,6 +1125,186 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
     return '${months[date.month - 1]} ${date.year}';
+  }
+
+  void _showStudyHistoryDialog(BuildContext context, AppUser user, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        final firestoreService = ref.read(firestoreServiceProvider);
+        return Dialog(
+          backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            width: 500,
+            height: 600,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.success.withOpacity(0.12),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.history_rounded, color: AppColors.success, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Study History',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: StreamBuilder<List<Map<String, dynamic>>>(
+                    stream: firestoreService.watchUserActivities(userId: user.id),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Error: ${snapshot.error}',
+                            style: GoogleFonts.poppins(color: Colors.red),
+                          ),
+                        );
+                      }
+                      final logs = snapshot.data ?? [];
+                      if (logs.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.history_edu_rounded, size: 48, color: Colors.grey.withOpacity(0.5)),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No study history recorded yet.',
+                                style: GoogleFonts.poppins(color: Colors.grey),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return ListView.builder(
+                        itemCount: logs.length,
+                        itemBuilder: (context, idx) {
+                          final log = logs[idx];
+                          final action = log['action'] ?? '';
+                          final targetName = log['targetName'] ?? '';
+                          final timestampStr = log['timestamp'] as String?;
+                          String timeAgo = 'Some time ago';
+                          if (timestampStr != null) {
+                            try {
+                              final dt = DateTime.parse(timestampStr).toLocal();
+                              timeAgo = DateFormat('MMM d, h:mm a').format(dt);
+                            } catch (_) {}
+                          }
+
+                          IconData icon = Icons.bookmark_added_rounded;
+                          Color color = AppColors.primary;
+                          String activityTitle = '';
+
+                          if (action == 'view_book') {
+                            icon = Icons.menu_book_rounded;
+                            color = AppColors.primary;
+                            activityTitle = 'Opened book: $targetName';
+                          } else if (action == 'chat_gemini') {
+                            icon = Icons.psychology_rounded;
+                            color = AppColors.accent;
+                            activityTitle = 'AI Chat: "$targetName"';
+                          } else if (action == 'login') {
+                            icon = Icons.login_rounded;
+                            color = Colors.green;
+                            activityTitle = 'Logged in';
+                          } else if (action == 'signup') {
+                            icon = Icons.person_add_rounded;
+                            color = Colors.orange;
+                            activityTitle = 'Created account';
+                          } else if (action == 'logout') {
+                            icon = Icons.logout_rounded;
+                            color = Colors.red;
+                            activityTitle = 'Logged out';
+                          } else {
+                            activityTitle = '$action: $targetName';
+                          }
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: color.withOpacity(0.12),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(icon, color: color, size: 18),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        activityTitle,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.white : Colors.black87,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        timeAgo,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 10,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 

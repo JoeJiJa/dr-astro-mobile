@@ -76,6 +76,24 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
     if (_linkType == _LinkType.pdf) {
       _downloadPdf();
     }
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final user = await ref.read(currentUserProvider.future);
+        if (user != null) {
+          final firestoreService = ref.read(firestoreServiceProvider);
+          await firestoreService.logUserActivity(
+            userId: user.id,
+            userName: user.name,
+            action: 'view_book',
+            targetId: widget.url,
+            targetName: widget.title,
+          );
+        }
+      } catch (e) {
+        print('Error logging view_book activity: $e');
+      }
+    });
   }
 
   // -------------------------------------------------------------------------

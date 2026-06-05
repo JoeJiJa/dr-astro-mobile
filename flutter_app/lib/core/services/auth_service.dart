@@ -33,7 +33,15 @@ class AuthService {
     );
     final user = credential.user!;
     await _updateLastLogin(user.uid);
-    return await _getOrCreateUser(user);
+    final appUser = await _getOrCreateUser(user);
+    await _logUserActivity(
+      userId: appUser.id,
+      userName: appUser.name,
+      action: 'login',
+      targetId: appUser.id,
+      targetName: appUser.email,
+    );
+    return appUser;
   }
 
   Future<AppUser> signUpWithEmail({
@@ -62,6 +70,14 @@ class AuthService {
         .doc(user.uid)
         .set(appUser.toMap());
 
+    await _logUserActivity(
+      userId: appUser.id,
+      userName: appUser.name,
+      action: 'signup',
+      targetId: appUser.id,
+      targetName: appUser.email,
+    );
+
     return appUser;
   }
 
@@ -84,17 +100,63 @@ class AuthService {
       final userCredential = await _auth.signInWithCredential(credential);
       final user = userCredential.user!;
       await _updateLastLogin(user.uid);
-      return await _getOrCreateUser(user);
+      final appUser = await _getOrCreateUser(user);
+      await _logUserActivity(
+        userId: appUser.id,
+        userName: appUser.name,
+        action: 'login',
+        targetId: appUser.id,
+        targetName: appUser.email,
+      );
+      return appUser;
     } catch (e) {
       throw Exception('Google Sign-In failed: $e');
     }
   }
 
   Future<void> signOut() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      // Fetch user name to log
+      try {
+        final doc = await _db.collection(AppConstants.usersCollection).doc(user.uid).get();
+        if (doc.exists) {
+          final appUser = AppUser.fromFirestore(doc);
+          await _logUserActivity(
+            userId: appUser.id,
+            userName: appUser.name,
+            action: 'logout',
+            targetId: appUser.id,
+            targetName: appUser.email,
+          );
+        }
+      } catch (_) {}
+    }
     await _auth.signOut();
     try {
       await GoogleSignIn().signOut();
     } catch (_) {}
+  }
+
+  Future<void> _logUserActivity({
+    required String userId,
+    required String userName,
+    required String action,
+    required String targetId,
+    required String targetName,
+  }) async {
+    try {
+      await _db.collection(AppConstants.userActivitiesCollection).add({
+        'userId': userId,
+        'userName': userName,
+        'action': action,
+        'targetId': targetId,
+        'targetName': targetName,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+      });
+    } catch (e) {
+      print('Failed to log auth activity: $e');
+    }
   }
 
   // ─── Internal Helpers ─────────────────────────────────────────────────────

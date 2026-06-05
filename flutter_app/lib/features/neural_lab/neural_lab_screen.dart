@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 
 import '../../core/services/gemini_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/providers/subjects_provider.dart';
+import '../../core/services/firestore_service.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Model
@@ -146,6 +148,23 @@ class _NeuralLabScreenState extends ConsumerState<NeuralLabScreen>
     ref.read(chatMessagesProvider.notifier).addMessage(userMsg);
     ref.read(isAiLoadingProvider.notifier).state = true;
     _scrollToBottom();
+
+    // Log user activity to Firestore
+    try {
+      final user = await ref.read(currentUserProvider.future);
+      if (user != null) {
+        final firestoreService = ref.read(firestoreServiceProvider);
+        await firestoreService.logUserActivity(
+          userId: user.id,
+          userName: user.name,
+          action: 'chat_gemini',
+          targetId: 'neural_lab',
+          targetName: trimmed,
+        );
+      }
+    } catch (e) {
+      print('Error logging chat_gemini activity: $e');
+    }
 
     try {
       final geminiService = ref.read(geminiServiceProvider);

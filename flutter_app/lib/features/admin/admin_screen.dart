@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +29,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -118,6 +119,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen>
                 Tab(text: 'Books'),
                 Tab(text: 'Sections'),
                 Tab(text: 'Users'),
+                Tab(text: 'Audit Logs'),
               ],
               labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
               indicatorColor: AppColors.primary,
@@ -130,6 +132,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen>
               _BooksAdminTab(),
               _SectionsAdminTab(),
               _UsersAdminTab(),
+              const _AuditLogsAdminTab(),
             ],
           ),
         );
@@ -936,6 +939,246 @@ class _UsersAdminTab extends ConsumerWidget {
           },
         );
       },
+    );
+  }
+}
+
+// ─── AUDIT LOGS TAB ──────────────────────────────────────────────────────────
+
+class _AuditLogsAdminTab extends ConsumerStatefulWidget {
+  const _AuditLogsAdminTab();
+
+  @override
+  ConsumerState<_AuditLogsAdminTab> createState() => _AuditLogsAdminTabState();
+}
+
+class _AuditLogsAdminTabState extends ConsumerState<_AuditLogsAdminTab> {
+  String _filterAction = 'all';
+  final TextEditingController _searchCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final firestoreService = ref.read(firestoreServiceProvider);
+
+    return Column(
+      children: [
+        // Filters and Search bar
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.dark.surface : Colors.white,
+            border: Border(
+              bottom: BorderSide(
+                color: (isDark ? AppColors.dark.outline : AppColors.light.outline).withOpacity(0.1),
+              ),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Search Input
+              TextField(
+                controller: _searchCtrl,
+                onChanged: (_) => setState(() {}),
+                style: GoogleFonts.inter(fontSize: 13),
+                decoration: InputDecoration(
+                  hintText: 'Search audit details or admin email...',
+                  hintStyle: GoogleFonts.inter(fontSize: 13),
+                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  isDense: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                      color: (isDark ? AppColors.dark.outline : AppColors.light.outline).withOpacity(0.2),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Action Chips
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _filterChip('all', 'All Actions'),
+                    _filterChip('book_added', 'Book Added'),
+                    _filterChip('book_edited', 'Book Edited'),
+                    _filterChip('book_deleted', 'Book Deleted'),
+                    _filterChip('section_added', 'Section Added'),
+                    _filterChip('section_removed', 'Section Removed'),
+                    _filterChip('section_renamed', 'Section Renamed'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Logs Stream list
+        Expanded(
+          child: StreamBuilder<List<Map<String, dynamic>>>(
+            stream: firestoreService.watchAdminAuditLogs(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error loading audit logs: ${snapshot.error}'));
+              }
+              
+              final rawLogs = snapshot.data ?? [];
+              final searchQuery = _searchCtrl.text.toLowerCase().trim();
+
+              final logs = rawLogs.where((log) {
+                final action = log['action'] ?? '';
+                final details = (log['details'] ?? '').toString().toLowerCase();
+                final adminEmail = (log['adminEmail'] ?? '').toString().toLowerCase();
+                
+                final matchesAction = _filterAction == 'all' || action == _filterAction;
+                final matchesSearch = searchQuery.isEmpty ||
+                    details.contains(searchQuery) ||
+                    adminEmail.contains(searchQuery);
+
+                return matchesAction && matchesSearch;
+              }).toList();
+
+              if (logs.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.history_rounded, size: 48, color: Colors.grey.withOpacity(0.5)),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No audit logs found',
+                        style: GoogleFonts.inter(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(12),
+                itemCount: logs.length,
+                itemBuilder: (context, index) {
+                  final log = logs[index];
+                  final timestampStr = log['timestamp'] as String?;
+                  String formattedTime = 'Unknown Time';
+                  if (timestampStr != null) {
+                    try {
+                      final dt = DateTime.parse(timestampStr).toLocal();
+                      formattedTime = DateFormat('MMM d, h:mm a').format(dt);
+                    } catch (_) {}
+                  }
+
+                  final action = log['action'] ?? 'unknown';
+                  final details = log['details'] ?? '';
+                  final adminEmail = log['adminEmail'] ?? 'unknown-admin';
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.dark.card : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: (isDark ? AppColors.dark.outline : AppColors.light.outline).withOpacity(0.1),
+                      ),
+                    ),
+                    child: ListTile(
+                      dense: true,
+                      leading: _actionIcon(action),
+                      title: Text(
+                        details,
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.person_rounded, size: 12, color: Colors.grey.shade500),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  adminEmail,
+                                  style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (log['targetSubjectId'] != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              'Subject: ${log['targetSubjectId']}',
+                              style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade400, fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        ],
+                      ),
+                      trailing: Text(
+                        formattedTime,
+                        style: GoogleFonts.inter(fontSize: 10, color: Colors.grey),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _filterChip(String action, String label) {
+    final isSelected = _filterAction == action;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        selected: isSelected,
+        label: Text(label, style: GoogleFonts.inter(fontSize: 11)),
+        onSelected: (_) => setState(() => _filterAction = action),
+        selectedColor: AppColors.primary.withOpacity(0.15),
+        checkmarkColor: AppColors.primary,
+        padding: EdgeInsets.zero,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    );
+  }
+
+  Widget _actionIcon(String action) {
+    Color color = Colors.grey;
+    IconData icon = Icons.info_outline_rounded;
+
+    if (action.contains('added')) {
+      color = AppColors.success;
+      icon = Icons.add_circle_outline_rounded;
+    } else if (action.contains('edited') || action.contains('renamed')) {
+      color = AppColors.primary;
+      icon = Icons.edit_note_rounded;
+    } else if (action.contains('deleted') || action.contains('removed')) {
+      color = AppColors.error;
+      icon = Icons.delete_outline_rounded;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: color, size: 18),
     );
   }
 }

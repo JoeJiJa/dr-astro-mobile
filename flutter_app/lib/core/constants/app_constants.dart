@@ -9,8 +9,8 @@ class AppConstants {
   // Firebase Collections
   static const String subjectsCollection = 'subjects-v2';
   static const String usersCollection = 'users';
-  static const String userActivitiesCollection = 'user_activities';
-  static const String adminAuditLogsCollection = 'admin_audit_logs';
+  static const String userActivitiesCollection = 'activities';
+  static const String adminAuditLogsCollection = 'admin-audit';
 
   // Gemini AI
   static const String geminiApiUrl =

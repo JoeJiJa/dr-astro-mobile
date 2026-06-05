@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/subject.dart';
 import '../models/app_user.dart';
@@ -12,6 +13,54 @@ class FirestoreService {
   final FirebaseFirestore _db;
 
   FirestoreService(this._db);
+
+  // ─── LOGGING & AUDITING ───────────────────────────────────────────────────
+
+  /// Log user activity (e.g. view book, chat gemini) to the 'activities' collection
+  Future<void> logUserActivity({
+    required String userId,
+    required String userName,
+    required String action,
+    required String targetId,
+    required String targetName,
+  }) async {
+    try {
+      await _db.collection(AppConstants.userActivitiesCollection).add({
+        'userId': userId,
+        'userName': userName,
+        'action': action,
+        'targetId': targetId,
+        'targetName': targetName,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+      });
+    } catch (e) {
+      print('Failed to log user activity: $e');
+    }
+  }
+
+  /// Log admin action (e.g. add/edit book or section) to the 'admin-audit' collection
+  Future<void> logAdminAction({
+    required String action,
+    required String targetSubjectId,
+    String? targetSectionId,
+    String? targetBookId,
+    required String details,
+  }) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      await _db.collection(AppConstants.adminAuditLogsCollection).add({
+        'adminEmail': currentUser?.email ?? 'unknown-admin',
+        'action': action,
+        'targetSubjectId': targetSubjectId,
+        'targetSectionId': targetSectionId,
+        'targetBookId': targetBookId,
+        'details': details,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+      });
+    } catch (e) {
+      print('Failed to log admin action: $e');
+    }
+  }
 
   // ─── SUBJECTS ─────────────────────────────────────────────────────────────
 
@@ -50,6 +99,14 @@ class FirestoreService {
       materials[categoryKey] = books;
       tx.update(ref, {'materials': materials});
     });
+
+    await logAdminAction(
+      action: 'book_added',
+      targetSubjectId: subjectId,
+      targetSectionId: categoryKey,
+      targetBookId: book.id,
+      details: 'Added book "${book.title}" in section $categoryKey',
+    );
   }
 
   /// Update a book in a subject's category
@@ -69,6 +126,14 @@ class FirestoreService {
       materials[categoryKey] = books;
       tx.update(ref, {'materials': materials});
     });
+
+    await logAdminAction(
+      action: 'book_edited',
+      targetSubjectId: subjectId,
+      targetSectionId: categoryKey,
+      targetBookId: updatedBook.id,
+      details: 'Edited book "${updatedBook.title}" in section $categoryKey',
+    );
   }
 
   /// Delete a book from a subject's category
@@ -87,6 +152,14 @@ class FirestoreService {
       materials[categoryKey] = books;
       tx.update(ref, {'materials': materials});
     });
+
+    await logAdminAction(
+      action: 'book_deleted',
+      targetSubjectId: subjectId,
+      targetSectionId: categoryKey,
+      targetBookId: bookId,
+      details: 'Deleted book ID $bookId from section $categoryKey',
+    );
   }
 
   // ─── SECTIONS (ADMIN) ─────────────────────────────────────────────────────
@@ -100,6 +173,14 @@ class FirestoreService {
     await _db.collection(AppConstants.subjectsCollection).doc(subjectId).update({
       sectionType: FieldValue.arrayUnion([section.toMap()]),
     });
+
+    final typeLabel = sectionType == 'practicalSections' ? 'practical' : 'exam';
+    await logAdminAction(
+      action: 'section_added',
+      targetSubjectId: subjectId,
+      targetSectionId: section.id,
+      details: 'Added $typeLabel section ${section.label}',
+    );
   }
 
   /// Remove a section
@@ -116,6 +197,14 @@ class FirestoreService {
       sections.removeWhere((s) => (s as Map)['id'] == sectionId);
       tx.update(ref, {sectionType: sections});
     });
+
+    final typeLabel = sectionType == 'practicalSections' ? 'practical' : 'exam';
+    await logAdminAction(
+      action: 'section_removed',
+      targetSubjectId: subjectId,
+      targetSectionId: sectionId,
+      details: 'Removed $typeLabel section $sectionId',
+    );
   }
 
   /// Rename a section
@@ -138,6 +227,14 @@ class FirestoreService {
       }
       tx.update(ref, {sectionType: sections});
     });
+
+    final typeLabel = sectionType == 'practicalSections' ? 'practical' : 'exam';
+    await logAdminAction(
+      action: 'section_renamed',
+      targetSubjectId: subjectId,
+      targetSectionId: sectionId,
+      details: 'Renamed $typeLabel section to $newLabel',
+    );
   }
 
   // ─── USERS ────────────────────────────────────────────────────────────────
@@ -192,5 +289,35 @@ class FirestoreService {
   Future<List<AppUser>> getAllUsers() async {
     final snap = await _db.collection(AppConstants.usersCollection).get();
     return snap.docs.map(AppUser.fromFirestore).toList();
+  }
+
+  // ─── AUDIT LOGS (ADMIN) ───────────────────────────────────────────────────
+
+  Stream<List<Map<String, dynamic>>> watchAdminAuditLogs() {
+    return _db
+        .collection(AppConstants.adminAuditLogsCollection)
+        .orderBy('timestamp', descending: true)
+        .limit(100)
+        .snapshots()
+        .map((snap) => snap.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList());
+  }
+
+  Stream<List<Map<String, dynamic>>> watchUserActivities({String? userId}) {
+    Query query = _db.collection(AppConstants.userActivitiesCollection);
+    if (userId != null) {
+      query = query.where('userId', '==', userId);
+    }
+    return query.snapshots().map((snap) {
+      final list = snap.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
+      list.sort((a, b) {
+        final tA = a['timestamp'] as String? ?? '';
+        final tB = b['timestamp'] as String? ?? '';
+        return tB.compareTo(tA);
+      });
+      if (list.length > 100) {
+        return list.sublist(0, 100);
+      }
+      return list;
+    });
   }
 }

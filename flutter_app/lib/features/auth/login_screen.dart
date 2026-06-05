@@ -610,6 +610,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 ),
         ),
       ),
+    );
+  }
+
   Widget _buildGoogleButton(bool isDark, Color textColor) {
     return SizedBox(
       height: 52,
