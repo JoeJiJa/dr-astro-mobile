@@ -1,0 +1,209 @@
+name: Build & Release Dr. Astro (Capacitor & Flutter)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Build Capacitor Android App
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-capacitor:
+    name: 📱 Build Capacitor Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps --no-audit --no-fund
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Build Next.js & Capacitor Sync
+        run: npm run build-mobile
+
+      - name: Make gradlew executable
+        run: chmod +x ./android/gradlew
+
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Upload Capacitor APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: capacitor-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Build Flutter Android App
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-flutter-android:
+    name: 🤖 Build Flutter Android
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flutter_app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Create platform projects
+        run: flutter create --platforms=android .
+
+      - name: Generate App Icons
+        run: flutter pub run flutter_launcher_icons
+
+      - name: Generate Splash Screen
+        run: flutter pub run flutter_native_splash:create
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK (universal)
+        run: flutter build apk --release
+
+      - name: Upload Flutter APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-apk
+          path: flutter_app/build/app/outputs/apk/release/app-release.apk
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Build Flutter Windows App & Installer
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-flutter-windows:
+    name: 🪟 Build Flutter Windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: flutter_app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Create platform projects
+        run: flutter create --platforms=windows .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      - name: Package Windows app as EXE installer (Inno Setup)
+        run: |
+          iscc installer.iss
+
+      - name: Upload Windows EXE Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-windows-exe
+          path: flutter_app/dist/windows/DrAstro-Setup.exe
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Create Consolidated GitHub Release
+  # ─────────────────────────────────────────────────────────────────────────────
+  create-release:
+    name: 🚀 Publish Release
+    needs: [build-capacitor, build-flutter-android, build-flutter-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Capacitor APK
+        uses: actions/download-artifact@v4
+        with:
+          name: capacitor-apk
+          path: dist/
+
+      - name: Download Flutter APK
+        uses: actions/download-artifact@v4
+        with:
+          name: flutter-apk
+          path: dist/
+
+      - name: Download Flutter Windows EXE
+        uses: actions/download-artifact@v4
+        with:
+          name: flutter-windows-exe
+          path: dist/
+
+      - name: Rename files for release
+        run: |
+          mv dist/app-debug.apk dist/DrAstro-Capacitor-Mobile.apk
+          mv dist/app-release.apk dist/DrAstro-Flutter-Mobile.apk
+
+      - name: Generate Release Tag
+        id: generate_tag
+        run: echo "release_tag=v1.0.${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.release_tag }}
+          name: Dr. Astro Release ${{ env.release_tag }}
+          body: |
+            # Dr. Astro App Releases — ${{ env.release_tag }} 🌟
+            
+            This release packages both Capacitor (Web Native Wrapper) and Flutter (Cross-platform codebase) builds:
+            
+            ## 📥 Downloads
+            
+            ### 📱 Mobile Native Apps (Android)
+            * **[DrAstro-Capacitor-Mobile.apk](DrAstro-Capacitor-Mobile.apk)** — Built using Next.js & Capacitor.
+            * **[DrAstro-Flutter-Mobile.apk](DrAstro-Flutter-Mobile.apk)** — Built using the brand new cross-platform Flutter codebase.
+            
+            ### 🪟 Windows Desktop Installer
+            * 👉 **[DrAstro-Setup.exe](DrAstro-Setup.exe)** — Double-click to install the Dr. Astro Windows app.
+            
+            ---
+            *Built and packaged automatically by GitHub Actions CI/CD pipeline.*
+          draft: false
+          prerelease: false
+          files: |
+            dist/DrAstro-Capacitor-Mobile.apk
+            dist/DrAstro-Flutter-Mobile.apk
+            dist/DrAstro-Setup.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
