@@ -77,7 +77,8 @@ import {
     query,
     where,
     limit,
-    addDoc
+    addDoc,
+    onSnapshot
 } from 'firebase/firestore';
 import { CLINICAL_CASES } from '../data/clinical-cases';
 import {
@@ -4555,9 +4556,9 @@ const SubjectDetailView = ({
     }, [subject]);
 
     return (
-        <div className="animate-view-transition px-4 md:px-12 pb-32">
+        <div className="animate-view-transition px-4 md:px-12 pb-32 w-full max-w-full overflow-x-hidden">
             {/* Header Navigation */}
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10">
                 <button onClick={onBack} className="group inline-flex items-center gap-3 text-zinc-500 hover:text-white transition-colors bg-white/5 border border-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest">
                     <ArrowRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={14} /> Back to Foundation
                 </button>
@@ -4625,7 +4626,7 @@ const SubjectDetailView = ({
                                             {cat.label}
                                         </h3>
                                         {currentUser?.role === 'admin' && (
-                                            <div className="flex items-center gap-1.5 shrink-0 mt-1">
+                                            <div className="flex flex-wrap items-center gap-1.5 mt-1">
                                                 <button
                                                     onClick={() => onManageBook('add', subjectId, cat.key)}
                                                     className="flex items-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 hover:shadow-red-600/40"
@@ -4803,8 +4804,8 @@ const ExamSubjectDetailView = ({
     }, [subject.examSections, subject.materials]);
 
     return (
-        <div className="animate-view-transition px-4 md:px-12 pb-4">
-            <div className="flex items-center justify-between mb-10">
+        <div className="animate-view-transition px-4 md:px-12 pb-4 w-full max-w-full overflow-x-hidden">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10">
                 <button onClick={onBack} className="group inline-flex items-center gap-3 text-zinc-500 hover:text-white transition-colors bg-white/5 border border-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest">
                     <ArrowRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={14} /> Back to Hub
                 </button>
@@ -4870,7 +4871,7 @@ const ExamSubjectDetailView = ({
                                             {cat.label}
                                         </h3>
                                         {currentUser?.role === 'admin' && (
-                                            <div className="flex items-center gap-1.5">
+                                            <div className="flex flex-wrap items-center gap-1.5">
                                                 <button
                                                     onClick={() => onManageBook('add', subjectId, cat.id)}
                                                     className="p-2 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 hover:bg-red-200 transition-colors"
@@ -5061,9 +5062,9 @@ const PracticalSubjectDetailView = ({
     }, [subject.practicalSections, subject.materials, subjectId]);
 
     return (
-        <div className="animate-view-transition px-4 md:px-12 pb-32 overflow-x-hidden">
+        <div className="animate-view-transition px-4 md:px-12 pb-32 w-full max-w-full overflow-x-hidden">
             {/* Header Navigation */}
-            <div className="flex items-center justify-between mb-10 mt-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10 mt-6">
                 <button onClick={onBack} className="group inline-flex items-center gap-3 text-zinc-500 hover:text-white transition-colors bg-white/5 border border-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest">
                     <ArrowRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={14} /> Back to Vault
                 </button>
@@ -8592,6 +8593,100 @@ export default function DrAstroApp() {
         refreshInterval: 30000,       // Auto-poll every 30s for live cross-tab updates
     });
 
+    useEffect(() => {
+        const subjectsCol = collection(db, 'subjects-v2');
+        const unsubscribe = onSnapshot(subjectsCol, (querySnap) => {
+            if (querySnap.empty) return;
+            const cloudData: Record<string, SubjectData> = {};
+            querySnap.forEach(docSnap => {
+                cloudData[docSnap.id] = docSnap.data() as SubjectData;
+            });
+            
+            const merged: Record<string, SubjectData> = {};
+            const allKeys = new Set([...Object.keys(SUBJECTS), ...Object.keys(cloudData)]);
+            
+            allKeys.forEach(key => {
+                const cloudSub = cloudData[key];
+                const codeSub = SUBJECTS[key];
+
+                if (cloudSub && codeSub) {
+                    const cloudMaterials = cloudSub.materials || {};
+                    const codeMaterials = codeSub.materials || {};
+
+                    const mergedMaterials: Record<string, any> = {};
+                    const allSectionKeys = new Set([
+                        ...Object.keys(codeMaterials),
+                        ...Object.keys(cloudMaterials)
+                    ]);
+                    allSectionKeys.forEach(sectionKey => {
+                        const cloudBooks = (cloudMaterials as Record<string, any>)[sectionKey];
+                        const codeBooks = (codeMaterials as Record<string, any>)[sectionKey];
+                        if (cloudBooks !== undefined) {
+                            mergedMaterials[sectionKey] = cloudBooks;
+                        } else {
+                            mergedMaterials[sectionKey] = codeBooks;
+                        }
+                    });
+
+                    merged[key] = {
+                        ...codeSub,
+                        ...cloudSub,
+                        id: codeSub.id || key,
+                        name: cloudSub.name || codeSub.name,
+                        icon: cloudSub.icon || codeSub.icon,
+                        color: cloudSub.color || codeSub.color,
+                        description: cloudSub.description || codeSub.description,
+                        years: cloudSub.years || codeSub.years,
+                        practicalSections: (cloudSub.practicalSections && cloudSub.practicalSections.length > 0)
+                            ? cloudSub.practicalSections
+                            : (codeSub.practicalSections || []),
+                        examSections: (cloudSub.examSections && cloudSub.examSections.length > 0)
+                            ? cloudSub.examSections
+                            : (codeSub.examSections || []),
+                        materials: mergedMaterials as SubjectData['materials']
+                    };
+                } else if (cloudSub) {
+                    merged[key] = {
+                        ...cloudSub,
+                        id: cloudSub.id || key,
+                        icon: cloudSub.icon || 'BookOpen',
+                        color: cloudSub.color || 'bg-slate-500'
+                    };
+                } else if (codeSub) {
+                    merged[key] = codeSub;
+                }
+            });
+
+            Object.keys(merged).forEach(sId => {
+                const sub = merged[sId];
+                if (sub.materials && sub.materials.grossAnatomy) {
+                    const gross = [...sub.materials.grossAnatomy];
+                    const bdcBooks = gross.filter(b => b.title.includes("BD Chaurasia") || b.title.includes("BDC"));
+
+                    if (bdcBooks.length > 1 && !bdcBooks.some(b => b.parts && b.parts.length > 0)) {
+                        const master = bdcBooks[0];
+                        const parts = bdcBooks.map((b, i) => ({
+                            id: b.id,
+                            title: b.title.includes("Vol") ? b.title : `Volume ${i + 1}`,
+                            downloadUrl: b.downloadUrl
+                        }));
+                        const filtered = gross.filter(b => !bdcBooks.find(bdc => bdc.id === b.id));
+                        sub.materials.grossAnatomy = [
+                            ...filtered,
+                            { ...master, title: "BD Chaurasia - Gross Anatomy", parts }
+                        ];
+                    }
+                }
+            });
+
+            mutateSubjects(merged, false);
+        }, (error) => {
+            console.error("Firestore onSnapshot error:", error);
+        });
+
+        return () => unsubscribe();
+    }, [mutateSubjects]);
+
     const subjects = subjectsData || SUBJECTS;
     const isSubjectsLoading = !subjectsData && !swrError;
     const [editModalConfig, setEditModalConfig] = useState<{
@@ -9626,7 +9721,7 @@ export default function DrAstroApp() {
     return (
         <div className={theme}>
             {loading && <SplashScreen user={currentUser} onFinish={handleSplashFinish} />}
-            <div className={`min-h-screen font-sans pb-32 md:pb-0 ${bgStyle ?? ''}`}>
+            <div className={`min-h-screen font-sans pb-32 md:pb-0 w-full max-w-full overflow-x-hidden ${bgStyle ?? ''}`}>
                     <AnimatePresence>
                         {showDisclaimer && (
                             <CopyrightOverlay onFinish={() => {
@@ -9666,7 +9761,7 @@ export default function DrAstroApp() {
                         />
                     )}
 
-                    <main className="min-h-screen transform-gpu will-change-[transform,opacity] pt-4 px-2 md:px-0">
+                    <main className="min-h-screen transform-gpu will-change-[transform,opacity] pt-4 px-2 md:px-0 w-full max-w-full overflow-x-hidden">
 
                         {view === 'HOME' && (
                             <HomeView
@@ -9732,7 +9827,7 @@ export default function DrAstroApp() {
                         )}
 
                         {view === 'SUBJECT_DETAIL' && activeSubject && (
-                            <div className="pt-2 md:pt-6 px-4 w-full">
+                            <div className="pt-2 md:pt-6 px-4 w-full max-w-full overflow-x-hidden">
                                 <SubjectDetailView
                                     subjectId={activeSubject}
                                     subjects={subjects}
@@ -9758,7 +9853,7 @@ export default function DrAstroApp() {
                         )}
 
                         {view === 'EXAM_SUBJECT_DETAIL' && activeSubject && (
-                            <div className="pt-2 md:pt-6 px-4 w-full">
+                            <div className="pt-2 md:pt-6 px-4 w-full max-w-full overflow-x-hidden">
                                 <ExamSubjectDetailView
                                     subjectId={activeSubject}
                                     subjects={subjects}
@@ -9784,7 +9879,7 @@ export default function DrAstroApp() {
                         )}
 
                         {view === 'PRACTICAL_SUBJECT_DETAIL' && activeSubject && (
-                            <div className="pt-2 md:pt-6 px-4 w-full">
+                            <div className="pt-2 md:pt-6 px-4 w-full max-w-full overflow-x-hidden">
                                 <PracticalSubjectDetailView
                                     subjectId={activeSubject}
                                     subjects={subjects}

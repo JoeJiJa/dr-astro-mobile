@@ -42,9 +42,15 @@ const _categories = [
 
 /// Provides the currently viewed subject from Firestore.
 final selectedSubjectProvider =
-    FutureProvider.family<Subject?, String>((ref, subjectId) async {
+    StreamProvider.family<Subject?, String>((ref, subjectId) {
   final service = ref.read(firestoreServiceProvider);
-  return service.getSubject(subjectId);
+  return service.watchSubjects().map((list) {
+    try {
+      return list.firstWhere((s) => s.id == subjectId);
+    } catch (_) {
+      return null;
+    }
+  });
 });
 
 /// Books stream per subject + category.

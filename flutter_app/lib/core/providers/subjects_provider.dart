@@ -68,9 +68,15 @@ final currentUserProvider = FutureProvider<AppUser?>((ref) async {
 /// Provide the selected subject ID for detail view
 final selectedSubjectIdProvider = StateProvider<String?>((ref) => null);
 
-final selectedSubjectProvider = FutureProvider<Subject?>((ref) async {
+final selectedSubjectProvider = StreamProvider<Subject?>((ref) {
   final id = ref.watch(selectedSubjectIdProvider);
-  if (id == null) return null;
+  if (id == null) return Stream.value(null);
   final service = ref.read(firestoreServiceProvider);
-  return await service.getSubject(id);
+  return service.watchSubjects().map((list) {
+    try {
+      return list.firstWhere((s) => s.id == id);
+    } catch (_) {
+      return null;
+    }
+  });
 });

@@ -42,19 +42,21 @@ void main() async {
   );
 }
 
-class DrAstroApp extends StatelessWidget {
+class DrAstroApp extends ConsumerWidget {
   const DrAstroApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    final router = ref.watch(appRouterProvider);
+
+    return MaterialApp.router(
       title: 'Dr. Astro',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0A0E1A),
-      ),
-      home: const WebViewScreen(),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
+      routerConfig: router,
     );
   }
 }
