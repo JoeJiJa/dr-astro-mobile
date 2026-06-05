@@ -411,6 +411,31 @@ class FirestoreService {
     await _db.collection(AppConstants.subjectsCollection).doc(subjectId).delete();
   }
 
+  Future<void> addSubject({
+    required String name,
+    required String? description,
+    required String year,
+  }) async {
+    final id = name.toLowerCase().trim().replaceAll(RegExp(r'\s+'), '-').replaceAll(RegExp(r'[^a-z0-9\-]'), '');
+    final yearNum = int.tryParse(year.substring(0, 1)) ?? 1;
+    await _db.collection(AppConstants.subjectsCollection).doc(id).set({
+      'name': name,
+      'description': description ?? '',
+      'icon': 'BookOpen',
+      'color': 'bg-indigo-500',
+      'years': [yearNum],
+      'materials': {
+        'textbooks': [],
+        'studyMaterials': [],
+        'questionBank': [],
+        'clinicalBooks': [],
+      },
+      'practicalSections': [],
+      'examSections': [],
+      'categories': [],
+    });
+  }
+
   Future<void> updateSubject({
     required String subjectId,
     required String name,
