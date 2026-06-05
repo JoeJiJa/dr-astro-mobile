@@ -39,7 +39,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDkL97giZawPNhSnl8oKJiSIzS7_pgnkZA',
-    appId: '1:1023563808684:android:flutter_dr_astro',
+    appId: '1:1023563808684:android:9966b5c366fcbad03b4409',
     messagingSenderId: '1023563808684',
     projectId: 'drastroapp',
     storageBucket: 'drastroapp.firebasestorage.app',

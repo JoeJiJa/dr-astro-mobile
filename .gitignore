@@ -35,6 +35,14 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# Temp build artifacts
+dart-sdk/
+dartsdk.zip
+logs.zip
+runs.json
+runs2.json
+dist-electron/
 /backups/
 
 # typescript

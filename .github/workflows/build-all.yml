@@ -78,8 +78,11 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Create platform projects
+      - name: Create Android platform project
         run: flutter create --platforms=android .
+
+      - name: Copy google-services.json into generated project
+        run: cp android/app/google-services.json android/app/google-services.json || true
 
       - name: Install dependencies
         run: flutter pub get
@@ -90,8 +93,8 @@ jobs:
       - name: Generate Splash Screen
         run: flutter pub run flutter_native_splash:create
 
-      - name: Build APK (universal)
-        run: flutter build apk --release
+      - name: Build APK (release)
+        run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload Flutter APK Artifact
         uses: actions/upload-artifact@v4
@@ -100,56 +103,47 @@ jobs:
           path: flutter_app/build/app/outputs/apk/release/app-release.apk
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Build Flutter Windows App & Installer
+  # Build Windows Desktop EXE via Electron (from Next.js web app)
   # ─────────────────────────────────────────────────────────────────────────────
-  build-flutter-windows:
-    name: 🪟 Build Flutter Windows
+  build-windows:
+    name: 🪟 Build Windows Desktop (Electron)
     runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: flutter_app
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          flutter-version: '3.24.0'
-          channel: 'stable'
-          cache: true
+          node-version: 22
+          cache: 'npm'
 
-      - name: Create platform projects
-        run: flutter create --platforms=windows .
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps --no-audit --no-fund
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Build Next.js (static export)
+        run: npm run build
 
-      - name: Enable Windows desktop
-        run: flutter config --enable-windows-desktop
+      - name: Install Electron Builder
+        run: npm install --save-dev electron electron-builder concurrently wait-on --legacy-peer-deps
 
-      - name: Build Windows release
-        run: flutter build windows --release
-
-      - name: Install Inno Setup
-        run: choco install innosetup -y
-
-      - name: Package Windows app as EXE installer (Inno Setup)
-        run: |
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+      - name: Build Windows EXE with Electron Builder
+        run: npx electron-builder --win --x64 --config electron-builder.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Windows EXE Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: flutter-windows-exe
-          path: flutter_app/dist/windows/DrAstro-Setup.exe
+          name: windows-exe
+          path: dist-electron/*.exe
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Create Consolidated GitHub Release
   # ─────────────────────────────────────────────────────────────────────────────
   create-release:
     name: 🚀 Publish Release
-    needs: [build-capacitor, build-flutter-android, build-flutter-windows]
+    needs: [build-capacitor, build-flutter-android, build-windows]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -169,16 +163,16 @@ jobs:
           name: flutter-apk
           path: dist/
 
-      - name: Download Flutter Windows EXE
+      - name: Download Windows EXE
         uses: actions/download-artifact@v4
         with:
-          name: flutter-windows-exe
+          name: windows-exe
           path: dist/
 
-      - name: Rename files for release
+      - name: Rename APK files for release
         run: |
-          mv dist/app-debug.apk dist/DrAstro-Capacitor-Mobile.apk
-          mv dist/app-release.apk dist/DrAstro-Flutter-Mobile.apk
+          mv dist/app-debug.apk dist/DrAstro-Capacitor-Mobile.apk || true
+          mv dist/app-release.apk dist/DrAstro-Flutter-Mobile.apk || true
 
       - name: Generate Release Tag
         id: generate_tag
@@ -192,24 +186,22 @@ jobs:
           body: |
             # Dr. Astro App Releases — ${{ env.release_tag }} 🌟
             
-            This release packages both Capacitor (Web Native Wrapper) and Flutter (Cross-platform codebase) builds:
-            
             ## 📥 Downloads
             
-            ### 📱 Mobile Native Apps (Android)
-            * **[DrAstro-Capacitor-Mobile.apk](DrAstro-Capacitor-Mobile.apk)** — Built using Next.js & Capacitor.
-            * **[DrAstro-Flutter-Mobile.apk](DrAstro-Flutter-Mobile.apk)** — Built using the brand new cross-platform Flutter codebase.
+            ### 📱 Mobile Apps (Android)
+            * **DrAstro-Capacitor-Mobile.apk** — Main Android app (Next.js + Capacitor)
+            * **DrAstro-Flutter-Mobile.apk** — Flutter native Android build
             
-            ### 🪟 Windows Desktop Installer
-            * 👉 **[DrAstro-Setup.exe](DrAstro-Setup.exe)** — Double-click to install the Dr. Astro Windows app.
+            ### 🪟 Windows Desktop
+            * **DrAstro-Setup.exe** — Windows installer (Electron-based)
             
             ---
-            *Built and packaged automatically by GitHub Actions CI/CD pipeline.*
+            *Built automatically by GitHub Actions CI/CD.*
           draft: false
           prerelease: false
           files: |
             dist/DrAstro-Capacitor-Mobile.apk
             dist/DrAstro-Flutter-Mobile.apk
-            dist/DrAstro-Setup.exe
+            dist/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
