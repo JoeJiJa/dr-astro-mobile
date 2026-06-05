@@ -22,15 +22,8 @@ function createWindow() {
     show: false,
   });
 
-  // Load the Next.js static export
-  const indexPath = path.join(__dirname, '../out/index.html');
-  
-  if (fs.existsSync(indexPath)) {
-    mainWindow.loadFile(indexPath);
-  } else {
-    // Fallback: load from local dev server
-    mainWindow.loadURL('http://localhost:3000');
-  }
+  // Load the live Next.js web application
+  mainWindow.loadURL('https://dr-astro.pages.dev/');
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
