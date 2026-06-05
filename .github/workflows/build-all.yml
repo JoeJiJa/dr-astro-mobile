@@ -81,14 +81,14 @@ jobs:
       - name: Create platform projects
         run: flutter create --platforms=android .
 
+      - name: Install dependencies
+        run: flutter pub get
+
       - name: Generate App Icons
         run: flutter pub run flutter_launcher_icons
 
       - name: Generate Splash Screen
         run: flutter pub run flutter_native_splash:create
-
-      - name: Install dependencies
-        run: flutter pub get
 
       - name: Build APK (universal)
         run: flutter build apk --release
