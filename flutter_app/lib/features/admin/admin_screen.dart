@@ -1083,6 +1083,7 @@ class _AuditLogsAdminTabState extends ConsumerState<_AuditLogsAdminTab> {
                   final action = log['action'] ?? 'unknown';
                   final details = log['details'] ?? '';
                   final adminEmail = log['adminEmail'] ?? 'unknown-admin';
+                  final canRevert = action != 'revert_action' && log['payload'] != null;
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
@@ -1126,10 +1127,36 @@ class _AuditLogsAdminTabState extends ConsumerState<_AuditLogsAdminTab> {
                           ],
                         ],
                       ),
-                      trailing: Text(
-                        formattedTime,
-                        style: GoogleFonts.inter(fontSize: 10, color: Colors.grey),
-                      ),
+                      trailing: canRevert
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  formattedTime,
+                                  style: GoogleFonts.inter(fontSize: 10, color: Colors.grey),
+                                ),
+                                const SizedBox(width: 8),
+                                Tooltip(
+                                  message: 'Revert change',
+                                  child: InkWell(
+                                    onTap: () => _confirmRevert(context, log),
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Icon(Icons.undo_rounded, size: 14, color: AppColors.primary),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              formattedTime,
+                              style: GoogleFonts.inter(fontSize: 10, color: Colors.grey),
+                            ),
                     ),
                   );
                 },
@@ -1138,6 +1165,55 @@ class _AuditLogsAdminTabState extends ConsumerState<_AuditLogsAdminTab> {
           ),
         ),
       ],
+    );
+  }
+
+  void _confirmRevert(BuildContext context, Map<String, dynamic> log) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Revert Action'),
+        content: Text('Are you sure you want to revert this change?\n"${log['details'] ?? ''}"'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            onPressed: () async {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Reverting change...'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+              try {
+                await ref.read(firestoreServiceProvider).revertAdminAction(log);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Change reverted successfully ✓'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to revert: $e'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Revert'),
+          ),
+        ],
+      ),
     );
   }
 

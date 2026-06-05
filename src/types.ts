@@ -118,7 +118,8 @@ export type AdminAction =
     | 'section_added' 
     | 'section_removed' 
     | 'section_renamed'
-    | 'section_reordered';
+    | 'section_reordered'
+    | 'revert_action';
 
 export type AdminAuditLog = {
     id?: string;
@@ -129,4 +130,5 @@ export type AdminAuditLog = {
     targetBookId?: string;
     details: string;
     timestamp: string;
+    payload?: any;
 };

@@ -45,6 +45,7 @@ class FirestoreService {
     String? targetSectionId,
     String? targetBookId,
     required String details,
+    Map<String, dynamic>? payload,
   }) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -55,6 +56,7 @@ class FirestoreService {
         'targetSectionId': targetSectionId,
         'targetBookId': targetBookId,
         'details': details,
+        'payload': payload,
         'timestamp': DateTime.now().toUtc().toIso8601String(),
       });
     } catch (e) {
@@ -106,6 +108,7 @@ class FirestoreService {
       targetSectionId: categoryKey,
       targetBookId: book.id,
       details: 'Added book "${book.title}" in section $categoryKey',
+      payload: book.toMap(),
     );
   }
 
@@ -116,13 +119,17 @@ class FirestoreService {
     required Book updatedBook,
   }) async {
     final ref = _db.collection(AppConstants.subjectsCollection).doc(subjectId);
+    Map<String, dynamic>? previousBookMap;
     await _db.runTransaction((tx) async {
       final snap = await tx.get(ref);
       final data = snap.data() ?? {};
       final materials = Map<String, dynamic>.from(data['materials'] as Map? ?? {});
       final books = List<dynamic>.from(materials[categoryKey] as List? ?? []);
       final idx = books.indexWhere((b) => (b as Map)['id'] == updatedBook.id);
-      if (idx != -1) books[idx] = updatedBook.toMap();
+      if (idx != -1) {
+        previousBookMap = Map<String, dynamic>.from(books[idx] as Map);
+        books[idx] = updatedBook.toMap();
+      }
       materials[categoryKey] = books;
       tx.update(ref, {'materials': materials});
     });
@@ -133,6 +140,7 @@ class FirestoreService {
       targetSectionId: categoryKey,
       targetBookId: updatedBook.id,
       details: 'Edited book "${updatedBook.title}" in section $categoryKey',
+      payload: previousBookMap,
     );
   }
 
@@ -143,12 +151,17 @@ class FirestoreService {
     required String bookId,
   }) async {
     final ref = _db.collection(AppConstants.subjectsCollection).doc(subjectId);
+    Map<String, dynamic>? deletedBookMap;
     await _db.runTransaction((tx) async {
       final snap = await tx.get(ref);
       final data = snap.data() ?? {};
       final materials = Map<String, dynamic>.from(data['materials'] as Map? ?? {});
       final books = List<dynamic>.from(materials[categoryKey] as List? ?? []);
-      books.removeWhere((b) => (b as Map)['id'] == bookId);
+      final idx = books.indexWhere((b) => (b as Map)['id'] == bookId);
+      if (idx != -1) {
+        deletedBookMap = Map<String, dynamic>.from(books[idx] as Map);
+        books.removeAt(idx);
+      }
       materials[categoryKey] = books;
       tx.update(ref, {'materials': materials});
     });
@@ -159,6 +172,7 @@ class FirestoreService {
       targetSectionId: categoryKey,
       targetBookId: bookId,
       details: 'Deleted book ID $bookId from section $categoryKey',
+      payload: deletedBookMap,
     );
   }
 
@@ -180,6 +194,10 @@ class FirestoreService {
       targetSubjectId: subjectId,
       targetSectionId: section.id,
       details: 'Added $typeLabel section ${section.label}',
+      payload: {
+        'sectionType': sectionType,
+        'section': section.toMap(),
+      },
     );
   }
 
@@ -190,11 +208,16 @@ class FirestoreService {
     required String sectionId,
   }) async {
     final ref = _db.collection(AppConstants.subjectsCollection).doc(subjectId);
+    Map<String, dynamic>? removedSectionMap;
     await _db.runTransaction((tx) async {
       final snap = await tx.get(ref);
       final data = snap.data() ?? {};
       final sections = List<dynamic>.from(data[sectionType] as List? ?? []);
-      sections.removeWhere((s) => (s as Map)['id'] == sectionId);
+      final idx = sections.indexWhere((s) => (s as Map)['id'] == sectionId);
+      if (idx != -1) {
+        removedSectionMap = Map<String, dynamic>.from(sections[idx] as Map);
+        sections.removeAt(idx);
+      }
       tx.update(ref, {sectionType: sections});
     });
 
@@ -204,6 +227,10 @@ class FirestoreService {
       targetSubjectId: subjectId,
       targetSectionId: sectionId,
       details: 'Removed $typeLabel section $sectionId',
+      payload: {
+        'sectionType': sectionType,
+        'section': removedSectionMap,
+      },
     );
   }
 
@@ -215,6 +242,7 @@ class FirestoreService {
     required String newLabel,
   }) async {
     final ref = _db.collection(AppConstants.subjectsCollection).doc(subjectId);
+    String? oldLabel;
     await _db.runTransaction((tx) async {
       final snap = await tx.get(ref);
       final data = snap.data() ?? {};
@@ -222,6 +250,7 @@ class FirestoreService {
       final idx = sections.indexWhere((s) => (s as Map)['id'] == sectionId);
       if (idx != -1) {
         final section = Map<String, dynamic>.from(sections[idx] as Map);
+        oldLabel = section['label'];
         section['label'] = newLabel;
         sections[idx] = section;
       }
@@ -234,6 +263,91 @@ class FirestoreService {
       targetSubjectId: subjectId,
       targetSectionId: sectionId,
       details: 'Renamed $typeLabel section to $newLabel',
+      payload: {
+        'sectionType': sectionType,
+        'oldLabel': oldLabel,
+        'newLabel': newLabel,
+      },
+    );
+  }
+
+  // ─── REVERT ADMIN ACTIONS ─────────────────────────────────────────────────
+
+  Future<void> revertAdminAction(Map<String, dynamic> log) async {
+    final action = log['action'] as String;
+    final targetSubjectId = log['targetSubjectId'] as String;
+    final targetSectionId = log['targetSectionId'] as String?;
+    final targetBookId = log['targetBookId'] as String?;
+    final payload = log['payload'] as Map<String, dynamic>?;
+
+    if (action == 'book_added') {
+      if (targetSectionId != null && targetBookId != null) {
+        await deleteBook(
+          subjectId: targetSubjectId,
+          categoryKey: targetSectionId,
+          bookId: targetBookId,
+        );
+      }
+    } else if (action == 'book_deleted') {
+      if (targetSectionId != null && payload != null) {
+        final book = Book.fromMap(payload);
+        await addBook(
+          subjectId: targetSubjectId,
+          categoryKey: targetSectionId,
+          book: book,
+        );
+      }
+    } else if (action == 'book_edited') {
+      if (targetSectionId != null && payload != null) {
+        final book = Book.fromMap(payload);
+        await updateBook(
+          subjectId: targetSubjectId,
+          categoryKey: targetSectionId,
+          updatedBook: book,
+        );
+      }
+    } else if (action == 'section_added') {
+      if (payload != null && targetSectionId != null) {
+        final sectionType = payload['sectionType'] as String;
+        await removeSection(
+          subjectId: targetSubjectId,
+          sectionType: sectionType,
+          sectionId: targetSectionId,
+        );
+      }
+    } else if (action == 'section_removed') {
+      if (payload != null) {
+        final sectionType = payload['sectionType'] as String;
+        final sectionData = payload['section'] as Map<String, dynamic>?;
+        if (sectionData != null) {
+          final section = SubjectSection.fromMap(sectionData);
+          await addSection(
+            subjectId: targetSubjectId,
+            sectionType: sectionType,
+            section: section,
+          );
+        }
+      }
+    } else if (action == 'section_renamed') {
+      if (payload != null && targetSectionId != null) {
+        final sectionType = payload['sectionType'] as String;
+        final oldLabel = payload['oldLabel'] as String?;
+        if (oldLabel != null) {
+          await renameSection(
+            subjectId: targetSubjectId,
+            sectionType: sectionType,
+            sectionId: targetSectionId,
+            newLabel: oldLabel,
+          );
+        }
+      }
+    }
+
+    // Log the revert action itself
+    await logAdminAction(
+      action: 'revert_action',
+      targetSubjectId: targetSubjectId,
+      details: 'Reverted action: $action (${log['details'] ?? ''})',
     );
   }
 

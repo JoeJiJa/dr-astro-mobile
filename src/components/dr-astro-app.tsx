@@ -7169,7 +7169,8 @@ const ProfileView = ({
     selectedUserLogs,
     onExportData,
     onWipeExamHub,
-    showToast
+    showToast,
+    onRevertAction
 }: {
     user: AppUser,
     onLogout: () => void,
@@ -7186,7 +7187,8 @@ const ProfileView = ({
     selectedUserLogs: UserActivity[],
     onExportData?: () => void,
     onWipeExamHub?: () => void,
-    showToast: (msg: string, type: 'success' | 'error' | 'info') => void
+    showToast: (msg: string, type: 'success' | 'error' | 'info') => void,
+    onRevertAction?: (log: AdminAuditLog) => Promise<void>
 }) => {
     const { minutes } = useStudyTime();
     const { recentIds } = useRecentlyViewed();
@@ -7779,15 +7781,29 @@ const ProfileView = ({
                                     <div className="bg-white dark:bg-zinc-950 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-2xl p-6 space-y-4">
                                         <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest">Admin Actions Audit</h3>
                                         <div className="space-y-3 max-h-[260px] overflow-y-auto pr-2 no-scrollbar">
-                                            {auditLogs.map(log => (
-                                                <div key={log.id} className="p-3 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-xl space-y-1">
-                                                    <div className="flex justify-between text-[8px] font-bold text-zinc-500">
-                                                        <span>{log.adminEmail.split('@')[0]}</span>
-                                                        <span>{new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                            {auditLogs.map(log => {
+                                                const canRevert = log.action !== 'revert_action' && log.payload !== undefined && log.payload !== null;
+                                                return (
+                                                    <div key={log.id} className="p-3 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-xl space-y-1 relative group">
+                                                        <div className="flex justify-between text-[8px] font-bold text-zinc-500">
+                                                            <span>{log.adminEmail.split('@')[0]}</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span>{new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                                                {canRevert && onRevertAction && (
+                                                                    <button
+                                                                        onClick={() => onRevertAction(log)}
+                                                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-[8px] text-zinc-400 hover:text-zinc-600 dark:hover:text-white flex items-center gap-0.5 cursor-pointer font-bold px-1 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800/80"
+                                                                        title="Revert this action"
+                                                                    >
+                                                                        <span>↩ Revert</span>
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-xs text-slate-800 dark:text-zinc-300 font-medium leading-normal">{log.details}</p>
                                                     </div>
-                                                    <p className="text-xs text-slate-800 dark:text-zinc-300 font-medium leading-normal">{log.details}</p>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                             {auditLogs.length === 0 && (
                                                 <p className="text-xs text-zinc-500 py-4 text-center font-medium">No admin actions recorded yet.</p>
                                             )}
@@ -8349,7 +8365,8 @@ export default function DrAstroApp() {
         targetSubjectId: string,
         details: string,
         targetSectionId?: string,
-        targetBookId?: string
+        targetBookId?: string,
+        payload?: any
     ) => {
         try {
             const auditCol = collection(db, 'admin-audit');
@@ -8362,6 +8379,9 @@ export default function DrAstroApp() {
                 details,
                 timestamp: new Date().toISOString()
             };
+            if (payload !== undefined) {
+                logEntry.payload = payload;
+            }
             await addDoc(auditCol, logEntry);
         } catch (err) {
             console.error("Failed to write audit log:", err);
@@ -8605,6 +8625,7 @@ export default function DrAstroApp() {
         
         const section = (subject.practicalSections || []).find((s: any) => s.id === sectionId);
         if (section) {
+            const oldLabel = section.label;
             section.label = newLabel;
             section.description = newDescription;
             updatedSubjects[subjectId] = subject;
@@ -8612,7 +8633,11 @@ export default function DrAstroApp() {
             
             try {
                 await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
-                await writeAuditLog('section_renamed', subjectId, `Renamed practical section to ${newLabel}`, sectionId);
+                await writeAuditLog('section_renamed', subjectId, `Renamed practical section to ${newLabel}`, sectionId, undefined, {
+                    sectionType: 'practicalSections',
+                    oldLabel,
+                    newLabel
+                });
                 showToast(`Section ${newLabel} updated`, "success");
             } catch (error) {
                 console.error("Error updating section:", error);
@@ -8633,6 +8658,7 @@ export default function DrAstroApp() {
         
         const section = (subject.examSections || []).find((s: any) => s.id === sectionId);
         if (section) {
+            const oldLabel = section.label;
             section.label = newLabel;
             section.description = newDescription;
             updatedSubjects[subjectId] = subject;
@@ -8640,7 +8666,11 @@ export default function DrAstroApp() {
             
             try {
                 await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
-                await writeAuditLog('section_renamed', subjectId, `Renamed exam section to ${newLabel}`, sectionId);
+                await writeAuditLog('section_renamed', subjectId, `Renamed exam section to ${newLabel}`, sectionId, undefined, {
+                    sectionType: 'examSections',
+                    oldLabel,
+                    newLabel
+                });
                 showToast(`Section ${newLabel} updated`, 'success');
             } catch (err) {
                 console.error('Failed to sync section update:', err);
@@ -8657,6 +8687,7 @@ export default function DrAstroApp() {
         
         if (!subject.examSections) return;
         
+        const removedSection = subject.examSections.find(s => s.id === sectionId);
         subject.examSections = subject.examSections.filter(s => s.id !== sectionId);
         // Clean up materials
         const newMaterials = { ...subject.materials };
@@ -8668,7 +8699,10 @@ export default function DrAstroApp() {
         
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
-            await writeAuditLog('section_removed', subjectId, `Removed exam section ${sectionId}`, sectionId);
+            await writeAuditLog('section_removed', subjectId, `Removed exam section ${sectionId}`, sectionId, undefined, {
+                sectionType: 'examSections',
+                section: removedSection
+            });
             showToast('Section removed permanently', 'success');
         } catch (err) {
             console.error('Failed to remove section:', err);
@@ -8692,7 +8726,8 @@ export default function DrAstroApp() {
             return;
         }
 
-        subject.examSections.push({ id, label, description });
+        const newSection = { id, label, description };
+        subject.examSections.push(newSection);
         // Ensure materials entry exists
         if (!subject.materials[id]) {
             subject.materials = { ...subject.materials, [id]: [] };
@@ -8703,7 +8738,10 @@ export default function DrAstroApp() {
 
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
-            await writeAuditLog('section_added', subjectId, `Added exam section ${label}`, id);
+            await writeAuditLog('section_added', subjectId, `Added exam section ${label}`, id, undefined, {
+                sectionType: 'examSections',
+                section: newSection
+            });
             showToast(`Exam section ${label} created`, 'success');
         } catch (err) {
             console.error('Failed to sync new section:', err);
@@ -8753,7 +8791,8 @@ export default function DrAstroApp() {
             return;
         }
         
-        subject.practicalSections = [...subject.practicalSections, { id, label, description }];
+        const newSection = { id, label, description };
+        subject.practicalSections = [...subject.practicalSections, newSection];
         if (!subject.materials[id]) {
             subject.materials = { ...subject.materials, [id]: [] };
         }
@@ -8763,7 +8802,10 @@ export default function DrAstroApp() {
         
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
-            await writeAuditLog('section_added', subjectId, `Added practical section ${label}`, id);
+            await writeAuditLog('section_added', subjectId, `Added practical section ${label}`, id, undefined, {
+                sectionType: 'practicalSections',
+                section: newSection
+            });
             showToast("Section added successfully", "success");
         } catch (error) {
             console.error("Error adding section:", error);
@@ -8779,6 +8821,7 @@ export default function DrAstroApp() {
         
         if (!subject.practicalSections) return;
         
+        const removedSection = subject.practicalSections.find(s => s.id !== sectionId);
         subject.practicalSections = subject.practicalSections.filter(s => s.id !== sectionId);
         // Clean up materials
         const newMaterials = { ...subject.materials };
@@ -8790,7 +8833,10 @@ export default function DrAstroApp() {
         
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
-            await writeAuditLog('section_removed', subjectId, `Removed practical section ${sectionId}`, sectionId);
+            await writeAuditLog('section_removed', subjectId, `Removed practical section ${sectionId}`, sectionId, undefined, {
+                sectionType: 'practicalSections',
+                section: removedSection
+            });
             showToast('Section removed permanently', 'success');
         } catch (err) {
             console.error('Failed to remove section:', err);
@@ -8813,7 +8859,8 @@ export default function DrAstroApp() {
             return;
         }
         
-        subject.categories = [...subject.categories, { key, label, description }];
+        const newSection = { key, label, description };
+        subject.categories = [...subject.categories, newSection];
         if (!subject.materials[key]) {
             subject.materials = { ...subject.materials, [key]: [] };
         }
@@ -8823,7 +8870,10 @@ export default function DrAstroApp() {
         
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
-            await writeAuditLog('section_added', subjectId, `Added general section ${label}`, key);
+            await writeAuditLog('section_added', subjectId, `Added general section ${label}`, key, undefined, {
+                sectionType: 'categories',
+                section: newSection
+            });
             showToast("Section added successfully", "success");
         } catch (error) {
             console.error("Error adding section:", error);
@@ -8848,6 +8898,7 @@ export default function DrAstroApp() {
         
         const section = (subject.categories || []).find((s: any) => s.key === sectionId);
         if (section) {
+            const oldLabel = section.label;
             section.label = newLabel;
             section.description = newDescription;
             updatedSubjects[subjectId] = subject;
@@ -8855,7 +8906,11 @@ export default function DrAstroApp() {
             
             try {
                 await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
-                await writeAuditLog('section_renamed', subjectId, `Renamed general section to ${newLabel}`, sectionId);
+                await writeAuditLog('section_renamed', subjectId, `Renamed general section to ${newLabel}`, sectionId, undefined, {
+                    sectionType: 'categories',
+                    oldLabel,
+                    newLabel
+                });
                 showToast(`Section ${newLabel} updated`, "success");
             } catch (error) {
                 console.error("Error updating section:", error);
@@ -8879,6 +8934,7 @@ export default function DrAstroApp() {
             }));
         }
         
+        const removedSection = subject.categories.find(s => s.key === sectionId);
         subject.categories = subject.categories.filter(s => s.key !== sectionId);
         // Clean up materials
         const newMaterials = { ...subject.materials };
@@ -8890,11 +8946,112 @@ export default function DrAstroApp() {
         
         try {
             await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
-            await writeAuditLog('section_removed', subjectId, `Removed general section ${sectionId}`, sectionId);
+            await writeAuditLog('section_removed', subjectId, `Removed general section ${sectionId}`, sectionId, undefined, {
+                sectionType: 'categories',
+                section: removedSection
+            });
             showToast('Section removed permanently', 'success');
         } catch (err) {
             console.error('Failed to remove section:', err);
             showToast('Failed to sync removal.', 'error');
+        }
+    };
+
+    const handleRevertAction = async (log: AdminAuditLog) => {
+        if (!confirm(`⚠️ WARNING: Are you sure you want to revert this change?\n"${log.details}"`)) return;
+
+        try {
+            const { action, targetSubjectId, targetSectionId, targetBookId, payload } = log;
+            const docRef = doc(db, 'subjects-v2', targetSubjectId);
+
+            const docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) {
+                showToast("Subject not found on cloud.", "error");
+                return;
+            }
+            const subject = docSnap.data() as any;
+
+            if (action === 'book_added') {
+                if (targetSectionId && targetBookId) {
+                    const materials = { ...(subject.materials || {}) };
+                    materials[targetSectionId] = (materials[targetSectionId] || []).filter((b: any) => b.id !== targetBookId);
+                    subject.materials = materials;
+                    await setDoc(docRef, sanitizeData(subject));
+                }
+            } else if (action === 'book_deleted') {
+                if (targetSectionId && payload) {
+                    const materials = { ...(subject.materials || {}) };
+                    materials[targetSectionId] = [...(materials[targetSectionId] || []), payload];
+                    subject.materials = materials;
+                    await setDoc(docRef, sanitizeData(subject));
+                }
+            } else if (action === 'book_edited') {
+                if (targetSectionId && payload) {
+                    const materials = { ...(subject.materials || {}) };
+                    const list = [...(materials[targetSectionId] || [])];
+                    const idx = list.findIndex((b: any) => b.id === payload.id);
+                    if (idx >= 0) {
+                        list[idx] = payload;
+                    }
+                    materials[targetSectionId] = list;
+                    subject.materials = materials;
+                    await setDoc(docRef, sanitizeData(subject));
+                }
+            } else if (action === 'section_added') {
+                if (payload && targetSectionId) {
+                    const { sectionType } = payload;
+                    if (sectionType === 'categories') {
+                        subject.categories = (subject.categories || []).filter((s: any) => s.key !== targetSectionId);
+                    } else {
+                        subject[sectionType] = (subject[sectionType] || []).filter((s: any) => s.id !== targetSectionId);
+                    }
+                    const materials = { ...(subject.materials || {}) };
+                    delete materials[targetSectionId];
+                    subject.materials = materials;
+                    await setDoc(docRef, sanitizeData(subject));
+                }
+            } else if (action === 'section_removed') {
+                if (payload) {
+                    const { sectionType, section } = payload;
+                    if (section) {
+                        if (sectionType === 'categories') {
+                            subject.categories = [...(subject.categories || []), section];
+                        } else {
+                            subject[sectionType] = [...(subject[sectionType] || []), section];
+                        }
+                        const materials = { ...(subject.materials || {}) };
+                        if (!materials[section.id || section.key]) {
+                            materials[section.id || section.key] = [];
+                        }
+                        subject.materials = materials;
+                        await setDoc(docRef, sanitizeData(subject));
+                    }
+                }
+            } else if (action === 'section_renamed') {
+                if (payload && targetSectionId) {
+                    const { sectionType, oldLabel } = payload;
+                    if (sectionType === 'categories') {
+                        const sec = (subject.categories || []).find((s: any) => s.key === targetSectionId);
+                        if (sec) sec.label = oldLabel;
+                    } else {
+                        const sec = (subject[sectionType] || []).find((s: any) => s.id === targetSectionId);
+                        if (sec) sec.label = oldLabel;
+                    }
+                    await setDoc(docRef, sanitizeData(subject));
+                }
+            }
+
+            await writeAuditLog(
+                'revert_action',
+                targetSubjectId,
+                `Reverted action: ${action} (${log.details})`
+            );
+
+            showToast("Action reverted successfully!", "success");
+            mutateSubjects();
+        } catch (err: any) {
+            console.error("Revert failed:", err);
+            showToast(`Failed to revert: ${err.message || err}`, "error");
         }
     };
 
@@ -9001,6 +9158,7 @@ export default function DrAstroApp() {
             const newList = [...(newMaterials[targetSectionId] || [])];
 
             const existingIdx = newList.findIndex(b => b.id === book.id);
+            const previousBook = existingIdx >= 0 ? newList[existingIdx] : null;
             if (existingIdx >= 0) {
                 newList[existingIdx] = book;
             } else {
@@ -9025,7 +9183,8 @@ export default function DrAstroApp() {
                     targetSubjectId,
                     `${isEdit ? 'Edited' : 'Added'} book "${book.title}" in section ${targetSectionId}`,
                     targetSectionId,
-                    book.id
+                    book.id,
+                    isEdit ? previousBook : book
                 );
                 showToast("📚 Book saved to cloud permanently!", "success");
                 // After successful save, force a fresh revalidation from Firestore
@@ -9069,6 +9228,7 @@ export default function DrAstroApp() {
         if (nextSubjects[sId]) {
             const sub = { ...nextSubjects[sId] };
             const materials = { ...(sub.materials || {}) } as any;
+            const deletedBook = (materials[secId] || []).find((b: Book) => b.id === bookId);
             materials[secId] = (materials[secId] || []).filter((b: Book) => b.id !== bookId);
             sub.materials = materials;
             nextSubjects[sId] = sub;
@@ -9078,7 +9238,7 @@ export default function DrAstroApp() {
 
             try {
                 await setDoc(doc(db, 'subjects-v2', sId), sanitizeData(sub));
-                await writeAuditLog('book_deleted', sId, `Deleted book ID ${bookId} from section ${secId}`, secId, bookId);
+                await writeAuditLog('book_deleted', sId, `Deleted book ID ${bookId} from section ${secId}`, secId, bookId, deletedBook);
                 showToast("Book deleted from cloud!", "success");
             } catch (err) {
                 console.error("Delete failed:", err);
@@ -9554,7 +9714,8 @@ export default function DrAstroApp() {
                                 selectedUserLogs={selectedUserLogs}
                                 onExportData={handleExportData}
                                 onWipeExamHub={handleWipeExamHub}
-                                 showToast={showToast}
+                                showToast={showToast}
+                                onRevertAction={handleRevertAction}
                             />
                         )}
 
