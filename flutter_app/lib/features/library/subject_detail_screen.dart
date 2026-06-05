@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/models/subject.dart';
 import '../../core/providers/subjects_provider.dart';
 import '../../core/providers/theme_provider.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/services/firestore_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../ui/widgets/book_card.dart';
@@ -876,8 +878,6 @@ class _MobileBooksView extends ConsumerWidget {
                   child: BookCard(
                     book: book,
                     isFavorited: isFav,
-                    accentColor: accentColor,
-                    isDark: isDark,
                     isAdmin: isAdmin,
                     onTap: () => onBookTap(book),
                     onFavoriteToggle: () =>
@@ -961,7 +961,7 @@ class _MobileBooksView extends ConsumerWidget {
                 final service = ref.read(firestoreServiceProvider);
                 await service.deleteBook(
                   subjectId: subjectId,
-                  categoryId: categoryId,
+                  categoryKey: categoryId,
                   bookId: book.id as String,
                 );
               } catch (e) {
@@ -1073,8 +1073,6 @@ class _DesktopBooksGrid extends ConsumerWidget {
                 return BookCard(
                   book: book,
                   isFavorited: isFav,
-                  accentColor: accentColor,
-                  isDark: isDark,
                   isAdmin: isAdmin,
                   onTap: () => onBookTap(book),
                   onFavoriteToggle: () async {
@@ -1117,7 +1115,7 @@ class _DesktopBooksGrid extends ConsumerWidget {
                                           ref.read(firestoreServiceProvider);
                                       await service.deleteBook(
                                         subjectId: subjectId,
-                                        categoryId: categoryId,
+                                        categoryKey: categoryId,
                                         bookId: book.id as String,
                                       );
                                     } catch (_) {}
@@ -1799,7 +1797,8 @@ class _EditSubjectDialogState extends ConsumerState<_EditSubjectDialog> {
         text: widget.subject.name as String? ?? '');
     _descCtrl = TextEditingController(
         text: widget.subject.description as String? ?? '');
-    _year = widget.subject.year as String? ?? '1st Year';
+    final y = widget.subject.years.isNotEmpty ? widget.subject.years.first : 1;
+    _year = '$y${y == 1 ? "st" : y == 2 ? "nd" : y == 3 ? "rd" : "th"} Year';
     if (!_yearFilters.contains(_year)) _year = '1st Year';
   }
 
@@ -1819,7 +1818,7 @@ class _EditSubjectDialogState extends ConsumerState<_EditSubjectDialog> {
         subjectId: widget.subject.id as String,
         name: _nameCtrl.text.trim(),
         description: _descCtrl.text.trim(),
-        year: _year,
+        years: [int.tryParse(_year.substring(0, 1)) ?? 1],
       );
       if (mounted) Navigator.of(context).pop();
     } catch (e) {

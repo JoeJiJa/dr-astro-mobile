@@ -485,8 +485,8 @@ class _QuickStatsRow extends StatelessWidget {
       data: (subjects) {
         return userAsync.when(
           data: (user) {
-            final xp = (user?.xpPoints as int?) ?? 0;
-            final streak = (user?.studyStreak as int?) ?? 0;
+            final xp = (user?.totalXP as int?) ?? 0;
+            final streak = (user?.streak as int?) ?? 0;
             final totalBooks = subjects.fold<int>(
               0,
               (sum, s) => sum + ((s.bookCount as int?) ?? 0),
@@ -652,6 +652,7 @@ class _StatsShimmer extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.only(right: i < 3 ? 10 : 0),
             child: LoadingShimmer(
+              width: double.infinity,
               height: 90,
               isDark: isDark,
               borderRadius: 16,
@@ -884,7 +885,6 @@ class _FeaturedBooksSliver extends ConsumerWidget {
                   padding: EdgeInsets.only(right: i < books.length - 1 ? 16 : 0),
                   child: BookCard(
                     book: books[i],
-                    isDark: isDark,
                   )
                       .animate()
                       .fadeIn(delay: (80 * i).ms, duration: 350.ms)
@@ -1022,8 +1022,7 @@ class _SubjectsByYearSliver extends ConsumerWidget {
             final filtered = selectedYear == 0
                 ? subjects
                 : subjects
-                    .where((s) =>
-                        (s.year as int? ?? 0) == selectedYear)
+                    .where((s) => s.years.contains(selectedYear))
                     .toList();
 
             if (filtered.isEmpty) {
@@ -1051,7 +1050,6 @@ class _SubjectsByYearSliver extends ConsumerWidget {
                       EdgeInsets.only(right: i < filtered.length - 1 ? 16 : 0),
                   child: SubjectCard(
                     subject: filtered[i],
-                    isDark: isDark,
                   )
                       .animate()
                       .fadeIn(delay: (70 * i).ms, duration: 350.ms)

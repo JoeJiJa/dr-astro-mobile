@@ -13,6 +13,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../core/providers/subjects_provider.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/firestore_service.dart';
 
 // ---------------------------------------------------------------------------
 // Link-type detection helpers
@@ -777,7 +778,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
                                 RegExp(r'^\d+\. '), ''),
                             style: GoogleFonts.poppins(
                               fontSize: 13,
-                              color: isDark ? Colors.white70 : Colors.black70,
+                              color: isDark ? Colors.white70 : Colors.black.withOpacity(0.7),
                               height: 1.5,
                             ),
                           ),

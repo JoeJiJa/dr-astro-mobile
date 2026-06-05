@@ -36,8 +36,8 @@ class ExamScreen extends ConsumerWidget {
 
           // Derive available years
           final years = examSubjects
-              .map((s) => s.year?.toString())
-              .whereType<String>()
+              .expand((s) => s.years)
+              .map((y) => y.toString())
               .toSet()
               .toList()
             ..sort();
@@ -45,7 +45,7 @@ class ExamScreen extends ConsumerWidget {
           // Apply year filter
           final filtered = selectedYear == null
               ? examSubjects
-              : examSubjects.where((s) => s.year?.toString() == selectedYear).toList();
+              : examSubjects.where((s) => s.years.map((y) => y.toString()).contains(selectedYear)).toList();
 
           // Stats
           final totalExamSubjects = examSubjects.length;
@@ -569,7 +569,6 @@ class _ExamSubjectGrid extends StatelessWidget {
                   subject: subject,
                   onTap: () =>
                       context.go('/exam/subject/${subject.id}'),
-                  accentColor: AppColors.examPrimary,
                 ).animate().fadeIn(
                       delay: Duration(milliseconds: 40 * index),
                       duration: 350.ms,
@@ -686,15 +685,9 @@ class _ExamLoadingBody extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: LoadingShimmer(
+            width: double.infinity,
+            height: 220,
             isDark: isDark,
-            child: Container(
-              height: 220,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.examPrimary, AppColors.examSecondary],
-                ),
-              ),
-            ),
           ),
         ),
         SliverPadding(
@@ -708,15 +701,10 @@ class _ExamLoadingBody extends StatelessWidget {
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) => LoadingShimmer(
+                width: double.infinity,
+                height: 180,
                 isDark: isDark,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.dark.surface
-                        : AppColors.light.surface,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
+                borderRadius: 16,
               ),
               childCount: 6,
             ),

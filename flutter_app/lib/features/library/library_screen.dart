@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/providers/subjects_provider.dart';
 import '../../core/providers/theme_provider.dart';
+import '../../core/services/firestore_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../ui/widgets/subject_card.dart';
 import '../../ui/widgets/loading_shimmer.dart';
@@ -56,9 +57,10 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   List<dynamic> _applyYearFilter(List<dynamic> subjects, String year) {
     if (year == 'All') return subjects;
+    final yearNum = int.tryParse(year.substring(0, 1)) ?? 1;
     return subjects.where((s) {
-      final raw = (s.year as String?)?.toLowerCase() ?? '';
-      return raw.contains(year.toLowerCase());
+      final yearsList = (s.years as List<dynamic>?)?.map((y) => y as int).toList() ?? [];
+      return yearsList.contains(yearNum);
     }).toList();
   }
 

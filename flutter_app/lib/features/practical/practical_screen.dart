@@ -38,22 +38,24 @@ class PracticalScreen extends ConsumerWidget {
 
           // OSCE subjects (flag or category)
           final osceSubjects = practicalSubjects
-              .where((s) => s.hasOsce == true)
+              .where((s) => s.practicalSections.any((sec) => sec.id == 'osce'))
               .toList();
 
-          // Derive categories
+          // Derive categories (years mapped to strings)
           final categories = practicalSubjects
-              .map((s) => s.category?.toString())
-              .whereType<String>()
+              .expand((s) => s.years)
+              .map((y) => '$y${y == 1 ? "st" : y == 2 ? "nd" : y == 3 ? "rd" : "th"} Year')
               .toSet()
               .toList()
             ..sort();
 
-          // Apply category filter
+          // Apply category filter (checking s.years list mapped)
           final filtered = selectedCategory == null
               ? practicalSubjects
               : practicalSubjects
-                  .where((s) => s.category?.toString() == selectedCategory)
+                  .where((s) => s.years
+                      .map((y) => '$y${y == 1 ? "st" : y == 2 ? "nd" : y == 3 ? "rd" : "th"} Year')
+                      .contains(selectedCategory))
                   .toList();
 
           // Stats
@@ -724,7 +726,6 @@ class _PracticalSubjectGrid extends StatelessWidget {
                   subject: subject,
                   onTap: () =>
                       context.go('/practical/subject/${subject.id}'),
-                  accentColor: AppColors.practicalPrimary,
                 ).animate().fadeIn(
                       delay: Duration(milliseconds: 40 * index),
                       duration: 350.ms,
@@ -842,18 +843,9 @@ class _PracticalLoadingBody extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: LoadingShimmer(
+            width: double.infinity,
+            height: 220,
             isDark: isDark,
-            child: Container(
-              height: 220,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.practicalPrimary,
-                    AppColors.practicalSecondary,
-                  ],
-                ),
-              ),
-            ),
           ),
         ),
         SliverPadding(
@@ -867,15 +859,10 @@ class _PracticalLoadingBody extends StatelessWidget {
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) => LoadingShimmer(
+                width: double.infinity,
+                height: 180,
                 isDark: isDark,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.dark.surface
-                        : AppColors.light.surface,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
+                borderRadius: 16,
               ),
               childCount: 6,
             ),

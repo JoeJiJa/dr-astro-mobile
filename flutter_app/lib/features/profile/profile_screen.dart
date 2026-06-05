@@ -468,19 +468,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         icon: Icons.local_fire_department_rounded,
         iconColor: const Color(0xFFFF6B35),
         label: 'Streak',
-        value: '${user.studyStreak ?? 0}d',
+        value: '${user.streak ?? 0}d',
       ),
       _StatItem(
         icon: Icons.star_rounded,
         iconColor: const Color(0xFFFFD700),
         label: 'XP Points',
-        value: '${user.xpPoints ?? 0}',
+        value: '${user.totalXP ?? 0}',
       ),
       _StatItem(
         icon: Icons.calendar_today_rounded,
         iconColor: AppColors.primary,
         label: 'Joined',
-        value: _formatDate(user.joinedDate),
+        value: _formatDate(user.joinedAt),
       ),
       _StatItem(
         icon: Icons.school_rounded,
