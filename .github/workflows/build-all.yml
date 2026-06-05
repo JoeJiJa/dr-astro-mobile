@@ -26,6 +26,9 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps --no-audit --no-fund
 
+      - name: Generate Capacitor Assets (Icons & Splash)
+        run: npx @capacitor/assets generate --android
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
