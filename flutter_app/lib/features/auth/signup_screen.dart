@@ -134,7 +134,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor: isDark ? AppColors.dark.background : AppColors.light.background,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth > 700;
@@ -278,9 +278,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
 
   // ─────────────── FORM CARD ───────────────
   Widget _buildFormCard(bool isDark, {required bool isDesktop}) {
-    final cardColor = isDark ? AppColors.darkSurface : Colors.white;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+    final cardColor = isDark ? AppColors.dark.surface : Colors.white;
+    final textColor = isDark ? AppColors.dark.onSurface : AppColors.light.onSurface;
+    final subTextColor = isDark ? AppColors.dark.onSurfaceVariant : AppColors.light.onSurfaceVariant;
 
     return Container(
       padding: EdgeInsets.all(isDesktop ? 36 : 24),
@@ -474,10 +474,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
   }
 
   Widget _buildDropdown({required bool isDark}) {
-    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
-    final fillColor = isDark ? AppColors.darkSurfaceVariant : const Color(0xFFF8F9FF);
-    final labelColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final borderColor = isDark ? AppColors.dark.outline : AppColors.light.outline;
+    final fillColor = isDark ? AppColors.dark.surfaceVariant : const Color(0xFFF8F9FF);
+    final labelColor = isDark ? AppColors.dark.onSurfaceVariant : AppColors.light.onSurfaceVariant;
+    final textColor = isDark ? AppColors.dark.onSurface : AppColors.light.onSurface;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -501,7 +501,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
             ),
           ),
           icon: Icon(Icons.keyboard_arrow_down_rounded, color: labelColor),
-          dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
+          dropdownColor: isDark ? AppColors.dark.surface : Colors.white,
           style: GoogleFonts.inter(fontSize: 15, color: textColor),
           decoration: InputDecoration(
             prefixIcon: Icon(
@@ -564,10 +564,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
     Widget? suffixIcon,
     String? Function(String?)? validator,
   }) {
-    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
-    final fillColor = isDark ? AppColors.darkSurfaceVariant : const Color(0xFFF8F9FF);
-    final labelColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final borderColor = isDark ? AppColors.dark.outline : AppColors.light.outline;
+    final fillColor = isDark ? AppColors.dark.surfaceVariant : const Color(0xFFF8F9FF);
+    final labelColor = isDark ? AppColors.dark.onSurfaceVariant : AppColors.light.onSurfaceVariant;
+    final textColor = isDark ? AppColors.dark.onSurface : AppColors.light.onSurface;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

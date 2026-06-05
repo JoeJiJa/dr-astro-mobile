@@ -198,7 +198,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
       value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor:
-            isDark ? AppColors.darkBackground : AppColors.lightBackground,
+            isDark ? AppColors.dark.background : AppColors.light.background,
         body: Column(
           children: [
             // ---- Header ----
@@ -222,7 +222,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
   Widget _buildHeader(BuildContext context, bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
+        color: isDark ? AppColors.dark.surface : Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
@@ -398,7 +398,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
           autoSpacing: true,
           pageFling: true,
           backgroundColor:
-              isDark ? AppColors.darkBackground : const Color(0xFFF5F5F5),
+              isDark ? AppColors.dark.background : const Color(0xFFF5F5F5),
           onRender: (pages) {
             if (mounted) setState(() => _totalPages = pages ?? 0);
           },
@@ -546,12 +546,12 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
     return _buildInfoCard(
       isDark: isDark,
       gradient: LinearGradient(
-        colors: [AppColors.primary, AppColors.accent],
+        colors: [AppColors.primary, AppColors.secondary],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
       icon: Icons.cloud_download_rounded,
-      iconBg: AppColors.accent,
+      iconBg: AppColors.secondary,
       title: 'Google Drive File',
       subtitle: 'This resource is hosted on Google Drive.',
       instructions: const [
@@ -715,7 +715,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : Colors.white,
+              color: isDark ? AppColors.dark.surface : Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -986,7 +986,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
   Widget _buildBottomBar(bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
+        color: isDark ? AppColors.dark.surface : Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
@@ -1033,7 +1033,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
                       : Icons.bookmark_border_rounded,
                   label: _isBookmarked ? 'Saved' : 'Save',
                   color: _isBookmarked
-                      ? AppColors.accent
+                      ? AppColors.secondary
                       : (isDark ? Colors.white38 : Colors.black45),
                   isDark: isDark,
                   onTap: () {

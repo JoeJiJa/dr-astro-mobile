@@ -24,7 +24,7 @@ class ExamScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor: isDark ? AppColors.dark.background : AppColors.light.background,
       body: subjectsAsync.when(
         loading: () => const _ExamLoadingBody(),
         error: (e, _) => _ExamErrorBody(error: e.toString()),
@@ -112,8 +112,8 @@ class ExamScreen extends ConsumerWidget {
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: isDark
-                                  ? AppColors.darkTextPrimary
-                                  : AppColors.lightTextPrimary,
+                                  ? AppColors.dark.onSurface
+                                  : AppColors.light.onSurface,
                             ),
                       ),
                       const Spacer(),
@@ -404,8 +404,8 @@ class _ExamInfoBanner extends StatelessWidget {
                   'Focus on high-yield topics, practice MCQs systematically, and review key concepts before each exam section.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.lightTextSecondary,
+                            ? AppColors.dark.onSurfaceVariant
+                            : AppColors.light.onSurfaceVariant,
                         height: 1.5,
                       ),
                 ),
@@ -489,15 +489,15 @@ class _FilterChip extends StatelessWidget {
           color: isSelected
               ? AppColors.examPrimary
               : (isDark
-                  ? AppColors.darkSurface
-                  : AppColors.lightSurface),
+                  ? AppColors.dark.surface
+                  : AppColors.light.surface),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
                 ? AppColors.examPrimary
                 : (isDark
-                    ? AppColors.darkBorder
-                    : AppColors.lightBorder),
+                    ? AppColors.dark.outline
+                    : AppColors.light.outline),
           ),
           boxShadow: isSelected
               ? [
@@ -515,8 +515,8 @@ class _FilterChip extends StatelessWidget {
             color: isSelected
                 ? Colors.white
                 : (isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary),
+                    ? AppColors.dark.onSurfaceVariant
+                    : AppColors.light.onSurfaceVariant),
             fontWeight:
                 isSelected ? FontWeight.w700 : FontWeight.w500,
             fontSize: 13,
@@ -633,8 +633,8 @@ class _ExamEmptyState extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.lightTextPrimary,
+                        ? AppColors.dark.onSurface
+                        : AppColors.light.onSurface,
                   ),
             ),
             const SizedBox(height: 8),
@@ -645,8 +645,8 @@ class _ExamEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.lightTextSecondary,
+                        ? AppColors.dark.onSurfaceVariant
+                        : AppColors.light.onSurfaceVariant,
                   ),
             ),
             if (hasFilter) ...[
@@ -712,8 +712,8 @@ class _ExamLoadingBody extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: isDark
-                        ? AppColors.darkSurface
-                        : AppColors.lightSurface,
+                        ? AppColors.dark.surface
+                        : AppColors.light.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),

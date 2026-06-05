@@ -215,7 +215,7 @@ class _NeuralLabScreenState extends ConsumerState<NeuralLabScreen>
     final isEmpty = messages.isEmpty && !isLoading;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dark.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -261,10 +261,10 @@ class _NeuralLabHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.dark.surface,
         border: Border(
           bottom: BorderSide(
-            color: AppColors.indigo.withOpacity(0.2),
+            color: AppColors.primary.withOpacity(0.2),
             width: 1,
           ),
         ),
@@ -276,14 +276,14 @@ class _NeuralLabHeader extends StatelessWidget {
             height: 42,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.indigo, AppColors.violet],
+                colors: [AppColors.primary, AppColors.secondary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.indigo.withOpacity(0.4),
+                  color: AppColors.primary.withOpacity(0.4),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -333,7 +333,7 @@ class _NeuralLabHeader extends StatelessWidget {
                     Text(
                       'Powered by Gemini',
                       style: GoogleFonts.inter(
-                        color: AppColors.textSecondary,
+                        color: AppColors.dark.onSurfaceVariant,
                         fontSize: 11.5,
                         fontWeight: FontWeight.w500,
                       ),
@@ -375,14 +375,14 @@ class _HeaderActionButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(9),
           decoration: BoxDecoration(
-            color: AppColors.indigo.withOpacity(0.12),
+            color: AppColors.primary.withOpacity(0.12),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: AppColors.indigo.withOpacity(0.25),
+              color: AppColors.primary.withOpacity(0.25),
               width: 1,
             ),
           ),
-          child: Icon(icon, color: AppColors.indigo, size: 20),
+          child: Icon(icon, color: AppColors.primary, size: 20),
         ),
       ),
     );
@@ -431,7 +431,7 @@ class _EmptyHeroSection extends StatelessWidget {
             'Ask me anything about medicine, anatomy,\npharmacology, or exam prep.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              color: AppColors.textSecondary,
+              color: AppColors.dark.onSurfaceVariant,
               fontSize: 14,
               height: 1.6,
             ),
@@ -473,9 +473,9 @@ class _BrainHeroWidget extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.indigo.withOpacity(0.0),
-                      AppColors.indigo.withOpacity(0.08 * pulseController.value),
-                      AppColors.violet.withOpacity(0.0),
+                      AppColors.primary.withOpacity(0.0),
+                      AppColors.primary.withOpacity(0.08 * pulseController.value),
+                      AppColors.secondary.withOpacity(0.0),
                     ],
                   ),
                 ),
@@ -501,15 +501,15 @@ class _BrainHeroWidget extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.indigo.withOpacity(0.85),
-                      AppColors.violet.withOpacity(0.85),
+                      AppColors.primary.withOpacity(0.85),
+                      AppColors.secondary.withOpacity(0.85),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.indigo
+                      color: AppColors.primary
                           .withOpacity(0.4 + pulseController.value * 0.2),
                       blurRadius: 30,
                       spreadRadius: 4,
@@ -643,15 +643,15 @@ class _SuggestedPromptCardState extends State<_SuggestedPromptCard> {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.dark.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: AppColors.indigo.withOpacity(0.25),
+              color: AppColors.primary.withOpacity(0.25),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.indigo.withOpacity(0.07),
+                color: AppColors.primary.withOpacity(0.07),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -743,7 +743,7 @@ class _UserMessageBubble extends StatelessWidget {
               child: Text(
                 DateFormat('hh:mm a').format(message.timestamp),
                 style: GoogleFonts.inter(
-                  color: AppColors.textSecondary,
+                  color: AppColors.dark.onSurfaceVariant,
                   fontSize: 10,
                 ),
               ),
@@ -763,7 +763,7 @@ class _UserMessageBubble extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [AppColors.indigo, AppColors.violet],
+                      colors: [AppColors.primary, AppColors.secondary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -775,7 +775,7 @@ class _UserMessageBubble extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.indigo.withOpacity(0.3),
+                        color: AppColors.primary.withOpacity(0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -825,7 +825,7 @@ class _AiMessageBubble extends StatelessWidget {
               child: Text(
                 DateFormat('hh:mm a').format(message.timestamp),
                 style: GoogleFonts.inter(
-                  color: AppColors.textSecondary,
+                  color: AppColors.dark.onSurfaceVariant,
                   fontSize: 10,
                 ),
               ),
@@ -840,14 +840,14 @@ class _AiMessageBubble extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 10, top: 2),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [AppColors.indigo, AppColors.violet],
+                      colors: [AppColors.primary, AppColors.secondary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.indigo.withOpacity(0.35),
+                        color: AppColors.primary.withOpacity(0.35),
                         blurRadius: 8,
                       ),
                     ],
@@ -870,7 +870,7 @@ class _AiMessageBubble extends StatelessWidget {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: AppColors.dark.surface,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(4),
                       topRight: Radius.circular(18),
@@ -878,7 +878,7 @@ class _AiMessageBubble extends StatelessWidget {
                       bottomRight: Radius.circular(18),
                     ),
                     border: Border.all(
-                      color: AppColors.indigo.withOpacity(0.18),
+                      color: AppColors.primary.withOpacity(0.18),
                       width: 1,
                     ),
                     boxShadow: [
@@ -913,15 +913,15 @@ class _AiMessageBubble extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                       code: GoogleFonts.firaCode(
-                        color: AppColors.indigo,
-                        backgroundColor: AppColors.indigo.withOpacity(0.12),
+                        color: AppColors.primary,
+                        backgroundColor: AppColors.primary.withOpacity(0.12),
                         fontSize: 13,
                       ),
                       codeblockDecoration: BoxDecoration(
-                        color: AppColors.indigo.withOpacity(0.08),
+                        color: AppColors.primary.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppColors.indigo.withOpacity(0.2),
+                          color: AppColors.primary.withOpacity(0.2),
                         ),
                       ),
                       strong: GoogleFonts.inter(
@@ -935,15 +935,15 @@ class _AiMessageBubble extends StatelessWidget {
                         fontSize: 14.5,
                       ),
                       listBullet: GoogleFonts.inter(
-                        color: AppColors.indigo,
+                        color: AppColors.primary,
                         fontSize: 14.5,
                       ),
                       blockquoteDecoration: BoxDecoration(
-                        color: AppColors.violet.withOpacity(0.1),
+                        color: AppColors.secondary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border(
                           left: BorderSide(
-                            color: AppColors.violet,
+                            color: AppColors.secondary,
                             width: 3,
                           ),
                         ),
@@ -963,7 +963,7 @@ class _AiMessageBubble extends StatelessWidget {
                         fontSize: 13,
                       ),
                       tableBorder: TableBorder.all(
-                        color: AppColors.indigo.withOpacity(0.25),
+                        color: AppColors.primary.withOpacity(0.25),
                       ),
                     ),
                     selectable: true,
@@ -986,13 +986,13 @@ class _AiMessageBubble extends StatelessWidget {
                   Icon(
                     Icons.copy_rounded,
                     size: 12,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dark.onSurfaceVariant,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     'Copy',
                     style: GoogleFonts.inter(
-                      color: AppColors.textSecondary,
+                      color: AppColors.dark.onSurfaceVariant,
                       fontSize: 11,
                     ),
                   ),
@@ -1026,7 +1026,7 @@ class _TypingIndicatorBubble extends StatelessWidget {
             margin: const EdgeInsets.only(right: 10, top: 2),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.indigo, AppColors.violet],
+                colors: [AppColors.primary, AppColors.secondary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -1041,7 +1041,7 @@ class _TypingIndicatorBubble extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.dark.surface,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(4),
                 topRight: Radius.circular(18),
@@ -1049,7 +1049,7 @@ class _TypingIndicatorBubble extends StatelessWidget {
                 bottomRight: Radius.circular(18),
               ),
               border: Border.all(
-                color: AppColors.indigo.withOpacity(0.18),
+                color: AppColors.primary.withOpacity(0.18),
                 width: 1,
               ),
             ),
@@ -1120,7 +1120,7 @@ class _AnimatedDotsState extends State<_AnimatedDots>
               height: 8,
               margin: EdgeInsets.only(right: i < 2 ? 5 : 0),
               decoration: BoxDecoration(
-                color: AppColors.indigo,
+                color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
             ),
@@ -1157,10 +1157,10 @@ class _SuggestedChipsBar extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.dark.surface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppColors.indigo.withOpacity(0.3),
+                  color: AppColors.primary.withOpacity(0.3),
                   width: 1,
                 ),
               ),
@@ -1235,10 +1235,10 @@ class _ChatInputBarState extends State<_ChatInputBar> {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: AppColors.dark.background,
         border: Border(
           top: BorderSide(
-            color: AppColors.indigo.withOpacity(0.15),
+            color: AppColors.primary.withOpacity(0.15),
             width: 1,
           ),
         ),
@@ -1250,7 +1250,7 @@ class _ChatInputBarState extends State<_ChatInputBar> {
           _IconCircleButton(
             icon: Icons.mic_none_rounded,
             onTap: () {},
-            color: AppColors.textSecondary,
+            color: AppColors.dark.onSurfaceVariant,
           ),
           const SizedBox(width: 8),
           // Input field
@@ -1258,12 +1258,12 @@ class _ChatInputBarState extends State<_ChatInputBar> {
             child: Container(
               constraints: const BoxConstraints(minHeight: 48, maxHeight: 130),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.dark.surface,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: widget.focusNode.hasFocus
-                      ? AppColors.indigo.withOpacity(0.5)
-                      : AppColors.indigo.withOpacity(0.18),
+                      ? AppColors.primary.withOpacity(0.5)
+                      : AppColors.primary.withOpacity(0.18),
                   width: 1.2,
                 ),
               ),
@@ -1282,7 +1282,7 @@ class _ChatInputBarState extends State<_ChatInputBar> {
                 decoration: InputDecoration(
                   hintText: 'Ask anything about medicine…',
                   hintStyle: GoogleFonts.inter(
-                    color: AppColors.textSecondary,
+                    color: AppColors.dark.onSurfaceVariant,
                     fontSize: 14,
                   ),
                   border: InputBorder.none,
@@ -1340,10 +1340,10 @@ class _IconCircleButton extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.dark.surface,
           shape: BoxShape.circle,
           border: Border.all(
-            color: AppColors.indigo.withOpacity(0.18),
+            color: AppColors.primary.withOpacity(0.18),
             width: 1,
           ),
         ),
@@ -1370,17 +1370,17 @@ class _SendButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: enabled
               ? LinearGradient(
-                  colors: [AppColors.indigo, AppColors.violet],
+                  colors: [AppColors.primary, AppColors.secondary],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 )
               : null,
-          color: enabled ? null : AppColors.surface,
+          color: enabled ? null : AppColors.dark.surface,
           shape: BoxShape.circle,
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: AppColors.indigo.withOpacity(0.4),
+                    color: AppColors.primary.withOpacity(0.4),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -1389,13 +1389,13 @@ class _SendButton extends StatelessWidget {
           border: enabled
               ? null
               : Border.all(
-                  color: AppColors.indigo.withOpacity(0.18),
+                  color: AppColors.primary.withOpacity(0.18),
                   width: 1,
                 ),
         ),
         child: Icon(
           Icons.arrow_upward_rounded,
-          color: enabled ? Colors.white : AppColors.textSecondary,
+          color: enabled ? Colors.white : AppColors.dark.onSurfaceVariant,
           size: 20,
         ),
       ),
@@ -1412,10 +1412,10 @@ class _LoadingCircle extends StatelessWidget {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.dark.surface,
         shape: BoxShape.circle,
         border: Border.all(
-          color: AppColors.indigo.withOpacity(0.3),
+          color: AppColors.primary.withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -1423,7 +1423,7 @@ class _LoadingCircle extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.indigo),
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
         ),
       ),
     );

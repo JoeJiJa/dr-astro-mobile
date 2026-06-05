@@ -48,6 +48,8 @@ class AuthService {
     required String name,
     required String email,
     required String password,
+    String? yearOfStudy,
+    String? collegeName,
   }) async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email,
@@ -60,6 +62,8 @@ class AuthService {
       id: user.uid,
       name: name,
       email: email,
+      yearOfStudy: yearOfStudy,
+      college: collegeName,
       role: AppConstants.adminEmails.contains(email) ? UserRole.admin : UserRole.user,
       joinedAt: DateTime.now(),
       lastLoginAt: DateTime.now(),

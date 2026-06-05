@@ -310,7 +310,7 @@ class _AppBarIconButton extends StatelessWidget {
                   width: 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: AppColors.accent,
+                    color: AppColors.secondary,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 1.2),
                   ),
@@ -332,7 +332,7 @@ class _UserAvatar extends ConsumerWidget {
     return userAsync.when(
       data: (user) {
         final photoUrl = user?.photoUrl as String?;
-        final initials = _getInitials(user?.displayName as String? ?? 'User');
+        final initials = _getInitials(user?.name as String? ?? 'User');
         return GestureDetector(
           onTap: () => context.go('/profile'),
           child: Container(
@@ -408,7 +408,7 @@ class _GreetingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return userAsync.when(
       data: (user) {
-        final name = (user?.displayName as String?) ?? 'Doctor';
+        final name = (user?.name as String?) ?? 'Doctor';
         final firstName = name.split(' ').first;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

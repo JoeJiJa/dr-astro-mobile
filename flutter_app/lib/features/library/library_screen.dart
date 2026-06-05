@@ -85,7 +85,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         final horizontalPadding = width >= 1200 ? 48.0 : (width >= 768 ? 24.0 : 16.0);
 
         return Scaffold(
-          backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+          backgroundColor: isDark ? AppColors.dark.background : AppColors.light.background,
           body: CustomScrollView(
             slivers: [
               // -----------------------------------------------------------------
@@ -95,7 +95,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                 pinned: true,
                 floating: false,
                 expandedHeight: 200,
-                backgroundColor: isDark ? AppColors.darkSurface : AppColors.primary,
+                backgroundColor: isDark ? AppColors.dark.surface : AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
@@ -298,12 +298,12 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: isDark ? AppColors.darkSurface : AppColors.primary,
+      color: isDark ? AppColors.dark.surface : AppColors.primary,
       padding: EdgeInsets.fromLTRB(horizontalPadding, 0, horizontalPadding, 10),
       child: Container(
         height: 46,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : Colors.white,
+          color: isDark ? AppColors.dark.card : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -317,18 +317,18 @@ class _SearchBar extends StatelessWidget {
           controller: controller,
           onChanged: onChanged,
           style: TextStyle(
-            color: isDark ? AppColors.darkText : AppColors.lightText,
+            color: isDark ? AppColors.dark.onSurface : AppColors.light.onSurface,
             fontSize: 15,
           ),
           decoration: InputDecoration(
             hintText: 'Search subjects...',
             hintStyle: TextStyle(
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+              color: isDark ? AppColors.dark.onSurfaceVariant : AppColors.light.onSurfaceVariant,
               fontSize: 15,
             ),
             prefixIcon: Icon(
               Icons.search_rounded,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.primary,
+              color: isDark ? AppColors.dark.onSurfaceVariant : AppColors.primary,
               size: 20,
             ),
             suffixIcon: ValueListenableBuilder<TextEditingValue>(
@@ -337,8 +337,8 @@ class _SearchBar extends StatelessWidget {
                   ? IconButton(
                       icon: const Icon(Icons.clear_rounded, size: 18),
                       color: isDark
-                          ? AppColors.darkTextSecondary
-                          : AppColors.lightTextSecondary,
+                          ? AppColors.dark.onSurfaceVariant
+                          : AppColors.light.onSurfaceVariant,
                       onPressed: onClear,
                     )
                   : const SizedBox.shrink(),
@@ -391,12 +391,12 @@ class _YearFilterChips extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primary
-                    : (isDark ? AppColors.darkCard : Colors.white),
+                    : (isDark ? AppColors.dark.card : Colors.white),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
                       ? AppColors.primary
-                      : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      : (isDark ? AppColors.dark.outline : AppColors.light.outline),
                   width: 1.5,
                 ),
                 boxShadow: isSelected
@@ -416,8 +416,8 @@ class _YearFilterChips extends StatelessWidget {
                   color: isSelected
                       ? Colors.white
                       : (isDark
-                          ? AppColors.darkTextSecondary
-                          : AppColors.lightTextSecondary),
+                          ? AppColors.dark.onSurfaceVariant
+                          : AppColors.light.onSurfaceVariant),
                   fontWeight:
                       isSelected ? FontWeight.bold : FontWeight.normal,
                   fontSize: 13,
@@ -493,15 +493,15 @@ class _EmptyState extends StatelessWidget {
               Icons.search_off_rounded,
               size: 80,
               color: isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.lightTextSecondary,
+                  ? AppColors.dark.onSurfaceVariant
+                  : AppColors.light.onSurfaceVariant,
             ),
             const SizedBox(height: 20),
             Text(
               'No subjects found',
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkText : AppColors.lightText,
+                color: isDark ? AppColors.dark.onSurface : AppColors.light.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -514,8 +514,8 @@ class _EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
+                    ? AppColors.dark.onSurfaceVariant
+                    : AppColors.light.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 24),
@@ -648,7 +648,7 @@ class _AddSubjectDialogState extends ConsumerState<_AddSubjectDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+      backgroundColor: isDark ? AppColors.dark.surface : Colors.white,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
         child: Padding(
@@ -712,8 +712,8 @@ class _AddSubjectDialogState extends ConsumerState<_AddSubjectDialog> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: isDark
-                        ? AppColors.darkCard
-                        : AppColors.lightInputFill,
+                        ? AppColors.dark.card
+                        : AppColors.light.surfaceVariant,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
@@ -722,9 +722,9 @@ class _AddSubjectDialogState extends ConsumerState<_AddSubjectDialog> {
                         horizontal: 14, vertical: 12),
                   ),
                   dropdownColor:
-                      isDark ? AppColors.darkCard : Colors.white,
+                      isDark ? AppColors.dark.card : Colors.white,
                   style: TextStyle(
-                    color: isDark ? AppColors.darkText : AppColors.lightText,
+                    color: isDark ? AppColors.dark.onSurface : AppColors.light.onSurface,
                     fontSize: 14,
                   ),
                   items: _yearFilters
@@ -803,20 +803,20 @@ class _AddSubjectDialogState extends ConsumerState<_AddSubjectDialog> {
           maxLines: maxLines,
           validator: validator,
           style: TextStyle(
-            color: isDark ? AppColors.darkText : AppColors.lightText,
+            color: isDark ? AppColors.dark.onSurface : AppColors.light.onSurface,
             fontSize: 14,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
               color: isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.lightTextSecondary,
+                  ? AppColors.dark.onSurfaceVariant
+                  : AppColors.light.onSurfaceVariant,
               fontSize: 14,
             ),
             filled: true,
             fillColor:
-                isDark ? AppColors.darkCard : AppColors.lightInputFill,
+                isDark ? AppColors.dark.card : AppColors.light.surfaceVariant,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
@@ -824,7 +824,7 @@ class _AddSubjectDialogState extends ConsumerState<_AddSubjectDialog> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? AppColors.dark.outline : AppColors.light.outline,
               ),
             ),
             focusedBorder: OutlineInputBorder(

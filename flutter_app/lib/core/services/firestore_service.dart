@@ -405,6 +405,34 @@ class FirestoreService {
     return snap.docs.map(AppUser.fromFirestore).toList();
   }
 
+  // ─── SUBJECTS (ADMIN) ────────────────────────────────────────────────────
+
+  Future<void> deleteSubject(String subjectId) async {
+    await _db.collection(AppConstants.subjectsCollection).doc(subjectId).delete();
+  }
+
+  Future<void> updateSubject({
+    required String subjectId,
+    required String name,
+    required String? description,
+    required List<int> years,
+  }) async {
+    await _db.collection(AppConstants.subjectsCollection).doc(subjectId).update({
+      'name': name,
+      'description': description,
+      'years': years,
+    });
+  }
+
+  Stream<Set<String>> watchUserFavorites(String uid) {
+    return _db.collection(AppConstants.usersCollection).doc(uid).snapshots().map((doc) {
+      if (!doc.exists) return <String>{};
+      final data = doc.data() ?? {};
+      final list = List<dynamic>.from(data['favorites'] as List? ?? []);
+      return list.map((e) => e.toString()).toSet();
+    });
+  }
+
   // ─── AUDIT LOGS (ADMIN) ───────────────────────────────────────────────────
 
   Stream<List<Map<String, dynamic>>> watchAdminAuditLogs() {
@@ -419,10 +447,10 @@ class FirestoreService {
   Stream<List<Map<String, dynamic>>> watchUserActivities({String? userId}) {
     Query query = _db.collection(AppConstants.userActivitiesCollection);
     if (userId != null) {
-      query = query.where('userId', '==', userId);
+      query = query.where('userId', isEqualTo: userId);
     }
     return query.snapshots().map((snap) {
-      final list = snap.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
+      final list = snap.docs.map((doc) => <String, dynamic>{'id': doc.id, ...(doc.data() as Map<String, dynamic>)}).toList();
       list.sort((a, b) {
         final tA = a['timestamp'] as String? ?? '';
         final tB = b['timestamp'] as String? ?? '';

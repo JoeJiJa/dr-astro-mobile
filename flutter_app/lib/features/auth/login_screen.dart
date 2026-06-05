@@ -103,7 +103,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     try {
       final authService = ref.read(authServiceProvider);
-      await authService.sendPasswordReset(email: email);
+      await authService.sendPasswordReset(email);
       if (mounted) {
         _showSuccessSnackBar('Password reset email sent to $email');
       }
@@ -175,7 +175,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor: isDark ? AppColors.dark.background : AppColors.light.background,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth > 700;
@@ -322,9 +322,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   // ─────────────── FORM CARD ───────────────
   Widget _buildFormCard(bool isDark, {required bool isDesktop}) {
-    final cardColor = isDark ? AppColors.darkSurface : Colors.white;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+    final cardColor = isDark ? AppColors.dark.surface : Colors.white;
+    final textColor = isDark ? AppColors.dark.onSurface : AppColors.light.onSurface;
+    final subTextColor = isDark ? AppColors.dark.onSurfaceVariant : AppColors.light.onSurfaceVariant;
 
     Widget card = Container(
       padding: EdgeInsets.all(isDesktop ? 36 : 24),
@@ -495,10 +495,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     Widget? suffixIcon,
     String? Function(String?)? validator,
   }) {
-    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
-    final fillColor = isDark ? AppColors.darkSurfaceVariant : const Color(0xFFF8F9FF);
-    final labelColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final borderColor = isDark ? AppColors.dark.outline : AppColors.light.outline;
+    final fillColor = isDark ? AppColors.dark.surfaceVariant : const Color(0xFFF8F9FF);
+    final labelColor = isDark ? AppColors.dark.onSurfaceVariant : AppColors.light.onSurfaceVariant;
+    final textColor = isDark ? AppColors.dark.onSurface : AppColors.light.onSurface;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,7 +620,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         onPressed: _isLoading ? null : _signInWithGoogle,
         style: OutlinedButton.styleFrom(
           side: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            color: isDark ? AppColors.dark.outline : AppColors.light.outline,
             width: 1.2,
           ),
           shape: RoundedRectangleBorder(

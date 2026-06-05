@@ -24,7 +24,7 @@ class PracticalScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor:
-          isDark ? AppColors.darkBackground : AppColors.lightBackground,
+          isDark ? AppColors.dark.background : AppColors.light.background,
       body: subjectsAsync.when(
         loading: () => const _PracticalLoadingBody(),
         error: (e, _) => _PracticalErrorBody(error: e.toString()),
@@ -140,8 +140,8 @@ class PracticalScreen extends ConsumerWidget {
                             ?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: isDark
-                                  ? AppColors.darkTextPrimary
-                                  : AppColors.lightTextPrimary,
+                                  ? AppColors.dark.onSurface
+                                  : AppColors.light.onSurface,
                             ),
                       ),
                       const Spacer(),
@@ -451,8 +451,8 @@ class _OsceHighlightCard extends StatelessWidget {
                   'Structured clinical examination stations with skill-based assessments',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.lightTextSecondary,
+                            ? AppColors.dark.onSurfaceVariant
+                            : AppColors.light.onSurfaceVariant,
                         height: 1.4,
                       ),
                 ),
@@ -526,10 +526,10 @@ class _MiniInfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        color: isDark ? AppColors.dark.surface : AppColors.light.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: isDark ? AppColors.dark.outline : AppColors.light.outline,
         ),
       ),
       child: Row(
@@ -551,8 +551,8 @@ class _MiniInfoCard extends StatelessWidget {
                   title,
                   style: TextStyle(
                     color: isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.lightTextPrimary,
+                        ? AppColors.dark.onSurface
+                        : AppColors.light.onSurface,
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -561,8 +561,8 @@ class _MiniInfoCard extends StatelessWidget {
                   subtitle,
                   style: TextStyle(
                     color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.lightTextSecondary,
+                        ? AppColors.dark.onSurfaceVariant
+                        : AppColors.light.onSurfaceVariant,
                     fontSize: 10,
                     height: 1.3,
                   ),
@@ -647,12 +647,12 @@ class _PracticalFilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.practicalPrimary
-              : (isDark ? AppColors.darkSurface : AppColors.lightSurface),
+              : (isDark ? AppColors.dark.surface : AppColors.light.surface),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
                 ? AppColors.practicalPrimary
-                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                : (isDark ? AppColors.dark.outline : AppColors.light.outline),
           ),
           boxShadow: isSelected
               ? [
@@ -670,8 +670,8 @@ class _PracticalFilterChip extends StatelessWidget {
             color: isSelected
                 ? Colors.white
                 : (isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary),
+                    ? AppColors.dark.onSurfaceVariant
+                    : AppColors.light.onSurfaceVariant),
             fontWeight:
                 isSelected ? FontWeight.w700 : FontWeight.w500,
             fontSize: 13,
@@ -788,8 +788,8 @@ class _PracticalEmptyState extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.lightTextPrimary,
+                        ? AppColors.dark.onSurface
+                        : AppColors.light.onSurface,
                   ),
             ),
             const SizedBox(height: 8),
@@ -800,8 +800,8 @@ class _PracticalEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.lightTextSecondary,
+                        ? AppColors.dark.onSurfaceVariant
+                        : AppColors.light.onSurfaceVariant,
                   ),
             ),
             if (hasFilter) ...[
@@ -871,8 +871,8 @@ class _PracticalLoadingBody extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: isDark
-                        ? AppColors.darkSurface
-                        : AppColors.lightSurface,
+                        ? AppColors.dark.surface
+                        : AppColors.light.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),

@@ -40,25 +40,60 @@ const _categories = [
 
 /// Provides the currently viewed subject from Firestore.
 final selectedSubjectProvider =
-    FutureProvider.family<dynamic, String>((ref, subjectId) async {
+    FutureProvider.family<Subject?, String>((ref, subjectId) async {
   final service = ref.read(firestoreServiceProvider);
-  return service.getSubjectById(subjectId);
+  return service.getSubject(subjectId);
 });
 
 /// Books stream per subject + category.
 final subjectBooksProvider =
-    StreamProvider.family<List<dynamic>, _SubjectCategoryKey>((ref, key) {
+    StreamProvider.family<List<Book>, _SubjectCategoryKey>((ref, key) {
   final service = ref.read(firestoreServiceProvider);
-  return service.getBooksStream(
-    subjectId: key.subjectId,
-    categoryId: key.categoryId,
-  );
+  return service.watchSubjects().map((list) {
+    try {
+      final subject = list.firstWhere((s) => s.id == key.subjectId);
+      switch (key.categoryId) {
+        case 'textbooks':
+          return subject.materials.textbooks;
+        case 'study_materials':
+          return subject.materials.studyMaterials;
+        case 'clinical':
+        case 'clinicalBooks':
+          return subject.materials.clinicalBooks;
+        case 'qbank':
+        case 'questionBank':
+          return subject.materials.questionBank;
+        case 'past_papers':
+        case 'previousYearQuestions':
+          return subject.materials.previousYearQuestions;
+        case 'practical':
+        case 'practicalMaterials':
+          return subject.materials.practicalMaterials;
+        case 'osce':
+          return subject.materials.osce;
+        case 'viva':
+          return subject.materials.viva;
+        default:
+          return subject.materials.extra[key.categoryId] ?? [];
+      }
+    } catch (_) {
+      return [];
+    }
+  });
 });
 
 /// Set of favorited book IDs for the current user.
-final favoriteBooksProvider = StreamProvider<Set<String>>((ref) async* {
-  final service = ref.read(firestoreServiceProvider);
-  yield* service.getFavoriteBooksStream();
+final favoriteBooksProvider = StreamProvider<Set<String>>((ref) {
+  final authState = ref.watch(authStateProvider);
+  return authState.when(
+    data: (user) {
+      if (user == null) return Stream.value(<String>{});
+      final service = ref.read(firestoreServiceProvider);
+      return service.watchUserFavorites(user.uid);
+    },
+    loading: () => Stream.value(<String>{}),
+    error: (_, __) => Stream.value(<String>{}),
+  );
 });
 
 class _SubjectCategoryKey {
@@ -120,9 +155,9 @@ class _SubjectDetailScreenState extends ConsumerState<SubjectDetailScreen>
   Color _modeAccentColor() {
     switch (widget.mode) {
       case SubjectDetailMode.exam:
-        return AppColors.examAccent;
+        return AppColors.examSecondary;
       case SubjectDetailMode.practical:
-        return AppColors.practicalAccent;
+        return AppColors.practicalSecondary;
       case SubjectDetailMode.library:
         return AppColors.primary;
     }
@@ -172,7 +207,7 @@ class _SubjectDetailScreenState extends ConsumerState<SubjectDetailScreen>
 
         return Scaffold(
           backgroundColor:
-              isDark ? AppColors.darkBackground : AppColors.lightBackground,
+              isDark ? AppColors.dark.background : AppColors.light.background,
           body: subjectAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, _) => _buildError(context, err.toString()),
@@ -211,7 +246,7 @@ class _SubjectDetailScreenState extends ConsumerState<SubjectDetailScreen>
         SliverAppBar(
           pinned: true,
           expandedHeight: isDesktop ? 220 : 200,
-          backgroundColor: isDark ? AppColors.darkSurface : accentColor,
+          backgroundColor: isDark ? AppColors.dark.surface : accentColor,
           foregroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
@@ -222,7 +257,7 @@ class _SubjectDetailScreenState extends ConsumerState<SubjectDetailScreen>
             if (isAdmin)
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
-                color: isDark ? AppColors.darkCard : Colors.white,
+                color: isDark ? AppColors.dark.card : Colors.white,
                 onSelected: (val) => _handleAdminAction(context, val, subject),
                 itemBuilder: (_) => [
                   const PopupMenuItem(
@@ -355,14 +390,14 @@ class _SubjectDetailScreenState extends ConsumerState<SubjectDetailScreen>
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(48),
             child: Container(
-              color: isDark ? AppColors.darkSurface : Colors.white,
+              color: isDark ? AppColors.dark.surface : Colors.white,
               child: TabBar(
                 controller: _tabController,
                 isScrollable: true,
                 labelColor: accentColor,
                 unselectedLabelColor: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
+                    ? AppColors.dark.onSurfaceVariant
+                    : AppColors.light.onSurfaceVariant,
                 indicatorColor: accentColor,
                 indicatorWeight: 3,
                 labelStyle: const TextStyle(
@@ -445,7 +480,7 @@ class _SubjectDetailScreenState extends ConsumerState<SubjectDetailScreen>
       context: context,
       builder: (ctx) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+        backgroundColor: isDark ? AppColors.dark.surface : Colors.white,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420, maxHeight: 520),
           child: Column(
@@ -493,7 +528,7 @@ class _SubjectDetailScreenState extends ConsumerState<SubjectDetailScreen>
                       vertical: 8, horizontal: 4),
                   itemCount: parts.length,
                   separatorBuilder: (_, __) =>
-                      Divider(height: 1, color: AppColors.divider(isDark)),
+                      Divider(height: 1, color: (isDark ? AppColors.dark.outline : AppColors.light.outline).withOpacity(0.12)),
                   itemBuilder: (_, index) {
                     final part = parts[index];
                     final partTitle =
@@ -523,7 +558,7 @@ class _SubjectDetailScreenState extends ConsumerState<SubjectDetailScreen>
                       title: Text(
                         partTitle,
                         style: TextStyle(
-                          color: isDark ? AppColors.darkText : AppColors.lightText,
+                          color: isDark ? AppColors.dark.onSurface : AppColors.light.onSurface,
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
                         ),
@@ -812,8 +847,8 @@ class _MobileBooksView extends ConsumerWidget {
                   '${books.length} ${books.length == 1 ? 'item' : 'items'}',
                   style: TextStyle(
                     color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.lightTextSecondary,
+                        ? AppColors.dark.onSurfaceVariant
+                        : AppColors.light.onSurfaceVariant,
                     fontSize: 13,
                   ),
                 ),
@@ -840,7 +875,7 @@ class _MobileBooksView extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: BookCard(
                     book: book,
-                    isFavorite: isFav,
+                    isFavorited: isFav,
                     accentColor: accentColor,
                     isDark: isDark,
                     isAdmin: isAdmin,
@@ -868,7 +903,10 @@ class _MobileBooksView extends ConsumerWidget {
       BuildContext context, WidgetRef ref, dynamic book) async {
     try {
       final service = ref.read(firestoreServiceProvider);
-      await service.toggleFavoriteBook(book.id as String);
+      final currentUser = ref.read(authServiceProvider).currentUser;
+      if (currentUser != null) {
+        await service.toggleFavorite(currentUser.uid, book.id as String);
+      }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -987,8 +1025,8 @@ class _DesktopBooksGrid extends ConsumerWidget {
                   '${books.length} ${books.length == 1 ? 'item' : 'items'}',
                   style: TextStyle(
                     color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.lightTextSecondary,
+                        ? AppColors.dark.onSurfaceVariant
+                        : AppColors.light.onSurfaceVariant,
                     fontSize: 13,
                   ),
                 ),
@@ -1034,7 +1072,7 @@ class _DesktopBooksGrid extends ConsumerWidget {
                     favorites.contains(book.id as String? ?? '');
                 return BookCard(
                   book: book,
-                  isFavorite: isFav,
+                  isFavorited: isFav,
                   accentColor: accentColor,
                   isDark: isDark,
                   isAdmin: isAdmin,
@@ -1042,7 +1080,10 @@ class _DesktopBooksGrid extends ConsumerWidget {
                   onFavoriteToggle: () async {
                     try {
                       final service = ref.read(firestoreServiceProvider);
-                      await service.toggleFavoriteBook(book.id as String);
+                      final currentUser = ref.read(authServiceProvider).currentUser;
+      if (currentUser != null) {
+        await service.toggleFavorite(currentUser.uid, book.id as String);
+      }
                     } catch (_) {}
                   },
                   onEdit: isAdmin
@@ -1133,8 +1174,8 @@ class _EmptyCategoryState extends ConsumerWidget {
               category.icon,
               size: 72,
               color: isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.lightTextSecondary,
+                  ? AppColors.dark.onSurfaceVariant
+                  : AppColors.light.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
             Text(
@@ -1151,8 +1192,8 @@ class _EmptyCategoryState extends ConsumerWidget {
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
+                    ? AppColors.dark.onSurfaceVariant
+                    : AppColors.light.onSurfaceVariant,
               ),
             ),
             if (isAdmin) ...[
@@ -1274,28 +1315,32 @@ class _AddEditBookDialogState extends ConsumerState<_AddEditBookDialog> {
               .toList()
           : <Map<String, String>>[];
 
+      final book = Book(
+        id: _isEditing ? widget.book.id : DateTime.now().millisecondsSinceEpoch.toString(),
+        title: _titleCtrl.text.trim(),
+        author: _authorCtrl.text.trim(),
+        coverColor: 'bg-indigo-600',
+        coverUrl: _coverCtrl.text.trim().isNotEmpty ? _coverCtrl.text.trim() : null,
+        type: BookType.textbook,
+        downloadUrl: _isMultiPart ? '' : _urlCtrl.text.trim(),
+        parts: parts.map((p) => BookPart(
+          id: DateTime.now().millisecondsSinceEpoch.toString() + '_' + parts.indexOf(p).toString(),
+          title: p['title']!,
+          downloadUrl: p['url']!,
+        )).toList(),
+      );
+
       if (_isEditing) {
         await service.updateBook(
           subjectId: widget.subjectId,
-          categoryId: widget.categoryId,
-          bookId: widget.book.id as String,
-          title: _titleCtrl.text.trim(),
-          author: _authorCtrl.text.trim(),
-          downloadUrl: _isMultiPart ? '' : _urlCtrl.text.trim(),
-          coverUrl: _coverCtrl.text.trim(),
-          edition: _editionCtrl.text.trim(),
-          parts: parts,
+          categoryKey: widget.categoryId,
+          updatedBook: book,
         );
       } else {
         await service.addBook(
           subjectId: widget.subjectId,
-          categoryId: widget.categoryId,
-          title: _titleCtrl.text.trim(),
-          author: _authorCtrl.text.trim(),
-          downloadUrl: _isMultiPart ? '' : _urlCtrl.text.trim(),
-          coverUrl: _coverCtrl.text.trim(),
-          edition: _editionCtrl.text.trim(),
-          parts: parts,
+          categoryKey: widget.categoryId,
+          book: book,
         );
       }
       if (mounted) Navigator.of(context).pop();
@@ -1320,7 +1365,7 @@ class _AddEditBookDialogState extends ConsumerState<_AddEditBookDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+      backgroundColor: isDark ? AppColors.dark.surface : Colors.white,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 520, maxHeight: 640),
         child: Column(
@@ -1547,19 +1592,19 @@ class _AddEditBookDialogState extends ConsumerState<_AddEditBookDialog> {
           controller: controller,
           validator: validator,
           style: TextStyle(
-            color: isDark ? AppColors.darkText : AppColors.lightText,
+            color: isDark ? AppColors.dark.onSurface : AppColors.light.onSurface,
             fontSize: 14,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
               color: isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.lightTextSecondary,
+                  ? AppColors.dark.onSurfaceVariant
+                  : AppColors.light.onSurfaceVariant,
               fontSize: 13,
             ),
             filled: true,
-            fillColor: isDark ? AppColors.darkCard : AppColors.lightInputFill,
+            fillColor: isDark ? AppColors.dark.card : AppColors.light.surfaceVariant,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
@@ -1568,7 +1613,7 @@ class _AddEditBookDialogState extends ConsumerState<_AddEditBookDialog> {
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
                 color:
-                    isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    isDark ? AppColors.dark.outline : AppColors.light.outline,
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -1613,11 +1658,11 @@ class _PartEditor extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isDark
-            ? AppColors.darkCard.withOpacity(0.5)
-            : AppColors.lightInputFill,
+            ? AppColors.dark.card.withOpacity(0.5)
+            : AppColors.light.surfaceVariant,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: isDark ? AppColors.dark.outline : AppColors.light.outline,
         ),
       ),
       child: Column(
@@ -1647,7 +1692,7 @@ class _PartEditor extends StatelessWidget {
               Text(
                 'Part ${index + 1}',
                 style: TextStyle(
-                  color: isDark ? AppColors.darkText : AppColors.lightText,
+                  color: isDark ? AppColors.dark.onSurface : AppColors.light.onSurface,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
@@ -1666,7 +1711,7 @@ class _PartEditor extends StatelessWidget {
           TextFormField(
             controller: controllers['title'],
             style: TextStyle(
-              color: isDark ? AppColors.darkText : AppColors.lightText,
+              color: isDark ? AppColors.dark.onSurface : AppColors.light.onSurface,
               fontSize: 13,
             ),
             decoration: _inputDec(
@@ -1680,7 +1725,7 @@ class _PartEditor extends StatelessWidget {
           TextFormField(
             controller: controllers['url'],
             style: TextStyle(
-              color: isDark ? AppColors.darkText : AppColors.lightText,
+              color: isDark ? AppColors.dark.onSurface : AppColors.light.onSurface,
               fontSize: 13,
             ),
             decoration:
@@ -1698,12 +1743,12 @@ class _PartEditor extends StatelessWidget {
       hintText: hint,
       hintStyle: TextStyle(
         color: isDark
-            ? AppColors.darkTextSecondary
-            : AppColors.lightTextSecondary,
+            ? AppColors.dark.onSurfaceVariant
+            : AppColors.light.onSurfaceVariant,
         fontSize: 12,
       ),
       filled: true,
-      fillColor: isDark ? AppColors.darkBackground : Colors.white,
+      fillColor: isDark ? AppColors.dark.background : Colors.white,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6),
         borderSide: BorderSide.none,
@@ -1711,7 +1756,7 @@ class _PartEditor extends StatelessWidget {
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6),
         borderSide: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: isDark ? AppColors.dark.outline : AppColors.light.outline,
         ),
       ),
       focusedBorder: OutlineInputBorder(
@@ -1795,7 +1840,7 @@ class _EditSubjectDialogState extends ConsumerState<_EditSubjectDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+      backgroundColor: isDark ? AppColors.dark.surface : Colors.white,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
         child: Padding(
@@ -1829,7 +1874,7 @@ class _EditSubjectDialogState extends ConsumerState<_EditSubjectDialog> {
                 DropdownButtonFormField<String>(
                   value: _year,
                   decoration: _dec('Year', isDark),
-                  dropdownColor: isDark ? AppColors.darkCard : Colors.white,
+                  dropdownColor: isDark ? AppColors.dark.card : Colors.white,
                   items: _yearFilters
                       .where((y) => y != 'All')
                       .map((y) => DropdownMenuItem(value: y, child: Text(y)))
@@ -1880,7 +1925,7 @@ class _EditSubjectDialogState extends ConsumerState<_EditSubjectDialog> {
   InputDecoration _dec(String label, bool isDark) => InputDecoration(
         labelText: label,
         filled: true,
-        fillColor: isDark ? AppColors.darkCard : AppColors.lightInputFill,
+        fillColor: isDark ? AppColors.dark.card : AppColors.light.surfaceVariant,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
@@ -1888,7 +1933,7 @@ class _EditSubjectDialogState extends ConsumerState<_EditSubjectDialog> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            color: isDark ? AppColors.dark.outline : AppColors.light.outline,
           ),
         ),
         focusedBorder: OutlineInputBorder(

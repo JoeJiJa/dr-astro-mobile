@@ -144,7 +144,7 @@ class SubjectCard extends StatelessWidget {
     switch (iconName.toLowerCase()) {
       case 'user':
       case 'bone':
-        return Icons.skeleton;
+        return Icons.accessibility_new_rounded;
       case 'brain':
         return Icons.psychology_rounded;
       case 'heart':

@@ -7,6 +7,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/providers/theme_provider.dart';
+import '../../core/models/app_user.dart';
 import '../../core/providers/subjects_provider.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/firestore_service.dart';
@@ -127,7 +128,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   void _toggleTheme() {
     final current = ref.read(themeModeProvider);
     final isDark = current == ThemeMode.dark;
-    ref.read(themeModeProvider.notifier).toggleTheme();
+    ref.read(themeModeProvider.notifier).toggle();
     if (isDark) {
       _themeIconCtrl.reverse();
     } else {
@@ -164,7 +165,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
         // Populate controllers if not editing
         if (!_isEditing) {
-          _nameCtrl.text = user.displayName ?? '';
+          _nameCtrl.text = user.name ?? '';
           _collegeCtrl.text = user.college ?? '';
           _batchYearCtrl.text = user.batchYear?.toString() ?? '';
           _selectedYear = user.yearOfStudy ?? '1st Year';
@@ -176,7 +177,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               ? SystemUiOverlayStyle.light
               : SystemUiOverlayStyle.dark,
           child: Scaffold(
-            backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+            backgroundColor: isDark ? AppColors.dark.background : AppColors.light.background,
             body: Form(
               key: _formKey,
               child: CustomScrollView(
@@ -293,7 +294,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     ColorScheme colorScheme,
   ) {
     final avatarBg = isDark ? AppColors.primaryDark : AppColors.primary;
-    final name = user.displayName ?? 'Dr. Astro User';
+    final name = user.name ?? 'Dr. Astro User';
     final email = user.email ?? '';
     final role = user.isAdmin == true ? 'Admin' : 'Student';
 
@@ -301,7 +302,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       expandedHeight: 260,
       pinned: true,
       stretch: true,
-      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      backgroundColor: isDark ? AppColors.dark.surface : AppColors.light.surface,
       elevation: 0,
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios_new_rounded,
@@ -335,8 +336,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: isDark
-                  ? [AppColors.darkSurface, AppColors.darkBackground]
-                  : [AppColors.lightSurface, const Color(0xFFECF0FF)],
+                  ? [AppColors.dark.surface, AppColors.dark.background]
+                  : [AppColors.light.surface, const Color(0xFFECF0FF)],
             ),
           ),
           child: Column(
@@ -353,7 +354,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [AppColors.primary, AppColors.accent],
+                        colors: [AppColors.primary, AppColors.secondary],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -397,10 +398,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     width: 26,
                     height: 26,
                     decoration: BoxDecoration(
-                      color: AppColors.accent,
+                      color: AppColors.secondary,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isDark ? AppColors.darkSurface : Colors.white,
+                        color: isDark ? AppColors.dark.surface : Colors.white,
                         width: 2,
                       ),
                     ),
@@ -432,12 +433,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 decoration: BoxDecoration(
                   color: user.isAdmin == true
-                      ? AppColors.accent.withOpacity(0.15)
+                      ? AppColors.secondary.withOpacity(0.15)
                       : AppColors.primary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: user.isAdmin == true
-                        ? AppColors.accent.withOpacity(0.4)
+                        ? AppColors.secondary.withOpacity(0.4)
                         : AppColors.primary.withOpacity(0.3),
                   ),
                 ),
@@ -446,7 +447,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: user.isAdmin == true ? AppColors.accent : AppColors.primary,
+                    color: user.isAdmin == true ? AppColors.secondary : AppColors.primary,
                   ),
                 ),
               ),
@@ -483,7 +484,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       ),
       _StatItem(
         icon: Icons.school_rounded,
-        iconColor: AppColors.accent,
+        iconColor: AppColors.secondary,
         label: 'Year',
         value: user.yearOfStudy?.replaceAll(' Year', '') ?? 'N/A',
       ),
@@ -690,7 +691,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       decoration: _cardDecoration(isDark),
       child: _buildNavTile(
         icon: Icons.admin_panel_settings_rounded,
-        iconColor: AppColors.accent,
+        iconColor: AppColors.secondary,
         title: 'Admin Panel',
         subtitle: 'Manage subjects, users & content',
         isDark: isDark,
@@ -798,7 +799,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     showDialog(
       context: context,
       builder: (_) => Dialog(
-        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+        backgroundColor: isDark ? AppColors.dark.surface : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -984,7 +985,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                           value: value,
                           isExpanded: true,
                           dropdownColor:
-                              isDark ? AppColors.darkSurface : Colors.white,
+                              isDark ? AppColors.dark.surface : Colors.white,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: isDark ? Colors.white : Colors.black87,
@@ -1106,7 +1107,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   BoxDecoration _cardDecoration(bool isDark) {
     return BoxDecoration(
-      color: isDark ? AppColors.darkSurface : Colors.white,
+      color: isDark ? AppColors.dark.surface : Colors.white,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
@@ -1133,7 +1134,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       builder: (_) {
         final firestoreService = ref.read(firestoreServiceProvider);
         return Dialog(
-          backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+          backgroundColor: isDark ? AppColors.dark.surface : Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Container(
             width: 500,
@@ -1230,7 +1231,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                             activityTitle = 'Opened book: $targetName';
                           } else if (action == 'chat_gemini') {
                             icon = Icons.psychology_rounded;
-                            color = AppColors.accent;
+                            color = AppColors.secondary;
                             activityTitle = 'AI Chat: "$targetName"';
                           } else if (action == 'login') {
                             icon = Icons.login_rounded;
@@ -1317,7 +1318,7 @@ class _SignOutDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return AlertDialog(
-      backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+      backgroundColor: isDark ? AppColors.dark.surface : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Text(
         'Sign Out',

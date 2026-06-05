@@ -109,3 +109,37 @@ class ListItemShimmer extends StatelessWidget {
     );
   }
 }
+
+class LoadingShimmer extends StatelessWidget {
+  final double width;
+  final double height;
+  final bool isDark;
+  final double borderRadius;
+
+  const LoadingShimmer({
+    super.key,
+    required this.width,
+    required this.height,
+    this.isDark = false,
+    this.borderRadius = 8,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final base = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+    final highlight = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
+
+    return Shimmer.fromColors(
+      baseColor: base,
+      highlightColor: highlight,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: base,
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+      ),
+    );
+  }
+}
