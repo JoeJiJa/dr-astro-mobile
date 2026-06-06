@@ -1,0 +1,34 @@
+{
+  "project_info": {
+    "project_number": "1023563808684",
+    "project_id": "drastroapp",
+    "storage_bucket": "drastroapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1023563808684:android:9966b5c366fcbad03b4409",
+        "android_client_info": {
+          "package_name": "com.drastro.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1023563808684-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkL97giZawPNhSnl8oKJiSIzS7_pgnkZA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

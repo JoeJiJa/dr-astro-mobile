@@ -4,4 +4,5 @@
     <string name="title_activity_main">Dr Astro</string>
     <string name="package_name">com.drastro.app</string>
     <string name="custom_url_scheme">com.drastro.app</string>
+    <string name="server_client_id">1023563808684-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com</string>
 </resources>

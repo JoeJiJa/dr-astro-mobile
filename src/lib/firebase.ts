@@ -7,7 +7,8 @@ import {
     getRedirectResult,
     sendPasswordResetEmail,
     confirmPasswordReset,
-    verifyPasswordResetCode
+    verifyPasswordResetCode,
+    signInWithCredential
 } from "firebase/auth";
 import {
     initializeFirestore,
@@ -65,10 +66,34 @@ const isNativeApp = (): boolean => {
  */
 const signInWithGoogle = async () => {
     if (isNativeApp()) {
-        await signInWithRedirect(auth, googleProvider);
-        return null;
+        try {
+            const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
+            if (typeof window !== 'undefined') {
+                GoogleAuth.initialize({
+                    clientId: '1023563808684-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com',
+                    scopes: ['profile', 'email'],
+                });
+            }
+            const googleUser = await GoogleAuth.signIn();
+            const idToken = googleUser?.authentication?.idToken;
+            if (!idToken) {
+                throw new Error("No ID Token received from Google Sign-In.");
+            }
+            const credential = GoogleAuthProvider.credential(idToken);
+            return await signInWithCredential(auth, credential);
+        } catch (error: any) {
+            console.error("Native Google Sign-In error:", error);
+            throw error;
+        }
     } else {
-        return signInWithPopup(auth, googleProvider);
+        try {
+            return await signInWithPopup(auth, googleProvider);
+        } catch (error: any) {
+            if (error.code === 'auth/popup-blocked' || error.message?.includes('storage') || error.message?.includes('sessionStorage')) {
+                throw new Error("Login popup blocked or browser storage is inaccessible. If you are using Brave or Safari, please disable Brave Shields/allow cross-site cookies, or log in with email and password.");
+            }
+            throw error;
+        }
     }
 };
 
