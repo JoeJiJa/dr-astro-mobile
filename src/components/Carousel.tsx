@@ -91,7 +91,7 @@ export const UnifiedCarousel = ({
   return (
     <section className={`w-full py-2 md:py-4 group/carousel relative ${className}`}>
       {title && (
-        <div className="px-6 md:px-16 mb-4 md:mb-6">
+        <div className="px-4 md:px-16 mb-4 md:mb-6">
           <h2 className="text-lg md:text-2xl font-bold text-white/90 hover:text-white flex items-center gap-2 group/title cursor-pointer transition-colors">
             {title}
             <span className="text-red-600 opacity-0 group-hover/title:opacity-100 -translate-x-2 group-hover/title:translate-x-0 transition-all duration-300">
@@ -121,7 +121,7 @@ export const UnifiedCarousel = ({
         <Container
           ref={scrollRef}
           onScroll={updateArrows}
-          className="flex gap-2 md:gap-4 overflow-x-auto px-6 md:px-16 pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth"
+          className="flex gap-2 md:gap-4 overflow-x-auto px-4 md:px-16 pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth"
           {...containerProps}
         >
           {children}
