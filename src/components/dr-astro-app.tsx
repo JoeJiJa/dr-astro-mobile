@@ -107,6 +107,7 @@ import CarouselSection, { UnifiedCarousel, CarouselCard } from './Carousel';
 
 import StudyMode from './StudyMode';
 import { getAIAssistantResponse as getGeminiResponse } from '../lib/gemini';
+import { DbService } from '../lib/db';
 
 /**
  * ==========================================
@@ -5311,9 +5312,9 @@ const SubjectDetailView = ({
             }));
         }
         
-        // Auto-generate from materials keys (only those with content)
+        // Auto-generate from materials keys
         const keys = Object.keys(subject.materials || {}).filter(k => 
-            Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+            Array.isArray(subject.materials[k])
         );
         return keys.map(key => ({
             key,
@@ -5562,7 +5563,7 @@ const ExamSubjectDetailView = ({
         
         // Auto-discover from materials keys if no examSections defined
         const keys = Object.keys(subject.materials || {}).filter(k => 
-            Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+            Array.isArray(subject.materials[k])
         );
         return keys.map(key => ({
             id: key,
@@ -5798,7 +5799,7 @@ const PracticalSubjectDetailView = ({
         // Auto-discover if empty
         if (base.length === 0) {
             const keys = Object.keys(subject.materials || {}).filter(k => 
-                Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+                Array.isArray(subject.materials[k])
             );
             base = keys.map(key => ({
                 id: key,
@@ -7977,7 +7978,7 @@ const ProfileView = ({
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [editData, setEditData] = useState<AppUser>(user);
-    const [adminViewMode, setAdminViewMode] = useState<'users' | 'activities' | 'analytics' | 'books'>('users');
+    const [adminViewMode, setAdminViewMode] = useState<'users' | 'activities' | 'analytics' | 'books' | 'history'>('users');
     const [searchTerm, setSearchTerm] = useState('');
     const [librarySearch, setLibrarySearch] = useState('');
     const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
@@ -8040,22 +8041,27 @@ const ProfileView = ({
         if (user.role === 'admin') {
             AuthService.getAllUsersCentralized().then(setAllUsers);
             ActivityService.getActivities(200).then(setAllActivities);
-
-            // Fetch audit logs
-            const auditCol = collection(db, 'admin-audit');
-            const q = query(auditCol, limit(50));
-            getDocs(q).then(snap => {
-                const logs: AdminAuditLog[] = [];
-                snap.forEach(docSnap => {
-                    logs.push({ id: docSnap.id, ...docSnap.data() } as AdminAuditLog);
-                });
-                logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-                setAuditLogs(logs);
-            }).catch(err => {
-                console.error("Failed to load audit logs:", err);
-            });
         }
-    }, [user, adminViewMode]);
+    }, [user]);
+
+    // Real-time listener for admin audit logs (History)
+    useEffect(() => {
+        if (user?.role !== 'admin') return;
+        const auditCol = collection(db, 'admin-audit');
+        const q = query(auditCol, limit(100));
+        const unsubscribeLogs = onSnapshot(q, (snap) => {
+            const logs: AdminAuditLog[] = [];
+            snap.forEach(docSnap => {
+                logs.push({ id: docSnap.id, ...docSnap.data() } as AdminAuditLog);
+            });
+            logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            setAuditLogs(logs);
+        }, (error) => {
+            console.error("Real-time audit log sync error:", error);
+        });
+
+        return () => unsubscribeLogs();
+    }, [user]);
 
     const handleSave = async () => {
         setIsLoading(true);
@@ -8919,6 +8925,12 @@ const ProfileView = ({
                                     Library
                                 </button>
                                 <button
+                                    onClick={() => setAdminViewMode('history')}
+                                    className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${adminViewMode === 'history' ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+                                >
+                                    History
+                                </button>
+                                <button
                                     onClick={() => setAdminViewMode('analytics')}
                                     className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${adminViewMode === 'analytics' ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
                                 >
@@ -9184,6 +9196,80 @@ const ProfileView = ({
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    ) : adminViewMode === 'history' ? (
+                        <div className="bg-white dark:bg-zinc-950 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-2xl p-6 md:p-8 space-y-6">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">System Audit Log</h3>
+                                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Real-time trace of administrative mutations committed to MongoDB Atlas</p>
+                                </div>
+                                <span className="text-xs font-mono bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 px-3 py-1.5 rounded-xl text-zinc-600 dark:text-zinc-400">{auditLogs.length} records traced</span>
+                            </div>
+
+                            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 no-scrollbar">
+                                {auditLogs
+                                    .filter(log => 
+                                        log.details.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                        log.adminEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                        log.action.toLowerCase().includes(searchTerm.toLowerCase())
+                                    )
+                                    .map(log => {
+                                        const isAddition = log.action === 'book_added' || log.action === 'section_added';
+                                        const isDeletion = log.action === 'book_deleted' || log.action === 'section_removed';
+                                        const isEdit = log.action === 'book_edited' || log.action === 'section_renamed';
+                                        const isRevert = log.action === 'revert_action';
+                                        
+                                        let actionColor = "bg-zinc-500/10 text-zinc-500 border border-zinc-500/20";
+                                        if (isAddition) actionColor = "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+                                        if (isDeletion) actionColor = "bg-red-500/10 text-red-500 border border-red-500/20";
+                                        if (isEdit) actionColor = "bg-blue-500/10 text-blue-500 border border-blue-500/20";
+                                        if (isRevert) actionColor = "bg-amber-500/10 text-amber-500 border border-amber-500/20";
+
+                                        const canRevert = log.action !== 'revert_action' && log.action !== 'section_reordered';
+
+                                        return (
+                                            <div key={log.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-white/5 hover:border-red-500/20 transition-all group">
+                                                <div className="min-w-0 flex-1 space-y-2">
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <span className={`px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${actionColor}`}>
+                                                            {log.action.replace('_', ' ')}
+                                                        </span>
+                                                        <span className="text-[10px] text-zinc-500 font-mono font-bold">{log.adminEmail}</span>
+                                                        <span className="text-[9px] text-zinc-400 font-mono">• {new Date(log.timestamp).toLocaleString()}</span>
+                                                    </div>
+                                                    <p className="text-sm font-semibold text-slate-800 dark:text-zinc-200 leading-relaxed">
+                                                        {log.details}
+                                                    </p>
+                                                    {log.targetSubjectId && (
+                                                        <div className="flex flex-wrap gap-2 text-[10px] font-mono text-zinc-500 font-semibold uppercase tracking-wider">
+                                                            <span>Subject: <strong className="text-zinc-700 dark:text-zinc-300">{log.targetSubjectId}</strong></span>
+                                                            {log.targetSectionId && <span>• Section: <strong className="text-zinc-700 dark:text-zinc-300">{log.targetSectionId}</strong></span>}
+                                                            {log.targetBookId && <span>• Book ID: <strong className="text-zinc-700 dark:text-zinc-300">{log.targetBookId}</strong></span>}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="shrink-0 flex items-center justify-end gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                                                    {canRevert ? (
+                                                        <button
+                                                            onClick={() => onRevertAction && onRevertAction(log)}
+                                                            className="w-full sm:w-auto px-4 py-2.5 bg-zinc-900 dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-md hover:shadow-red-600/20 active:scale-[0.98] border border-white/10"
+                                                        >
+                                                            ↩ Revert Action
+                                                        </button>
+                                                    ) : (
+                                                        <span className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 rounded-xl text-[9px] font-bold uppercase tracking-widest border border-zinc-200 dark:border-white/5">
+                                                            {log.action === 'revert_action' ? 'Reverted Action' : 'System Action'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                {auditLogs.length === 0 && (
+                                    <p className="text-center text-zinc-500 py-16 text-sm font-medium">No history log trace available.</p>
+                                )}
                             </div>
                         </div>
                     ) : (
@@ -9907,7 +9993,6 @@ export default function DrAstroApp() {
         payload?: any
     ) => {
         try {
-            const auditCol = collection(db, 'admin-audit');
             const logEntry: AdminAuditLog = {
                 adminEmail: currentUser?.email || 'unknown-admin',
                 action,
@@ -9920,7 +10005,7 @@ export default function DrAstroApp() {
             if (payload !== undefined) {
                 logEntry.payload = payload;
             }
-            await addDoc(auditCol, logEntry);
+            await DbService.writeAuditLog(logEntry);
         } catch (err) {
             console.error("Failed to write audit log:", err);
         }
@@ -9995,35 +10080,29 @@ export default function DrAstroApp() {
     // -- ADMIN BOOK MANAGEMENT --
     const fetchSubjects = async () => {
         try {
-            const subjectsCol = collection(db, 'subjects-v2');
-            const querySnap = await getDocs(subjectsCol);
+            const cloudData = await DbService.fetchSubjects();
 
             // ═══════════════════════════════════════════════════════════
-            // CLOUD-FIRST STRATEGY: Firestore is the ONLY source of truth
+            // CLOUD-FIRST STRATEGY: MongoDB Atlas is the absolute source of truth
             // If cloud is empty → one-time auto-seed from SUBJECTS defaults
             // After seeding, only cloud data is ever used
             // ═══════════════════════════════════════════════════════════
 
-            if (querySnap.empty) {
-                // ONE-TIME SEED: Write all SUBJECTS to Firestore on first run
-                console.log('[DrAstro] Firestore empty — seeding from defaults...');
+            if (!cloudData) {
+                // ONE-TIME SEED: Write all SUBJECTS to database on first run
+                console.log('[DrAstro] Cloud database empty — seeding from defaults...');
                 try {
                     await Promise.all(
                         Object.keys(SUBJECTS).map(key =>
-                            setDoc(doc(db, 'subjects-v2', key), sanitizeData(SUBJECTS[key]))
+                            DbService.saveSubject(key, sanitizeData(SUBJECTS[key]))
                         )
                     );
-                    console.log('[DrAstro] Cloud seeded successfully.');
+                    console.log('[DrAstro] Cloud database seeded successfully.');
                 } catch (seedErr) {
                     console.warn('[DrAstro] Seeding failed (read-only mode):', seedErr);
                 }
                 return SUBJECTS;
             }
-
-            const cloudData: Record<string, SubjectData> = {};
-            querySnap.forEach(docSnap => {
-                cloudData[docSnap.id] = docSnap.data() as SubjectData;
-            });
 
             // Build final subjects: cloud is authoritative, code provides icon/color/structure fallback
             const merged: Record<string, SubjectData> = {};
@@ -10124,10 +10203,10 @@ export default function DrAstroApp() {
     };
 
     const { data: subjectsData, error: swrError, mutate: mutateSubjects } = useSWR('subjects-v2', fetchSubjects, {
-        revalidateOnFocus: true,      // Re-fetch when user returns to tab
-        revalidateOnReconnect: true,  // Re-fetch on network reconnect
-        dedupingInterval: 5000,       // 5s dedup — fast local updates
-        refreshInterval: 30000,       // Auto-poll every 30s for live cross-tab updates
+        revalidateOnFocus: false,     // Disable auto-revalidation on window focus since onSnapshot is active
+        revalidateOnReconnect: true,  // Keep reconnection sync active
+        dedupingInterval: 5000,
+        refreshInterval: 0,           // Disable polling to prevent race conditions
     });
 
     useEffect(() => {
@@ -10216,7 +10295,7 @@ export default function DrAstroApp() {
                 }
             });
 
-            mutateSubjects(merged, false);
+            mutateSubjects(merged, { revalidate: false });
         }, (error) => {
             console.error("Firestore onSnapshot error:", error);
         });
@@ -10261,10 +10340,10 @@ export default function DrAstroApp() {
             section.label = newLabel;
             section.description = newDescription;
             updatedSubjects[subjectId] = subject;
-            mutateSubjects(updatedSubjects, false);
+            mutateSubjects(updatedSubjects, { revalidate: false });
             
             try {
-                await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+                await DbService.saveSubject(subjectId, sanitizeData(subject));
                 await writeAuditLog('section_renamed', subjectId, `Renamed practical section to ${newLabel}`, sectionId, undefined, {
                     sectionType: 'practicalSections',
                     oldLabel,
@@ -10294,10 +10373,10 @@ export default function DrAstroApp() {
             section.label = newLabel;
             section.description = newDescription;
             updatedSubjects[subjectId] = subject;
-            mutateSubjects(updatedSubjects, false);
+            mutateSubjects(updatedSubjects, { revalidate: false });
             
             try {
-                await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+                await DbService.saveSubject(subjectId, sanitizeData(subject));
                 await writeAuditLog('section_renamed', subjectId, `Renamed exam section to ${newLabel}`, sectionId, undefined, {
                     sectionType: 'examSections',
                     oldLabel,
@@ -10327,10 +10406,10 @@ export default function DrAstroApp() {
         subject.materials = newMaterials;
         
         updatedSubjects[subjectId] = subject;
-        mutateSubjects(updatedSubjects, false);
+        mutateSubjects(updatedSubjects, { revalidate: false });
         
         try {
-            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await DbService.saveSubject(subjectId, sanitizeData(subject));
             await writeAuditLog('section_removed', subjectId, `Removed exam section ${sectionId}`, sectionId, undefined, {
                 sectionType: 'examSections',
                 section: removedSection
@@ -10366,10 +10445,10 @@ export default function DrAstroApp() {
         }
 
         updatedSubjects[subjectId] = subject;
-        mutateSubjects(updatedSubjects, false);
+        mutateSubjects(updatedSubjects, { revalidate: false });
 
         try {
-            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await DbService.saveSubject(subjectId, sanitizeData(subject));
             await writeAuditLog('section_added', subjectId, `Added exam section ${label}`, id, undefined, {
                 sectionType: 'examSections',
                 section: newSection
@@ -10390,14 +10469,11 @@ export default function DrAstroApp() {
             const batch = Object.keys(next).map(async (sId) => {
                 const sub = { ...next[sId] };
                 sub.examSections = [];
-                // Optionally clear materials for those sections if needed, 
-                // but since IDs are dynamic it's safer to just clear examSections list.
-                // However, to really "blank" them, we should also clear common exam material keys if any.
                 next[sId] = sub;
-                await setDoc(doc(db, 'subjects-v2', sId), sub);
+                await DbService.saveSubject(sId, sub);
             });
             await Promise.all(batch);
-            mutateSubjects(next, false);
+            mutateSubjects(next, { revalidate: false });
             showToast("All Exam Hub pages are now blank.", "success");
         } catch (err) {
             console.error("Wipe failed:", err);
@@ -10430,10 +10506,10 @@ export default function DrAstroApp() {
         }
         
         updatedSubjects[subjectId] = subject;
-        mutateSubjects(updatedSubjects, false);
+        mutateSubjects(updatedSubjects, { revalidate: false });
         
         try {
-            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await DbService.saveSubject(subjectId, sanitizeData(subject));
             await writeAuditLog('section_added', subjectId, `Added practical section ${label}`, id, undefined, {
                 sectionType: 'practicalSections',
                 section: newSection
@@ -10461,10 +10537,10 @@ export default function DrAstroApp() {
         subject.materials = newMaterials;
         
         updatedSubjects[subjectId] = subject;
-        mutateSubjects(updatedSubjects, false);
+        mutateSubjects(updatedSubjects, { revalidate: false });
         
         try {
-            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await DbService.saveSubject(subjectId, sanitizeData(subject));
             await writeAuditLog('section_removed', subjectId, `Removed practical section ${sectionId}`, sectionId, undefined, {
                 sectionType: 'practicalSections',
                 section: removedSection
@@ -10498,10 +10574,10 @@ export default function DrAstroApp() {
         }
         
         updatedSubjects[subjectId] = subject;
-        mutateSubjects(updatedSubjects, false);
+        mutateSubjects(updatedSubjects, { revalidate: false });
         
         try {
-            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await DbService.saveSubject(subjectId, sanitizeData(subject));
             await writeAuditLog('section_added', subjectId, `Added general section ${label}`, key, undefined, {
                 sectionType: 'categories',
                 section: newSection
@@ -10520,7 +10596,7 @@ export default function DrAstroApp() {
         
         if (!subject.categories) {
             const keys = Object.keys(subject.materials || {}).filter(k => 
-                Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+                Array.isArray(subject.materials[k])
             );
             subject.categories = keys.map(key => ({
                 key,
@@ -10534,10 +10610,10 @@ export default function DrAstroApp() {
             section.label = newLabel;
             section.description = newDescription;
             updatedSubjects[subjectId] = subject;
-            mutateSubjects(updatedSubjects, false);
+            mutateSubjects(updatedSubjects, { revalidate: false });
             
             try {
-                await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+                await DbService.saveSubject(subjectId, sanitizeData(subject));
                 await writeAuditLog('section_renamed', subjectId, `Renamed general section to ${newLabel}`, sectionId, undefined, {
                     sectionType: 'categories',
                     oldLabel,
@@ -10558,7 +10634,7 @@ export default function DrAstroApp() {
         
         if (!subject.categories) {
             const keys = Object.keys(subject.materials || {}).filter(k => 
-                Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+                Array.isArray(subject.materials[k])
             );
             subject.categories = keys.map(key => ({
                 key,
@@ -10574,10 +10650,10 @@ export default function DrAstroApp() {
         subject.materials = newMaterials;
         
         updatedSubjects[subjectId] = subject;
-        mutateSubjects(updatedSubjects, false);
+        mutateSubjects(updatedSubjects, { revalidate: false });
         
         try {
-            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await DbService.saveSubject(subjectId, sanitizeData(subject));
             await writeAuditLog('section_removed', subjectId, `Removed general section ${sectionId}`, sectionId, undefined, {
                 sectionType: 'categories',
                 section: removedSection
@@ -10594,28 +10670,23 @@ export default function DrAstroApp() {
 
         try {
             const { action, targetSubjectId, targetSectionId, targetBookId, payload } = log;
-            const docRef = doc(db, 'subjects-v2', targetSubjectId);
-
-            const docSnap = await getDoc(docRef);
-            if (!docSnap.exists()) {
+            if (!subjects[targetSubjectId]) {
                 showToast("Subject not found on cloud.", "error");
                 return;
             }
-            const subject = docSnap.data() as any;
+            const subject = JSON.parse(JSON.stringify(subjects[targetSubjectId]));
 
             if (action === 'book_added') {
                 if (targetSectionId && targetBookId) {
                     const materials = { ...(subject.materials || {}) };
                     materials[targetSectionId] = (materials[targetSectionId] || []).filter((b: any) => b.id !== targetBookId);
                     subject.materials = materials;
-                    await setDoc(docRef, sanitizeData(subject));
                 }
             } else if (action === 'book_deleted') {
                 if (targetSectionId && payload) {
                     const materials = { ...(subject.materials || {}) };
                     materials[targetSectionId] = [...(materials[targetSectionId] || []), payload];
                     subject.materials = materials;
-                    await setDoc(docRef, sanitizeData(subject));
                 }
             } else if (action === 'book_edited') {
                 if (targetSectionId && payload) {
@@ -10627,7 +10698,6 @@ export default function DrAstroApp() {
                     }
                     materials[targetSectionId] = list;
                     subject.materials = materials;
-                    await setDoc(docRef, sanitizeData(subject));
                 }
             } else if (action === 'section_added') {
                 if (payload && targetSectionId) {
@@ -10640,7 +10710,6 @@ export default function DrAstroApp() {
                     const materials = { ...(subject.materials || {}) };
                     delete materials[targetSectionId];
                     subject.materials = materials;
-                    await setDoc(docRef, sanitizeData(subject));
                 }
             } else if (action === 'section_removed') {
                 if (payload) {
@@ -10656,7 +10725,6 @@ export default function DrAstroApp() {
                             materials[section.id || section.key] = [];
                         }
                         subject.materials = materials;
-                        await setDoc(docRef, sanitizeData(subject));
                     }
                 }
             } else if (action === 'section_renamed') {
@@ -10669,9 +10737,11 @@ export default function DrAstroApp() {
                         const sec = (subject[sectionType] || []).find((s: any) => s.id === targetSectionId);
                         if (sec) sec.label = oldLabel;
                     }
-                    await setDoc(docRef, sanitizeData(subject));
                 }
             }
+
+            // Save to database permanently and sync to all users
+            await DbService.saveSubject(targetSubjectId, sanitizeData(subject));
 
             await writeAuditLog(
                 'revert_action',
@@ -10713,7 +10783,7 @@ export default function DrAstroApp() {
         if (sectionsList.length === 0) {
             if (type === 'general') {
                 const keys = Object.keys(subject.materials || {}).filter(k => 
-                    Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+                    Array.isArray(subject.materials[k])
                 );
                 sectionsList = keys.map(k => ({
                     key: k,
@@ -10723,7 +10793,7 @@ export default function DrAstroApp() {
                 sectionsList = [];
             } else {
                 const keys = Object.keys(subject.materials || {}).filter(k => 
-                    Array.isArray(subject.materials[k]) && subject.materials[k].length > 0
+                    Array.isArray(subject.materials[k])
                 );
                 sectionsList = keys.map(k => ({
                     id: k,
@@ -10745,10 +10815,10 @@ export default function DrAstroApp() {
 
         (subject as any)[key] = sectionsList;
         updatedSubjects[subjectId] = subject;
-        mutateSubjects(updatedSubjects, false);
+        mutateSubjects(updatedSubjects, { revalidate: false });
 
         try {
-            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await DbService.saveSubject(subjectId, sanitizeData(subject));
             await writeAuditLog('section_reordered', subjectId, `Rearranged sections of type ${type} inside subject ${subjectId}`);
             showToast("Section order updated permanently!", "success");
         } catch (err) {
@@ -10779,7 +10849,7 @@ export default function DrAstroApp() {
                 next[oldSId] = oldSub;
 
                 // Immediately persist the removal if it's a different subject
-                try { await setDoc(doc(db, 'subjects-v2', oldSId), sanitizeData(oldSub)); } catch { }
+                try { await DbService.saveSubject(oldSId, sanitizeData(oldSub)); } catch { }
             }
         }
 
@@ -10804,11 +10874,11 @@ export default function DrAstroApp() {
 
             setEditModalConfig(prev => ({ ...prev, isOpen: false }));
             // Optimistically update UI immediately
-            mutateSubjects(next, false);
+            mutateSubjects(next, { revalidate: false });
 
             // Persist to Cloud with reliability
             try {
-                await setDoc(doc(db, 'subjects-v2', targetSubjectId), sanitizeData(subjectToUpdate));
+                await DbService.saveSubject(targetSubjectId, sanitizeData(subjectToUpdate));
                 const isEdit = editModalConfig.mode === 'edit';
                 await writeAuditLog(
                     isEdit ? 'book_edited' : 'book_added',
@@ -10840,7 +10910,7 @@ export default function DrAstroApp() {
         try {
             // Write each subject into the new collection
             const batch = Object.keys(SUBJECTS).map(async (key) => {
-                await setDoc(doc(db, 'subjects-v2', key), SUBJECTS[key]);
+                await DbService.saveSubject(key, SUBJECTS[key]);
             });
             await Promise.all(batch);
             showToast("Cloud reset to factory defaults!", "success");
@@ -10865,11 +10935,11 @@ export default function DrAstroApp() {
             sub.materials = materials;
             nextSubjects[sId] = sub;
 
-            mutateSubjects(nextSubjects, false);
+            mutateSubjects(nextSubjects, { revalidate: false });
             setEditModalConfig(prev => ({ ...prev, isOpen: false }));
 
             try {
-                await setDoc(doc(db, 'subjects-v2', sId), sanitizeData(sub));
+                await DbService.saveSubject(sId, sanitizeData(sub));
                 await writeAuditLog('book_deleted', sId, `Deleted book ID ${bookId} from section ${secId}`, secId, bookId, deletedBook);
                 showToast("Book deleted from cloud!", "success");
             } catch (err) {
@@ -10888,10 +10958,10 @@ export default function DrAstroApp() {
         // Update local state
         (subject.materials as any)[sectionId] = newBooks;
         updatedSubjects[subjectId] = subject;
-        mutateSubjects(updatedSubjects, false);
+        mutateSubjects(updatedSubjects, { revalidate: false });
         
         try {
-            await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(subject));
+            await DbService.saveSubject(subjectId, sanitizeData(subject));
         } catch (err) {
             console.error("Failed to sync reorder:", err);
             showToast("Failed to sync arrangement", "error");
@@ -10918,9 +10988,9 @@ export default function DrAstroApp() {
         const updatedSubject = { ...sub, materials: materials as any };
         nextSubjects[subjectId] = updatedSubject;
 
-        mutateSubjects(nextSubjects, false);
+        mutateSubjects(nextSubjects, { revalidate: false });
         try {
-            await setDoc(doc(db, 'subjects-v2', subjectId), updatedSubject);
+            await DbService.saveSubject(subjectId, sanitizeData(updatedSubject));
             showToast("Position updated in cloud!", "success");
         } catch (err) {
             console.error("Move failed:", err);
@@ -10942,9 +11012,9 @@ export default function DrAstroApp() {
             sub.materials = m as any;
             nextSubjects[subjectId] = sub;
 
-            mutateSubjects(nextSubjects, false);
+            mutateSubjects(nextSubjects, { revalidate: false });
             try {
-                await setDoc(doc(db, 'subjects-v2', subjectId), sanitizeData(sub));
+                await DbService.saveSubject(subjectId, sanitizeData(sub));
                 showToast("Book duplicated!", "success");
             } catch (err) {
                 console.error("Duplicate failed:", err);
