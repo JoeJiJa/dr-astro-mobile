@@ -3857,19 +3857,58 @@ const NeuralOracle = ({ onClose }: { onClose: () => void }) => {
     );
 };
 
-const HomeView = ({ setView, onBookClick, subjects, currentUser, onManageBook, onToggleFavorite, onSimulate }: {
+const HomeView = ({
+    setView,
+    onBookClick,
+    subjects,
+    currentUser,
+    onManageBook,
+    onToggleFavorite,
+    onSimulate,
+    gamify,
+    setGamify,
+    geoCompleted,
+    setGeoCompleted,
+    histCompleted,
+    setHistCompleted,
+    showToast
+}: {
     setView: (v: ViewState) => void,
     onBookClick: (b: Book) => void,
     subjects: Record<string, SubjectData>,
     currentUser: AppUser | null,
     onManageBook?: (mode: 'add' | 'edit', subjectId: string, sectionId: string, book?: Book) => void,
     onToggleFavorite: (bookId: string) => void,
-    onSimulate: (b: Book) => void
+    onSimulate: (b: Book) => void,
+    gamify: boolean,
+    setGamify: (v: boolean) => void,
+    geoCompleted: boolean,
+    setGeoCompleted: (v: boolean) => void,
+    histCompleted: boolean,
+    setHistCompleted: (v: boolean) => void,
+    showToast: (msg: string, type: 'success' | 'error' | 'info') => void
 }) => {
     const { recentIds } = useRecentlyViewed();
     const { streak, minutes } = useStudyTime();
     const [showOracle, setShowOracle] = useState(false);
     const [showPulseSidebar, setShowPulseSidebar] = useState(false);
+
+    // Interactive states for Gamified Dashboard
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [activeAssignment, setActiveAssignment] = useState<string | null>(null);
+    const [activeLevel, setActiveLevel] = useState<number | null>(null);
+    const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+    useEffect(() => {
+        if (typeof document !== 'undefined') {
+            setIsDarkTheme(document.documentElement.classList.contains('dark'));
+        }
+        const observer = new MutationObserver(() => {
+            setIsDarkTheme(document.documentElement.classList.contains('dark'));
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        return () => observer.disconnect();
+    }, []);
 
 
     // Reconstruct recent books with location info for management tools - MEMOIZED for performance
@@ -3921,6 +3960,732 @@ const HomeView = ({ setView, onBookClick, subjects, currentUser, onManageBook, o
         if (hour < 17) return 'Afternoon';
         return 'Evening';
     };
+
+    if (gamify && user) {
+        // Compute progress metrics
+        const completedTasksCount = 2 + (geoCompleted ? 1 : 0) + (histCompleted ? 1 : 0);
+        const tasksCompletedPercentage = Math.round((completedTasksCount / 4) * 100);
+        const totalPoints = (geoCompleted ? 15 : 0) + (histCompleted ? 15 : 0); // 15 points per completed assignment, max 30
+
+        const assignments = [
+            {
+                id: 'Geography',
+                index: 1,
+                title: 'Geography',
+                subtitle: 'Total time spent: 3h',
+                icon: Globe,
+                iconBgClass: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
+                completed: geoCompleted,
+                onClick: () => {
+                    setActiveAssignment('Geography');
+                    setActiveLevel(null);
+                }
+            },
+            {
+                id: 'History',
+                index: 2,
+                title: 'History',
+                subtitle: 'Total time spent: 2h',
+                icon: History,
+                iconBgClass: 'bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400',
+                completed: histCompleted,
+                onClick: () => {
+                    setActiveAssignment('History');
+                    setActiveLevel(null);
+                }
+            },
+            {
+                id: 'Anatomy',
+                index: 3,
+                title: 'Anatomy',
+                subtitle: 'Total time spent: 1.5h',
+                icon: Skull,
+                iconBgClass: 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400',
+                completed: true,
+                onClick: () => {
+                    showToast("Anatomy assignment is already completed!", "info");
+                }
+            },
+            {
+                id: 'Physiology',
+                index: 4,
+                title: 'Physiology',
+                subtitle: 'Total time spent: 1h',
+                icon: HeartPulse,
+                iconBgClass: 'bg-pink-50 text-pink-600 dark:bg-pink-950/40 dark:text-pink-400',
+                completed: true,
+                onClick: () => {
+                    showToast("Physiology assignment is already completed!", "info");
+                }
+            }
+        ];
+
+        return (
+            <div className="w-full max-w-5xl mx-auto min-h-screen bg-[#f8fafc] dark:bg-zinc-950 pb-32 overflow-x-hidden relative flex flex-col shadow-2xl rounded-none md:rounded-[2.5rem] border-0 md:border border-zinc-200 dark:border-zinc-800/80 animate-view-transition">
+                {/* 1. Header (Central Hub) */}
+                <div className="relative w-full h-[320px] bg-gradient-to-b from-[#e2edfa] to-[#f3f7fd] dark:from-[#0f172a] dark:to-[#020617] overflow-hidden flex flex-col items-center justify-start pt-6 shrink-0">
+                    {/* Landscape background image */}
+                    <div className="absolute inset-0 z-0 pointer-events-none opacity-90 dark:opacity-40 mix-blend-normal">
+                        <Image 
+                            src="/profile_landscape.png" 
+                            alt="Landscape" 
+                            fill 
+                            className="object-cover object-bottom"
+                            priority
+                        />
+                    </div>
+                    
+                    {/* Sky subtle clouds/light overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[#e2edfa]/20 to-[#e2edfa]/10 dark:via-blue-950/10 dark:to-transparent z-0 pointer-events-none" />
+
+                    {/* Floating Header Actions */}
+                    <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-center w-[calc(100%-2rem)]">
+                        <button 
+                            onClick={() => setView('PROFILE')}
+                            className="w-10 h-10 rounded-full bg-white/75 dark:bg-black/55 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/30 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                            title="Profile"
+                        >
+                            <User size={18} />
+                        </button>
+                        
+                        <button 
+                            onClick={() => setShowSettingsModal(true)}
+                            className="w-10 h-10 rounded-full bg-white/75 dark:bg-black/55 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/30 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                            title="Settings"
+                        >
+                            <Settings size={18} />
+                        </button>
+                    </div>
+
+                    {/* Center 3D User Avatar */}
+                    <div className="relative z-10 flex flex-col items-center mt-6">
+                        <div className="relative w-28 h-28 rounded-full border-4 border-white dark:border-zinc-800 shadow-[0_12px_24px_rgba(0,0,0,0.15)] overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                            <Image 
+                                src={user.avatarUrl || "/student_avatar.png"} 
+                                alt={user.name} 
+                                fill 
+                                className="object-cover"
+                            />
+                        </div>
+
+                        {/* Fire Streak Glow Score badge */}
+                        <div className="mt-3 px-4 py-1.5 bg-[#fef2e6] dark:bg-orange-950/40 border border-[#fbe5d0] dark:border-orange-900/30 rounded-full flex items-center gap-1.5 shadow-sm active:scale-95 transition-transform cursor-pointer">
+                            <span className="text-base leading-none">🔥</span>
+                            <span className="font-extrabold text-[#e06900] dark:text-orange-400 text-sm tracking-tight font-display">
+                                543
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 2. Today's Report Section */}
+                <div className="relative z-10 px-5 -mt-6 flex-1 flex flex-col gap-6">
+                    <div className="bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800/80 rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.02)] flex flex-col gap-5 shrink-0">
+                        <h3 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-[0.2em] font-display">
+                            Today's Report
+                        </h3>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Task Completed Card */}
+                            <div className="p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none">
+                                    Task Completed
+                                </span>
+                                <div>
+                                    <span className="text-3xl font-black text-slate-800 dark:text-white leading-none font-display">
+                                        {tasksCompletedPercentage}%
+                                    </span>
+                                    <span className="block text-[9px] text-[#10b981] dark:text-emerald-400 font-bold mt-1 tracking-wider uppercase">
+                                        +12% from Yesterday
+                                    </span>
+                                </div>
+                                {/* Micro progress bar */}
+                                <div className="h-1.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                    <div 
+                                        className="h-full bg-red-600 rounded-full transition-all duration-500" 
+                                        style={{ width: `${tasksCompletedPercentage}%` }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Total Points Card */}
+                            <div className="p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl flex flex-col gap-3">
+                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none">
+                                    Total Points
+                                </span>
+                                <div>
+                                    <span className="text-3xl font-black text-slate-800 dark:text-white leading-none font-display">
+                                        {totalPoints}/30
+                                    </span>
+                                    <span className="block text-[9px] text-zinc-400 dark:text-zinc-500 font-bold mt-1 tracking-wider uppercase">
+                                        Points Collected
+                                    </span>
+                                </div>
+                                {/* Micro progress bar */}
+                                <div className="h-1.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                    <div 
+                                        className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
+                                        style={{ width: `${(totalPoints / 30) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 3. Today's Assignments Section */}
+                    <div className="flex flex-col gap-4 flex-1">
+                        <h3 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-[0.2em] font-display px-2">
+                            Today's Assignments
+                        </h3>
+                        
+                        <div className="space-y-3">
+                            {assignments.map((task) => (
+                                <div 
+                                    key={task.id}
+                                    onClick={task.onClick}
+                                    className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800/80 rounded-3xl hover:border-red-500/30 transition-all cursor-pointer shadow-[0_4px_15px_rgba(0,0,0,0.01)] active:scale-[0.99] group"
+                                >
+                                    <div className="flex items-center gap-3.5 min-w-0">
+                                        <span className="text-zinc-300 dark:text-zinc-600 font-black text-sm w-4 text-center shrink-0">
+                                            {task.index}
+                                        </span>
+                                        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${task.iconBgClass}`}>
+                                            <task.icon size={20} strokeWidth={2.5} />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h4 className="font-black text-slate-800 dark:text-white text-base tracking-tight leading-tight uppercase font-display group-hover:text-red-500 transition-colors">
+                                                {task.title}
+                                            </h4>
+                                            <p className="text-xs text-zinc-400 dark:text-zinc-500 font-bold mt-0.5">
+                                                {task.subtitle}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="shrink-0">
+                                        {task.completed ? (
+                                            <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                                <CheckCircle size={16} strokeWidth={3} />
+                                            </div>
+                                        ) : (
+                                            <ChevronRight size={18} className="text-zinc-400 dark:text-zinc-600 group-hover:translate-x-0.5 transition-transform" />
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* 4. Geography Roadmap Overlay (Screen 2) */}
+                <AnimatePresence>
+                    {activeAssignment === 'Geography' && !activeLevel && (
+                        <motion.div 
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'tween', duration: 0.3 }}
+                            className="absolute inset-0 z-40 bg-[#e3effd] dark:bg-slate-900 flex flex-col font-sans overflow-y-auto no-scrollbar pb-16"
+                        >
+                            {/* Sky decorative clouds */}
+                            <div className="absolute top-20 left-6 w-16 h-8 bg-white/60 dark:bg-white/5 rounded-full blur-[2px] pointer-events-none" />
+                            <div className="absolute top-48 right-8 w-24 h-10 bg-white/60 dark:bg-white/5 rounded-full blur-[3px] pointer-events-none" />
+                            <div className="absolute top-[400px] left-10 w-20 h-9 bg-white/60 dark:bg-white/5 rounded-full blur-[2px] pointer-events-none" />
+
+                            {/* Roadmap Header */}
+                            <div className="sticky top-0 z-30 flex justify-between items-center px-4 py-4 bg-[#e3effd]/80 dark:bg-[#0a122c]/80 backdrop-blur-md border-b border-white/20 dark:border-white/5">
+                                <button 
+                                    onClick={() => setActiveAssignment(null)}
+                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                                >
+                                    <ArrowLeft size={18} />
+                                </button>
+                                <div className="text-center">
+                                    <h3 className="text-base font-black font-display text-slate-800 dark:text-white uppercase tracking-wider leading-none">
+                                        Geography
+                                    </h3>
+                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 block uppercase">
+                                        Assignment 3h
+                                    </span>
+                                </div>
+                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
+                                    <Info size={18} />
+                                </button>
+                            </div>
+
+                            {/* Roadmap Progression Path */}
+                            <div className="flex-1 relative py-12 flex flex-col justify-start items-center overflow-x-hidden min-h-[500px]">
+                                {/* Curved staggered progression path lines */}
+                                <svg className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-48 h-full stroke-blue-300/40 dark:stroke-zinc-800/80 fill-none pointer-events-none" strokeWidth={3} strokeDasharray="6 6">
+                                    <path d="M 96,40 C 40,140 152,240 96,340 C 40,440 152,540 96,640" />
+                                </svg>
+                                
+                                <div className="space-y-10 w-full px-8 relative">
+                                    {[
+                                        { id: 1, label: 'CLIMATE ZONES', completed: geoCompleted },
+                                        { id: 2, label: 'CONTINENTS & OCEANS', completed: false },
+                                        { id: 3, label: 'WORLD MAPS', completed: false },
+                                        { id: 4, label: 'NATURAL LANDFORMS', completed: false },
+                                        { id: 5, label: 'HUMAN SETTLEMENTS', completed: false }
+                                    ].map((lvl, idx) => {
+                                        const alignments = [
+                                            'justify-center -translate-x-8',
+                                            'justify-center translate-x-8',
+                                            'justify-center -translate-x-4',
+                                            'justify-center -translate-x-12',
+                                            'justify-center translate-x-4'
+                                        ];
+                                        const align = alignments[idx % alignments.length];
+                                        
+                                        return (
+                                            <div key={lvl.id} className={`flex w-full ${align} relative z-10 my-4`}>
+                                                <div className="flex flex-col items-center">
+                                                    {/* Star rewards */}
+                                                    <div className="flex gap-0.5 mb-1.5 justify-center">
+                                                        <Star size={10} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
+                                                        <Star size={12} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
+                                                        <Star size={10} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
+                                                    </div>
+                                                    
+                                                    {/* Circle Button */}
+                                                    <button
+                                                        onClick={() => {
+                                                            if (lvl.id === 1) {
+                                                                setActiveLevel(1);
+                                                            } else {
+                                                                showToast(`Unlock level 1 "Climate Zones" first!`, 'info');
+                                                            }
+                                                        }}
+                                                        className={`w-14 h-14 rounded-full border-4 flex items-center justify-center text-lg font-black transition-all transform active:scale-95 shadow-md
+                                                            ${lvl.completed 
+                                                                ? 'bg-emerald-500 border-white text-white dark:border-zinc-800' 
+                                                                : lvl.id === 1 && !geoCompleted
+                                                                    ? 'bg-blue-600 border-white text-white dark:border-zinc-800 animate-pulse'
+                                                                    : 'bg-white border-white text-zinc-400 dark:bg-zinc-800 dark:border-zinc-800'
+                                                            }`}
+                                                    >
+                                                        {lvl.completed ? '✓' : lvl.id}
+                                                    </button>
+                                                    
+                                                    {/* Level name label */}
+                                                    <span className="mt-2.5 px-3 py-1 bg-white/95 dark:bg-zinc-800/95 text-[9px] font-black text-blue-700 dark:text-blue-300 rounded-full border border-white/50 dark:border-zinc-700/50 tracking-wide shadow-sm max-w-[130px] text-center uppercase leading-none font-bold">
+                                                        {lvl.label}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            
+                            {/* Bottom Hill decoration */}
+                            <div className="relative w-full h-24 mt-auto z-10 overflow-hidden shrink-0">
+                                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-emerald-600/30 to-transparent blur-xl" />
+                                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[140%] h-24 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full border-t border-emerald-400/20" />
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* 5. Level 1 Climate Zones Detail Overlay (Screen 3) */}
+                <AnimatePresence>
+                    {activeAssignment === 'Geography' && activeLevel === 1 && (
+                        <motion.div 
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'tween', duration: 0.3 }}
+                            className="absolute inset-0 z-50 bg-[#f8fafc] dark:bg-zinc-950 flex flex-col font-sans overflow-y-auto pb-16"
+                        >
+                            {/* Header */}
+                            <div className="sticky top-0 z-30 flex justify-between items-center px-4 py-4 bg-[#f8fafc]/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-150 dark:border-zinc-800">
+                                <button 
+                                    onClick={() => setActiveLevel(null)}
+                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                                >
+                                    <ArrowLeft size={18} />
+                                </button>
+                                <div className="text-center">
+                                    <h3 className="text-base font-black font-display text-slate-800 dark:text-white uppercase tracking-wider leading-none">
+                                        Climate Zones
+                                    </h3>
+                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 block uppercase">
+                                        Level 1
+                                    </span>
+                                </div>
+                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
+                                    <Info size={18} />
+                                </button>
+                            </div>
+
+                            {/* Video Cover Illustration */}
+                            <div className="relative w-full h-[220px] bg-gradient-to-b from-[#e3effd] to-[#f7f9fc] dark:from-[#0a122c] dark:to-zinc-950 flex items-center justify-center overflow-hidden shrink-0">
+                                <div className="absolute inset-0 pointer-events-none opacity-80 mix-blend-normal">
+                                    <Image 
+                                        src="/profile_landscape.png" 
+                                        alt="Globe" 
+                                        fill 
+                                        className="object-cover" 
+                                    />
+                                </div>
+                                
+                                {/* Video Play circle indicator */}
+                                <div className="relative z-10 w-16 h-16 rounded-full bg-white/85 dark:bg-zinc-900/85 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30 hover:scale-105 active:scale-95 transition-transform cursor-pointer">
+                                    <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[14px] border-l-blue-600 dark:border-l-blue-500 ml-1" />
+                                </div>
+                            </div>
+
+                            {/* Details Text and Form Card */}
+                            <div className="p-5 flex-1 flex flex-col justify-start">
+                                <h3 className="text-xl font-black text-slate-800 dark:text-white font-display text-center leading-tight mb-8 uppercase tracking-tight">
+                                    Watch the video on climate zones and write down key differences.
+                                </h3>
+
+                                {/* Upload Widget */}
+                                <div className="p-6 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex flex-col items-center justify-center text-center bg-zinc-50/50 dark:bg-zinc-900/10 mb-6 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer group">
+                                    <Upload size={24} className="text-zinc-400 dark:text-zinc-500 mb-2 group-hover:scale-110 transition-transform" />
+                                    <span className="block text-sm font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-wide">
+                                        Upload Your Work
+                                    </span>
+                                    <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 leading-normal font-bold">
+                                        Add your work files to keep everything up to date.
+                                    </span>
+                                </div>
+
+                                {/* Parent check warning widget */}
+                                <div className="p-4 bg-blue-50/70 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-3xl flex flex-col gap-1 mb-8 shrink-0">
+                                    <span className="text-[10px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-widest leading-none">
+                                        Parent Check Required
+                                    </span>
+                                    <p className="text-[11px] text-blue-600/90 dark:text-blue-300 font-bold leading-normal mt-0.5">
+                                        After completing this task, ask your parent to check your work and provide feedback!
+                                    </p>
+                                </div>
+
+                                {/* Main Action CTA */}
+                                <button
+                                    onClick={() => {
+                                        setGeoCompleted(true);
+                                        showToast("Task completed! Notification sent to parent. 🔥 +15 Points!", "success");
+                                        setActiveLevel(null);
+                                        setActiveAssignment(null);
+                                    }}
+                                    className="w-full mt-auto py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-600/25 active:scale-[0.98] transition-all text-center flex items-center justify-center gap-2"
+                                >
+                                    <span>Mark as Done & Notify to Parent</span>
+                                    <ArrowRight size={14} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* 6. History Roadmap Overlay (Screen 2) */}
+                <AnimatePresence>
+                    {activeAssignment === 'History' && !activeLevel && (
+                        <motion.div 
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'tween', duration: 0.3 }}
+                            className="absolute inset-0 z-40 bg-[#fef5ec] dark:bg-slate-900 flex flex-col font-sans overflow-y-auto no-scrollbar pb-16"
+                        >
+                            {/* Sky decorative clouds */}
+                            <div className="absolute top-20 left-6 w-16 h-8 bg-white/60 dark:bg-white/5 rounded-full blur-[2px] pointer-events-none" />
+                            <div className="absolute top-48 right-8 w-24 h-10 bg-white/60 dark:bg-white/5 rounded-full blur-[3px] pointer-events-none" />
+                            <div className="absolute top-[400px] left-10 w-20 h-9 bg-white/60 dark:bg-white/5 rounded-full blur-[2px] pointer-events-none" />
+
+                            {/* Roadmap Header */}
+                            <div className="sticky top-0 z-30 flex justify-between items-center px-4 py-4 bg-[#fef5ec]/80 dark:bg-[#1a0e05]/80 backdrop-blur-md border-b border-white/20 dark:border-white/5">
+                                <button 
+                                    onClick={() => setActiveAssignment(null)}
+                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                                >
+                                    <ArrowLeft size={18} />
+                                </button>
+                                <div className="text-center">
+                                    <h3 className="text-base font-black font-display text-slate-800 dark:text-white uppercase tracking-wider leading-none">
+                                        History
+                                    </h3>
+                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 block uppercase">
+                                        Assignment 2h
+                                    </span>
+                                </div>
+                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
+                                    <Info size={18} />
+                                </button>
+                            </div>
+
+                            {/* Roadmap Progression Path */}
+                            <div className="flex-1 relative py-12 flex flex-col justify-start items-center overflow-x-hidden min-h-[500px]">
+                                {/* Curved staggered progression path lines */}
+                                <svg className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-48 h-full stroke-orange-300/40 dark:stroke-zinc-800/80 fill-none pointer-events-none" strokeWidth={3} strokeDasharray="6 6">
+                                    <path d="M 96,40 C 152,140 40,240 96,340 C 152,440 40,540 96,640" />
+                                </svg>
+                                
+                                <div className="space-y-10 w-full px-8 relative">
+                                    {[
+                                        { id: 1, label: 'ANCIENT CIVILIZATIONS', completed: histCompleted },
+                                        { id: 2, label: 'MIDDLE AGES OVERVIEW', completed: false },
+                                        { id: 3, label: 'INDUSTRIAL REVOLUTION', completed: false },
+                                        { id: 4, label: 'WORLD WARS STUDY', completed: false },
+                                        { id: 5, label: 'MODERN HISTORY ERA', completed: false }
+                                    ].map((lvl, idx) => {
+                                        const alignments = [
+                                            'justify-center translate-x-8',
+                                            'justify-center -translate-x-8',
+                                            'justify-center translate-x-4',
+                                            'justify-center translate-x-12',
+                                            'justify-center -translate-x-4'
+                                        ];
+                                        const align = alignments[idx % alignments.length];
+                                        
+                                        return (
+                                            <div key={lvl.id} className={`flex w-full ${align} relative z-10 my-4`}>
+                                                <div className="flex flex-col items-center">
+                                                    {/* Star rewards */}
+                                                    <div className="flex gap-0.5 mb-1.5 justify-center">
+                                                        <Star size={10} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
+                                                        <Star size={12} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
+                                                        <Star size={10} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
+                                                    </div>
+                                                    
+                                                    {/* Circle Button */}
+                                                    <button
+                                                        onClick={() => {
+                                                            if (lvl.id === 1) {
+                                                                setActiveLevel(11);
+                                                            } else {
+                                                                showToast(`Unlock level 1 "Ancient Civilizations" first!`, 'info');
+                                                            }
+                                                        }}
+                                                        className={`w-14 h-14 rounded-full border-4 flex items-center justify-center text-lg font-black transition-all transform active:scale-95 shadow-md
+                                                            ${lvl.completed 
+                                                                ? 'bg-emerald-500 border-white text-white dark:border-zinc-800' 
+                                                                : lvl.id === 1 && !histCompleted
+                                                                    ? 'bg-orange-500 border-white text-white dark:border-zinc-800 animate-pulse'
+                                                                    : 'bg-white border-white text-zinc-400 dark:bg-zinc-800 dark:border-zinc-800'
+                                                            }`}
+                                                    >
+                                                        {lvl.completed ? '✓' : lvl.id}
+                                                    </button>
+                                                    
+                                                    {/* Level name label */}
+                                                    <span className="mt-2.5 px-3 py-1 bg-white/95 dark:bg-zinc-800/95 text-[9px] font-black text-orange-700 dark:text-orange-300 rounded-full border border-white/50 dark:border-zinc-700/50 tracking-wide shadow-sm max-w-[130px] text-center uppercase leading-none font-bold">
+                                                        {lvl.label}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            
+                            {/* Bottom Hill decoration */}
+                            <div className="relative w-full h-24 mt-auto z-10 overflow-hidden shrink-0">
+                                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-orange-600/30 to-transparent blur-xl" />
+                                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[140%] h-24 bg-orange-50/10 dark:bg-orange-55/5 rounded-full border-t border-orange-405/20" />
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* 7. History Level 1 Ancient Civilizations Detail Overlay (Screen 3) */}
+                <AnimatePresence>
+                    {activeAssignment === 'History' && activeLevel === 11 && (
+                        <motion.div 
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'tween', duration: 0.3 }}
+                            className="absolute inset-0 z-50 bg-[#f8fafc] dark:bg-zinc-950 flex flex-col font-sans overflow-y-auto pb-16"
+                        >
+                            {/* Header */}
+                            <div className="sticky top-0 z-30 flex justify-between items-center px-4 py-4 bg-[#f8fafc]/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-150 dark:border-zinc-800">
+                                <button 
+                                    onClick={() => setActiveLevel(null)}
+                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                                >
+                                    <ArrowLeft size={18} />
+                                </button>
+                                <div className="text-center">
+                                    <h3 className="text-base font-black font-display text-slate-800 dark:text-white uppercase tracking-wider leading-none">
+                                        Ancient Civilizations
+                                    </h3>
+                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 block uppercase font-bold font-display">
+                                        Level 1
+                                    </span>
+                                </div>
+                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
+                                    <Info size={18} />
+                                </button>
+                            </div>
+
+                            {/* Video Cover Illustration */}
+                            <div className="relative w-full h-[220px] bg-gradient-to-b from-[#fef5ec] to-[#f8fafc] dark:from-[#1a0e05] dark:to-zinc-950 flex items-center justify-center overflow-hidden shrink-0">
+                                <div className="absolute inset-0 pointer-events-none opacity-80 mix-blend-normal">
+                                    <Image 
+                                        src="/profile_landscape.png" 
+                                        alt="History" 
+                                        fill 
+                                        className="object-cover" 
+                                    />
+                                </div>
+                                
+                                {/* Video Play circle indicator */}
+                                <div className="relative z-10 w-16 h-16 rounded-full bg-white/85 dark:bg-zinc-900/85 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30 hover:scale-105 active:scale-95 transition-transform cursor-pointer">
+                                    <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[14px] border-l-orange-600 dark:border-l-orange-500 ml-1" />
+                                </div>
+                            </div>
+
+                            {/* Details Text and Form Card */}
+                            <div className="p-5 flex-1 flex flex-col justify-start">
+                                <h3 className="text-xl font-black text-slate-800 dark:text-white font-display text-center leading-tight mb-8 uppercase tracking-tight">
+                                    Read the chapter on Mesopotamia and Egypt, and submit your summary.
+                                </h3>
+
+                                {/* Upload Widget */}
+                                <div className="p-6 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex flex-col items-center justify-center text-center bg-zinc-50/50 dark:bg-zinc-900/10 mb-6 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer group">
+                                    <Upload size={24} className="text-zinc-400 dark:text-zinc-500 mb-2 group-hover:scale-110 transition-transform" />
+                                    <span className="block text-sm font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-wide font-display">
+                                        Upload Your Work
+                                    </span>
+                                    <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 leading-normal font-bold">
+                                        Add your work files to keep everything up to date.
+                                    </span>
+                                </div>
+
+                                {/* Parent check warning widget */}
+                                <div className="p-4 bg-orange-50/70 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-3xl flex flex-col gap-1 mb-8 shrink-0">
+                                    <span className="text-[10px] font-black text-orange-750 dark:text-orange-400 uppercase tracking-widest leading-none font-bold">
+                                        Parent Check Required
+                                    </span>
+                                    <p className="text-[11px] text-orange-700/95 dark:text-orange-300 font-bold leading-normal mt-0.5">
+                                        After completing this task, ask your parent to check your work and provide feedback!
+                                    </p>
+                                </div>
+
+                                {/* Main Action CTA */}
+                                <button
+                                    onClick={() => {
+                                        setHistCompleted(true);
+                                        showToast("Task completed! Notification sent to parent. 🔥 +15 Points!", "success");
+                                        setActiveLevel(null);
+                                        setActiveAssignment(null);
+                                    }}
+                                    className="w-full mt-auto py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-600/25 active:scale-[0.98] transition-all text-center flex items-center justify-center gap-2"
+                                >
+                                    <span>Mark as Done & Notify to Parent</span>
+                                    <ArrowRight size={14} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Settings Controls Modal */}
+                <AnimatePresence>
+                    {showSettingsModal && (
+                        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in">
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/60 backdrop-blur-md" 
+                                onClick={() => setShowSettingsModal(false)}
+                            />
+                            
+                            <motion.div 
+                                initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                                animate={{ scale: 1, y: 0, opacity: 1 }}
+                                exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                                className="relative z-10 w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800 rounded-[2rem] p-6 shadow-2xl overflow-hidden"
+                            >
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-lg font-black font-display text-zinc-900 dark:text-white uppercase tracking-wider font-bold">
+                                        System Controls
+                                    </h3>
+                                    <button 
+                                        onClick={() => setShowSettingsModal(false)}
+                                        className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:hover:text-white transition-colors"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                                
+                                <div className="space-y-5">
+                                    {/* Gamify toggle option */}
+                                    <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
+                                        <div className="space-y-0.5">
+                                            <span className="block text-sm font-bold text-zinc-900 dark:text-white">
+                                                Gamified Dashboard
+                                            </span>
+                                            <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">
+                                                Enable progress metrics & roadmaps
+                                            </span>
+                                        </div>
+                                        
+                                        <button
+                                            onClick={() => setGamify(!gamify)}
+                                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gamify ? 'bg-red-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+                                        >
+                                            <span
+                                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${gamify ? 'translate-x-5' : 'translate-x-0'}`}
+                                            />
+                                        </button>
+                                    </div>
+                                    
+                                    {/* Appearance theme toggle */}
+                                    <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
+                                        <div className="space-y-0.5">
+                                            <span className="block text-sm font-bold text-zinc-900 dark:text-white font-bold">
+                                                Core Dark Mode
+                                            </span>
+                                            <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">
+                                                Toggle light/dark appearance
+                                            </span>
+                                        </div>
+                                        
+                                        <button
+                                            onClick={() => {
+                                                const nextTheme = isDarkTheme ? 'light' : 'dark';
+                                                localStorage.setItem('dr-astro-theme', nextTheme);
+                                                if (nextTheme === 'dark') {
+                                                    document.documentElement.classList.add('dark');
+                                                    setIsDarkTheme(true);
+                                                } else {
+                                                    document.documentElement.classList.remove('dark');
+                                                    setIsDarkTheme(false);
+                                                }
+                                            }}
+                                            className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shadow-sm active:scale-95 transition-all"
+                                        >
+                                            {isDarkTheme ? <Sun size={18} /> : <Moon size={18} />}
+                                        </button>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="space-y-2 pt-3 border-t border-zinc-150 dark:border-zinc-800">
+                                        <button
+                                            onClick={() => {
+                                                setGeoCompleted(false);
+                                                setHistCompleted(false);
+                                                showToast("Gamified progress reset to defaults.", "info");
+                                                setShowSettingsModal(false);
+                                            }}
+                                            className="w-full py-3 bg-zinc-100 dark:bg-zinc-850 hover:bg-zinc-200 dark:hover:bg-zinc-805 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
+                                        >
+                                            Reset Gamified Stats
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+            </div>
+        );
+    }
 
     return (
         <div className="animate-view-transition bg-zinc-950 min-h-screen relative overflow-x-hidden selection:bg-red-600/30">
@@ -7173,7 +7938,13 @@ const ProfileView = ({
     onExportData,
     onWipeExamHub,
     showToast,
-    onRevertAction
+    onRevertAction,
+    gamify,
+    setGamify,
+    geoCompleted,
+    setGeoCompleted,
+    histCompleted,
+    setHistCompleted
 }: {
     user: AppUser,
     onLogout: () => void,
@@ -7191,7 +7962,13 @@ const ProfileView = ({
     onExportData?: () => void,
     onWipeExamHub?: () => void,
     showToast: (msg: string, type: 'success' | 'error' | 'info') => void,
-    onRevertAction?: (log: AdminAuditLog) => Promise<void>
+    onRevertAction?: (log: AdminAuditLog) => Promise<void>,
+    gamify: boolean,
+    setGamify: (v: boolean) => void,
+    geoCompleted: boolean,
+    setGeoCompleted: (v: boolean) => void,
+    histCompleted: boolean,
+    setHistCompleted: (v: boolean) => void
 }) => {
     const { minutes } = useStudyTime();
     const { recentIds } = useRecentlyViewed();
@@ -7204,15 +7981,6 @@ const ProfileView = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [librarySearch, setLibrarySearch] = useState('');
     const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
-
-    // State for Gamified Dashboard
-    const [gamify, setGamify] = useState<boolean>(() => {
-        if (typeof window !== 'undefined') {
-            const stored = localStorage.getItem('dr-astro-gamify');
-            return stored !== 'false'; // defaults to true
-        }
-        return true;
-    });
 
     const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [activeAssignment, setActiveAssignment] = useState<string | null>(null);
@@ -7230,26 +7998,6 @@ const ProfileView = ({
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
         return () => observer.disconnect();
     }, []);
-
-    const [geoCompleted, setGeoCompleted] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('dr-astro-geo-completed') === 'true';
-        }
-        return false;
-    });
-    
-    const [histCompleted, setHistCompleted] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('dr-astro-hist-completed') === 'true';
-        }
-        return false;
-    });
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('dr-astro-gamify', gamify ? 'true' : 'false');
-        }
-    }, [gamify]);
 
     useEffect(() => {
         if (activeAssignment && typeof document !== 'undefined') {
@@ -9093,6 +9841,47 @@ export default function DrAstroApp() {
     const [isTimerRunning, setIsTimerRunning] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+    // Lifted State for Gamified Dashboard
+    const [gamify, setGamify] = useState<boolean>(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('dr-astro-gamify');
+            return stored !== 'false'; // defaults to true
+        }
+        return true;
+    });
+
+    const [geoCompleted, setGeoCompleted] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('dr-astro-geo-completed') === 'true';
+        }
+        return false;
+    });
+    
+    const [histCompleted, setHistCompleted] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('dr-astro-hist-completed') === 'true';
+        }
+        return false;
+    });
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('dr-astro-gamify', gamify ? 'true' : 'false');
+        }
+    }, [gamify]);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('dr-astro-geo-completed', geoCompleted ? 'true' : 'false');
+        }
+    }, [geoCompleted]);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('dr-astro-hist-completed', histCompleted ? 'true' : 'false');
+        }
+    }, [histCompleted]);
+
     // Initial Theme Detection with Persistence
     useEffect(() => {
         const savedTheme = localStorage.getItem('dr-astro-theme') as 'light' | 'dark' | null;
@@ -10520,6 +11309,13 @@ export default function DrAstroApp() {
                                 onManageBook={handleManageBook}
                                 onToggleFavorite={toggleFavorite}
                                 onSimulate={handleSimulate}
+                                gamify={gamify}
+                                setGamify={setGamify}
+                                geoCompleted={geoCompleted}
+                                setGeoCompleted={setGeoCompleted}
+                                histCompleted={histCompleted}
+                                setHistCompleted={setHistCompleted}
+                                showToast={showToast}
                             />
                         )}
 
@@ -10559,6 +11355,12 @@ export default function DrAstroApp() {
                                 onWipeExamHub={handleWipeExamHub}
                                 showToast={showToast}
                                 onRevertAction={handleRevertAction}
+                                gamify={gamify}
+                                setGamify={setGamify}
+                                geoCompleted={geoCompleted}
+                                setGeoCompleted={setGeoCompleted}
+                                histCompleted={histCompleted}
+                                setHistCompleted={setHistCompleted}
                             />
                         )}
 
