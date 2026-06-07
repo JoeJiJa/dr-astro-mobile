@@ -109,6 +109,19 @@ import StudyMode from './StudyMode';
 import { getAIAssistantResponse as getGeminiResponse } from '../lib/gemini';
 import { DbService } from '../lib/db';
 
+const openExternalUrl = (url: string) => {
+    if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.()) {
+        import('@capacitor/browser').then(({ Browser }) => {
+            Browser.open({ url });
+        }).catch(err => {
+            console.error("Failed to open native browser:", err);
+            window.open(url, '_system');
+        });
+    } else {
+        window.open(url, '_blank');
+    }
+};
+
 /**
  * ==========================================
  * TYPE DEFINITIONS
@@ -7711,7 +7724,7 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
                 console.log('Native Google Sign-In failed. Launching browser fallback OAuth flow...');
                 setError("Native sign-in offline. Launching browser fallback...");
                 // Open standard browser to our production web portal for authentication
-                window.open('https://dr-astro.pages.dev/?native-auth-fallback=true', '_blank');
+                openExternalUrl('https://dr-astro.pages.dev/?native-auth-fallback=true');
             } else {
                 if (errorCode === 'auth/popup-closed-by-user') {
                     setError('Sign-in cancelled. Please try again.');
@@ -11050,9 +11063,12 @@ export default function DrAstroApp() {
                 App.addListener('appUrlOpen', (data: any) => {
                     console.log('App opened with URL:', data.url);
                     try {
-                        // URL: "com.drastro.app://auth-callback?user=..."
                         if (data.url && data.url.includes('auth-callback')) {
-                            const urlObj = new URL(data.url);
+                            let urlString = data.url;
+                            if (urlString.startsWith('com.drastro.app://')) {
+                                urlString = urlString.replace('com.drastro.app://', 'https://');
+                            }
+                            const urlObj = new URL(urlString);
                             const userParam = urlObj.searchParams.get('user');
                             if (userParam) {
                                 const parsedUser = JSON.parse(decodeURIComponent(userParam));
@@ -11269,7 +11285,7 @@ export default function DrAstroApp() {
         }
 
         if (book.downloadUrl && book.downloadUrl !== '#') {
-            window.open(book.downloadUrl, '_blank');
+            openExternalUrl(book.downloadUrl);
         } else {
             alert(`Opening ${book.title}... (No link provided)`);
         }
@@ -12308,7 +12324,7 @@ export default function DrAstroApp() {
                                 onClose={() => setMultiPartBook(null)}
                                 onSelect={(part) => {
                                     ActivityService.log(currentUser, 'download_book', part.id, `${multiPartBook.title} - ${part.title}`);
-                                    window.open(part.downloadUrl, '_blank');
+                                    openExternalUrl(part.downloadUrl);
                                     setMultiPartBook(null);
                                 }}
                             />
