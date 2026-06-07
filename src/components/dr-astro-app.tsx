@@ -67,7 +67,7 @@ import {
     Settings
 } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
-import { auth, db, googleProvider, signInWithGoogle, getRedirectResult, sendPasswordResetEmail, confirmPasswordReset } from '../lib/firebase';
+import { auth, db, googleProvider, signInWithGoogle, getRedirectResult, sendPasswordResetEmail, confirmPasswordReset, isNativeApp } from '../lib/firebase';
 import {
     doc,
     setDoc,
@@ -7663,12 +7663,19 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
             const errorCode = err?.code;
             const errorMessage = err?.message || 'Unknown error';
 
-            if (errorCode === 'auth/popup-closed-by-user') {
-                setError('Sign-in cancelled. Please try again.');
-            } else if (errorCode === 'auth/unauthorized-domain') {
-                setError('Domain not authorized. Please check Firebase console.');
+            if (isNativeApp()) {
+                console.log('Native Google Sign-In failed. Launching browser fallback OAuth flow...');
+                setError("Native sign-in offline. Launching browser fallback...");
+                // Open standard browser to our production web portal for authentication
+                window.open('https://dr-astro.pages.dev/?native-auth-fallback=true', '_blank');
             } else {
-                setError(`Login failed: ${errorMessage} (${errorCode || 'unknown_code'})`);
+                if (errorCode === 'auth/popup-closed-by-user') {
+                    setError('Sign-in cancelled. Please try again.');
+                } else if (errorCode === 'auth/unauthorized-domain') {
+                    setError('Domain not authorized. Please check Firebase console.');
+                } else {
+                    setError(`Login failed: ${errorMessage} (${errorCode || 'unknown_code'})`);
+                }
             }
         } finally {
             setIsGoogleLoading(false);
@@ -10991,6 +10998,39 @@ export default function DrAstroApp() {
         };
         setupCapacitorBack();
 
+        // 4. Capacitor Deep Link / Custom Scheme Listener
+        const setupDeepLinks = async () => {
+            const cap = (window as any).Capacitor;
+            if (cap && cap.Plugins && cap.Plugins.App) {
+                const { App } = cap.Plugins;
+                App.addListener('appUrlOpen', (data: any) => {
+                    console.log('App opened with URL:', data.url);
+                    try {
+                        // URL: "com.drastro.app://auth-callback?user=..."
+                        if (data.url && data.url.includes('auth-callback')) {
+                            const urlObj = new URL(data.url);
+                            const userParam = urlObj.searchParams.get('user');
+                            if (userParam) {
+                                const parsedUser = JSON.parse(decodeURIComponent(userParam));
+                                console.log('Successfully received user credentials via deep link:', parsedUser);
+                                
+                                // Perform direct login
+                                AuthService.directLogin(parsedUser);
+                                setCurrentUser(parsedUser);
+                                setIsAuthenticated(true);
+                                showToast("Authenticated successfully via secure deep link!", "success");
+                                navigate('HOME');
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse deep link credentials:', e);
+                        showToast("Authentication sync failed. Please try again.", "error");
+                    }
+                });
+            }
+        };
+        setupDeepLinks();
+
         return () => {
             window.removeEventListener('popstate', handlePopState);
             const cap = (window as any).Capacitor;
@@ -10999,6 +11039,47 @@ export default function DrAstroApp() {
             }
         };
     }, [view]);
+
+    // Native Auth Fallback Redirect handler (Browser only)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
+        if (isNative) return; // Only execute on mobile web browser
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('native-auth-fallback') === 'true' || localStorage.getItem('dr-astro-native-auth-fallback') === 'true') {
+            // Persist check in case redirects clear query params
+            localStorage.setItem('dr-astro-native-auth-fallback', 'true');
+
+            if (isAuthenticated && currentUser) {
+                localStorage.removeItem('dr-astro-native-auth-fallback');
+                const redirectUrl = `com.drastro.app://auth-callback?user=${encodeURIComponent(JSON.stringify(currentUser))}`;
+                console.log('Redirecting to native app custom scheme:', redirectUrl);
+                
+                // Show a friendly loading message
+                showToast("Identity verified. Syncing back to your Dr. Astro App...", "success");
+                
+                // Perform redirect
+                window.location.href = redirectUrl;
+                
+                // Secondary backup: Show a manual button in case auto-redirect is blocked
+                setTimeout(() => {
+                    const existing = document.getElementById('manual-redirect-banner');
+                    if (existing) return;
+                    const backupBtn = document.createElement('div');
+                    backupBtn.id = 'manual-redirect-banner';
+                    backupBtn.className = 'fixed bottom-10 inset-x-6 z-[99999] p-4 bg-zinc-900 border border-red-500/30 rounded-3xl text-center space-y-2 shadow-2xl';
+                    backupBtn.innerHTML = `
+                        <p class="text-xs text-zinc-300 font-bold">Authentication complete!</p>
+                        <a href="${redirectUrl}" class="inline-block px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all">
+                            Open App Natively
+                        </a>
+                    `;
+                    document.body.appendChild(backupBtn);
+                }, 2000);
+            }
+        }
+    }, [isAuthenticated, currentUser]);
 
     const navigate = (newView: ViewState, newSubjectId: string | null = null, simConfig: any = null) => {
         if (simConfig) setSimulationConfig(simConfig);
