@@ -2939,7 +2939,8 @@ const Header = ({
     toggleTheme, 
     userAvatar, 
     isFocusMode, 
-    toggleFocusMode 
+    toggleFocusMode,
+    setShowSettingsModal
 }: {
     currentView: ViewState,
     setView: (v: ViewState) => void,
@@ -2947,7 +2948,8 @@ const Header = ({
     toggleTheme: () => void,
     userAvatar?: string,
     isFocusMode: boolean,
-    toggleFocusMode: () => void
+    toggleFocusMode: () => void,
+    setShowSettingsModal: (v: boolean) => void
 }) => {
     const navItems = [
         { label: 'Home', view: 'HOME', icon: Home },
@@ -3055,6 +3057,14 @@ const Header = ({
                             {isFocusMode && (
                                 <div className="absolute inset-0 bg-white/20 animate-pulse" />
                             )}
+                        </button>
+
+                        <button
+                            onClick={() => setShowSettingsModal(true)}
+                            className="w-10 h-10 rounded-2xl flex items-center justify-center bg-white/5 hover:bg-white/15 text-zinc-400 hover:text-white transition-all active:scale-90 border border-white/10 group/settings"
+                            title="System Settings"
+                        >
+                            <Settings size={18} className="group-hover/settings:rotate-45 transition-transform" />
                         </button>
 
                         <div
@@ -3872,7 +3882,9 @@ const HomeView = ({
     setGeoCompleted,
     histCompleted,
     setHistCompleted,
-    showToast
+    showToast,
+    showSettingsModal,
+    setShowSettingsModal
 }: {
     setView: (v: ViewState) => void,
     onBookClick: (b: Book) => void,
@@ -3887,15 +3899,29 @@ const HomeView = ({
     setGeoCompleted: (v: boolean) => void,
     histCompleted: boolean,
     setHistCompleted: (v: boolean) => void,
-    showToast: (msg: string, type: 'success' | 'error' | 'info') => void
+    showToast: (msg: string, type: 'success' | 'error' | 'info') => void,
+    showSettingsModal: boolean,
+    setShowSettingsModal: (v: boolean) => void
 }) => {
     const { recentIds } = useRecentlyViewed();
     const { streak, minutes } = useStudyTime();
     const [showOracle, setShowOracle] = useState(false);
     const [showPulseSidebar, setShowPulseSidebar] = useState(false);
+    
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const handleMouseMove = (e: MouseEvent) => {
+            const { clientWidth, clientHeight } = document.documentElement;
+            const x = (e.clientX / clientWidth - 0.5) * 20; 
+            const y = (e.clientY / clientHeight - 0.5) * 20;
+            setMousePos({ x, y });
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
 
     // Interactive states for Gamified Dashboard
-    const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [activeAssignment, setActiveAssignment] = useState<string | null>(null);
     const [activeLevel, setActiveLevel] = useState<number | null>(null);
     const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -3946,6 +3972,25 @@ const HomeView = ({
         return result;
     }, [currentUser?.favorites, subjects]);
 
+    const recommendedBooks = useMemo(() => {
+        const result: { book: Book, sId: string, secId: string }[] = [];
+        Object.entries(subjects).forEach(([sId, s]) => {
+            Object.entries(s.materials).forEach(([secId, list]) => {
+                (list as Book[]).forEach((book: Book) => {
+                    if (book.recommendationLevel) {
+                        result.push({ book, sId, secId });
+                    }
+                });
+            });
+        });
+        result.sort((a, b) => {
+            const aLevel = a.book.recommendationLevel === 'gold-standard' ? 2 : 1;
+            const bLevel = b.book.recommendationLevel === 'gold-standard' ? 2 : 1;
+            return bLevel - aLevel;
+        });
+        return result.slice(0, 3);
+    }, [subjects]);
+
     const user = currentUser;
     
     const formatName = (name: string) => {
@@ -3975,7 +4020,7 @@ const HomeView = ({
                 title: 'Geography',
                 subtitle: 'Total time spent: 3h',
                 icon: Globe,
-                iconBgClass: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
+                iconBgClass: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
                 completed: geoCompleted,
                 onClick: () => {
                     setActiveAssignment('Geography');
@@ -3988,7 +4033,7 @@ const HomeView = ({
                 title: 'History',
                 subtitle: 'Total time spent: 2h',
                 icon: History,
-                iconBgClass: 'bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400',
+                iconBgClass: 'bg-orange-500/10 text-orange-400 border border-orange-500/20',
                 completed: histCompleted,
                 onClick: () => {
                     setActiveAssignment('History');
@@ -4001,7 +4046,7 @@ const HomeView = ({
                 title: 'Anatomy',
                 subtitle: 'Total time spent: 1.5h',
                 icon: Skull,
-                iconBgClass: 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400',
+                iconBgClass: 'bg-red-500/10 text-red-400 border border-red-500/20',
                 completed: true,
                 onClick: () => {
                     showToast("Anatomy assignment is already completed!", "info");
@@ -4013,7 +4058,7 @@ const HomeView = ({
                 title: 'Physiology',
                 subtitle: 'Total time spent: 1h',
                 icon: HeartPulse,
-                iconBgClass: 'bg-pink-50 text-pink-600 dark:bg-pink-950/40 dark:text-pink-400',
+                iconBgClass: 'bg-pink-500/10 text-pink-400 border border-pink-500/20',
                 completed: true,
                 onClick: () => {
                     showToast("Physiology assignment is already completed!", "info");
@@ -4022,162 +4067,283 @@ const HomeView = ({
         ];
 
         return (
-            <div className="w-full max-w-5xl mx-auto min-h-screen bg-[#f8fafc] dark:bg-zinc-950 pb-32 overflow-x-hidden relative flex flex-col shadow-2xl rounded-none md:rounded-[2.5rem] border-0 md:border border-zinc-200 dark:border-zinc-800/80 animate-view-transition">
-                {/* 1. Header (Central Hub) */}
-                <div className="relative w-full h-[320px] bg-gradient-to-b from-[#e2edfa] to-[#f3f7fd] dark:from-[#0f172a] dark:to-[#020617] overflow-hidden flex flex-col items-center justify-start pt-6 shrink-0">
-                    {/* Landscape background image */}
-                    <div className="absolute inset-0 z-0 pointer-events-none opacity-90 dark:opacity-40 mix-blend-normal">
-                        <Image 
-                            src="/profile_landscape.png" 
-                            alt="Landscape" 
-                            fill 
-                            className="object-cover object-bottom"
-                            priority
-                        />
+            <div className="w-full max-w-6xl mx-auto min-h-screen bg-zinc-950 text-white pb-32 overflow-x-hidden relative flex flex-col shadow-2xl rounded-none md:rounded-[3rem] border border-white/5 pt-24 md:pt-32 animate-view-transition">
+                
+                {/* 1. Cinematic Greeting HUD Header */}
+                <div className="relative w-full rounded-[2.5rem] p-8 md:p-12 overflow-hidden border border-white/10 bg-gradient-to-r from-red-955/10 via-zinc-900/60 to-orange-955/10 shadow-2xl mb-8 relative group/hero">
+                    {/* Pulsing Neon Scanning Line */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+                        <div className="w-full h-1 bg-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.8)] animate-scan" />
                     </div>
+                    {/* Glowing Backdrop Blob */}
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/10 blur-[100px] rounded-full pointer-events-none animate-pulse-slow" />
                     
-                    {/* Sky subtle clouds/light overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[#e2edfa]/20 to-[#e2edfa]/10 dark:via-blue-950/10 dark:to-transparent z-0 pointer-events-none" />
-
-                    {/* Floating Header Actions */}
-                    <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-center w-[calc(100%-2rem)]">
-                        <button 
-                            onClick={() => setView('PROFILE')}
-                            className="w-10 h-10 rounded-full bg-white/75 dark:bg-black/55 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/30 dark:border-white/10 active:scale-95 transition-all shadow-sm"
-                            title="Profile"
-                        >
-                            <User size={18} />
-                        </button>
-                        
-                        <button 
-                            onClick={() => setShowSettingsModal(true)}
-                            className="w-10 h-10 rounded-full bg-white/75 dark:bg-black/55 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/30 dark:border-white/10 active:scale-95 transition-all shadow-sm"
-                            title="Settings"
-                        >
-                            <Settings size={18} />
-                        </button>
-                    </div>
-
-                    {/* Center 3D User Avatar */}
-                    <div className="relative z-10 flex flex-col items-center mt-6">
-                        <div className="relative w-28 h-28 rounded-full border-4 border-white dark:border-zinc-800 shadow-[0_12px_24px_rgba(0,0,0,0.15)] overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                            <Image 
-                                src={user.avatarUrl || "/student_avatar.png"} 
-                                alt={user.name} 
-                                fill 
-                                className="object-cover"
-                            />
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 z-10 relative">
+                        <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                            {/* HUD Double Pulsing Ring Avatar */}
+                            <div className="relative w-28 h-28 rounded-full border-2 border-red-500/30 p-1 shrink-0 animate-scale-slow">
+                                <div className="absolute inset-0 rounded-full border border-dashed border-red-500/50 animate-spin-slow" />
+                                <div className="absolute inset-2 rounded-full border border-double border-orange-500/30 animate-pulse" />
+                                <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 relative">
+                                    <Image 
+                                        src={user.avatarUrl || "/student_avatar.png"} 
+                                        alt={user.name} 
+                                        fill 
+                                        className="object-cover"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-2.5">
+                                <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
+                                    <span className="text-zinc-400 font-serif italic text-lg leading-none">Welcome back,</span>
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-black text-emerald-400 uppercase tracking-widest">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                                        COGNITIVE ENGINE STABLE
+                                    </span>
+                                </div>
+                                <h1 className="text-4xl md:text-6xl font-black font-display tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-300 uppercase">
+                                    Dr. {formatName(user.name)}
+                                </h1>
+                                <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider">
+                                    Specialization: General Practitioner Registry
+                                </p>
+                            </div>
                         </div>
 
-                        {/* Fire Streak Glow Score badge */}
-                        <div className="mt-3 px-4 py-1.5 bg-[#fef2e6] dark:bg-orange-950/40 border border-[#fbe5d0] dark:border-orange-900/30 rounded-full flex items-center gap-1.5 shadow-sm active:scale-95 transition-transform cursor-pointer">
-                            <span className="text-base leading-none">🔥</span>
-                            <span className="font-extrabold text-[#e06900] dark:text-orange-400 text-sm tracking-tight font-display">
-                                543
-                            </span>
+                        {/* Level Rank Box */}
+                        <div className="bg-zinc-950/80 border border-white/10 rounded-2xl p-5 min-w-[200px] text-center md:text-left space-y-3 shadow-lg">
+                            <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block">Neural Level</span>
+                            <h3 className="text-lg font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-500 uppercase tracking-wider">
+                                Level 3 Resident
+                            </h3>
+                            {/* XP Progress Bar */}
+                            <div className="space-y-1">
+                                <div className="flex justify-between text-[8px] font-bold text-zinc-450">
+                                    <span>XP PROGRESS</span>
+                                    <span>70%</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                                    <div className="h-full bg-gradient-to-r from-red-500 to-orange-500 rounded-full" style={{ width: '70%' }} />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* 2. Today's Report Section */}
-                <div className="relative z-10 px-5 -mt-6 flex-1 flex flex-col gap-6">
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800/80 rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.02)] flex flex-col gap-5 shrink-0">
-                        <h3 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-[0.2em] font-display">
-                            Today's Report
-                        </h3>
+                {/* 2. Interactive Bento Grid widgets */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 md:px-0 mb-10">
+                    
+                    {/* Widget A: Daily Pulse (Health & Stats Console) */}
+                    <div className="lg:col-span-2 bg-zinc-900/50 border border-white/10 rounded-[2.5rem] p-6 backdrop-blur-md shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[300px] group">
                         
-                        <div className="grid grid-cols-2 gap-4">
-                            {/* Task Completed Card */}
-                            <div className="p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none">
-                                    Task Completed
-                                </span>
-                                <div>
-                                    <span className="text-3xl font-black text-slate-800 dark:text-white leading-none font-display">
+                        {/* Live EKG Waveform Path */}
+                        <svg className="absolute bottom-0 inset-x-0 h-16 w-full text-red-500/10 pointer-events-none" viewBox="0 0 400 100" preserveAspectRatio="none">
+                            <path d="M 0 50 L 120 50 L 130 30 L 140 70 L 150 20 L 160 80 L 170 50 L 400 50" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse" />
+                        </svg>
+
+                        <div className="flex items-center justify-between z-10 relative">
+                            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] font-display flex items-center gap-1.5">
+                                <Activity size={14} className="text-red-500 animate-pulse" />
+                                Diagnostics: Daily Pulse
+                            </h3>
+                            <span className="text-[10px] font-bold text-orange-400 bg-orange-950/40 border border-orange-500/20 px-3 py-1 rounded-full flex items-center gap-1">
+                                🔥 {streak || 543} Day Streak
+                            </span>
+                        </div>
+
+                        {/* Circular Progress + Mini Stats Cards */}
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-8 mt-4 mb-4 z-10 relative">
+                            {/* Radial Progress Ring */}
+                            <div className="flex items-center gap-5 shrink-0">
+                                <div className="relative w-24 h-24 flex items-center justify-center">
+                                    <svg className="w-full h-full transform -rotate-90">
+                                        {/* Outer track */}
+                                        <circle cx="48" cy="48" r="40" className="stroke-zinc-800 fill-none" strokeWidth="6" />
+                                        {/* Colored stroke */}
+                                        <circle 
+                                            cx="48" 
+                                            cy="48" 
+                                            r="40" 
+                                            className="stroke-red-500 fill-none transition-all duration-1000" 
+                                            strokeWidth="6" 
+                                            strokeDasharray={251.2}
+                                            strokeDashoffset={251.2 - (251.2 * tasksCompletedPercentage) / 100}
+                                            strokeLinecap="round"
+                                            style={{ filter: 'drop-shadow(0 0 6px rgba(239,68,68,0.5))' }}
+                                        />
+                                    </svg>
+                                    <span className="absolute text-lg font-black font-display tracking-tighter">
                                         {tasksCompletedPercentage}%
                                     </span>
-                                    <span className="block text-[9px] text-[#10b981] dark:text-emerald-400 font-bold mt-1 tracking-wider uppercase">
-                                        +12% from Yesterday
-                                    </span>
                                 </div>
-                                {/* Micro progress bar */}
-                                <div className="h-1.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                    <div 
-                                        className="h-full bg-red-600 rounded-full transition-all duration-500" 
-                                        style={{ width: `${tasksCompletedPercentage}%` }}
-                                    />
+                                <div className="space-y-1">
+                                    <span className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest">Daily Objectives</span>
+                                    <h4 className="text-sm font-black font-display text-white uppercase">{completedTasksCount}/4 SECURED</h4>
+                                    <span className="block text-[9px] font-bold text-zinc-400">Review assignments to increase completion</span>
                                 </div>
                             </div>
 
-                            {/* Total Points Card */}
-                            <div className="p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl flex flex-col gap-3">
-                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none">
-                                    Total Points
-                                </span>
-                                <div>
-                                    <span className="text-3xl font-black text-slate-800 dark:text-white leading-none font-display">
-                                        {totalPoints}/30
+                            {/* Mini Stats Card Grid */}
+                            <div className="grid grid-cols-2 gap-4 w-full md:max-w-xs">
+                                <div className="p-4 bg-zinc-950/60 border border-white/5 rounded-2xl flex flex-col gap-1.5 hover:border-red-500/20 transition-colors">
+                                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest leading-none flex items-center gap-1">
+                                        <Clock size={10} /> Focus time
                                     </span>
-                                    <span className="block text-[9px] text-zinc-400 dark:text-zinc-500 font-bold mt-1 tracking-wider uppercase">
-                                        Points Collected
-                                    </span>
+                                    <span className="text-xl font-black text-white font-display leading-tight">{minutes || 0}m</span>
+                                    <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-wider leading-none">ACTIVE TODAY</span>
                                 </div>
-                                {/* Micro progress bar */}
-                                <div className="h-1.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                    <div 
-                                        className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
-                                        style={{ width: `${(totalPoints / 30) * 100}%` }}
-                                    />
+                                <div className="p-4 bg-zinc-950/60 border border-white/5 rounded-2xl flex flex-col gap-1.5 hover:border-red-500/20 transition-colors">
+                                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest leading-none flex items-center gap-1">
+                                        <Trophy size={10} /> Study points
+                                    </span>
+                                    <span className="text-xl font-black text-white font-display leading-tight">{totalPoints}/30</span>
+                                    <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-wider leading-none">LEVEL XP</span>
                                 </div>
                             </div>
                         </div>
+
+                        <div className="border-t border-white/5 pt-3 text-[10px] text-zinc-505 font-bold flex justify-between items-center z-10 relative">
+                            <span>COGNITIVE BIO-TELEMETRY</span>
+                            <span className="animate-pulse text-red-500">LIVE FEED</span>
+                        </div>
                     </div>
 
-                    {/* 3. Today's Assignments Section */}
-                    <div className="flex flex-col gap-4 flex-1">
-                        <h3 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-[0.2em] font-display px-2">
-                            Today's Assignments
-                        </h3>
-                        
-                        <div className="space-y-3">
-                            {assignments.map((task) => (
-                                <div 
-                                    key={task.id}
-                                    onClick={task.onClick}
-                                    className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800/80 rounded-3xl hover:border-red-500/30 transition-all cursor-pointer shadow-[0_4px_15px_rgba(0,0,0,0.01)] active:scale-[0.99] group"
-                                >
-                                    <div className="flex items-center gap-3.5 min-w-0">
-                                        <span className="text-zinc-300 dark:text-zinc-600 font-black text-sm w-4 text-center shrink-0">
-                                            {task.index}
-                                        </span>
-                                        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${task.iconBgClass}`}>
-                                            <task.icon size={20} strokeWidth={2.5} />
+                    {/* Widget B: Active Quests (Mission Hub) */}
+                    <div className="bg-zinc-900/50 border border-white/10 rounded-[2.5rem] p-6 backdrop-blur-md shadow-2xl flex flex-col justify-between">
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] font-display flex items-center gap-1.5">
+                                <Target size={14} className="text-red-500" />
+                                Active Quests
+                            </h3>
+                            
+                            <div className="space-y-3 max-h-[200px] overflow-y-auto pr-1 no-scrollbar">
+                                {assignments.map((task) => (
+                                    <div 
+                                        key={task.id}
+                                        onClick={task.onClick}
+                                        className="flex items-center justify-between p-3.5 bg-zinc-950/50 border border-white/5 hover:border-red-500/20 rounded-2xl transition-all cursor-pointer group/quest active:scale-[0.98]"
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${task.iconBgClass}`}>
+                                                <task.icon size={14} />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <h4 className="font-black text-white text-xs tracking-tight uppercase font-display truncate group-hover/quest:text-red-400 transition-colors">
+                                                    {task.title}
+                                                </h4>
+                                                <p className="text-[9px] text-zinc-500 font-bold mt-0.5">{task.subtitle}</p>
+                                            </div>
                                         </div>
-                                        <div className="min-w-0">
-                                            <h4 className="font-black text-slate-800 dark:text-white text-base tracking-tight leading-tight uppercase font-display group-hover:text-red-500 transition-colors">
-                                                {task.title}
-                                            </h4>
-                                            <p className="text-xs text-zinc-400 dark:text-zinc-500 font-bold mt-0.5">
-                                                {task.subtitle}
-                                            </p>
+                                        <div className="shrink-0 ml-2">
+                                            {task.completed ? (
+                                                <span className="text-[8px] font-black text-emerald-400 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 uppercase tracking-widest flex items-center gap-0.5">
+                                                    <CheckCircle size={8} /> DONE
+                                                </span>
+                                            ) : (
+                                                <span className="text-[8px] font-black text-red-500 hover:text-white px-2 py-1 rounded bg-red-650/10 border border-red-500/20 group-hover/quest:bg-red-600 transition-all uppercase tracking-widest">
+                                                    ENGAGE
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="shrink-0">
-                                        {task.completed ? (
-                                            <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                                                <CheckCircle size={16} strokeWidth={3} />
-                                            </div>
-                                        ) : (
-                                            <ChevronRight size={18} className="text-zinc-400 dark:text-zinc-600 group-hover:translate-x-0.5 transition-transform" />
-                                        )}
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="pt-4 border-t border-white/5 flex justify-end">
+                            <span className="text-[9px] font-black text-zinc-505 uppercase tracking-wider">SYNCED WITH CORE PROTOCOLS</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 3. File Access History (3D Study Shelf) */}
+                <div className="flex flex-col gap-4 mb-10">
+                    <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] font-display px-2 flex items-center gap-1.5">
+                        <History size={14} className="text-red-500" />
+                        3D Study Shelf (File Access History)
+                    </h3>
+                    
+                    {recentBooksWithLoc.length === 0 ? (
+                        <div className="p-8 text-center bg-zinc-900/40 border border-white/5 rounded-[2rem]">
+                            <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">
+                                No files accessed recently. Open a book from the Library to get started!
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="flex overflow-x-auto gap-6 pb-4 no-scrollbar scroll-smooth">
+                            {recentBooksWithLoc.map(({ book }) => (
+                                <div 
+                                    key={book.id}
+                                    onClick={() => onBookClick(book)}
+                                    className="flex flex-col justify-between p-5 bg-zinc-900/40 border border-white/5 hover:border-red-500/35 rounded-3xl min-w-[200px] max-w-[200px] h-[160px] shrink-0 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-red-600/10 active:scale-[0.98] group relative overflow-hidden card-3d"
+                                    style={{
+                                        transformStyle: 'preserve-3d',
+                                    }}
+                                >
+                                    {/* Neon Red/Blue accent bar at the top */}
+                                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-600 to-orange-500 opacity-60 group-hover:opacity-100 transition-opacity" />
+
+                                    {/* Ambient card back glow */}
+                                    <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-red-600/5 blur-2xl rounded-full pointer-events-none group-hover:bg-red-600/15 transition-all" />
+
+                                    <div className="flex justify-between items-start">
+                                        <div className="w-10 h-10 rounded-2xl bg-zinc-950/60 border border-white/10 flex items-center justify-center text-red-500 shrink-0 shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all">
+                                            <BookOpen size={16} />
+                                        </div>
+                                        <span className="text-[7px] font-black px-2 py-0.5 rounded bg-white/5 border border-white/10 uppercase tracking-widest text-zinc-450">
+                                            {book.type || 'textbook'}
+                                        </span>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <h4 className="font-black text-white text-xs truncate leading-tight uppercase tracking-tight font-display group-hover:text-red-400 transition-colors">
+                                            {book.title}
+                                        </h4>
+                                        <p className="text-[9px] text-zinc-505 truncate">By {book.author}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
+                    )}
+                </div>
+
+                {/* 4. Smart Recommendations (High-Yield Clinical) */}
+                <div className="flex flex-col gap-4">
+                    <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] font-display px-2 flex items-center gap-1.5">
+                        <Sparkles size={14} className="text-red-500" />
+                        AI Smart Recommendations
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {recommendedBooks.map(({ book }) => (
+                            <div 
+                                key={book.id}
+                                onClick={() => onBookClick(book)}
+                                className="flex items-center gap-4 p-5 bg-zinc-900/40 border border-white/5 hover:border-red-500/35 rounded-3xl hover:-translate-y-1 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-red-600/10 active:scale-[0.99] group relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-yellow-500 to-orange-500 opacity-30 group-hover:opacity-100 transition-opacity" />
+                                
+                                <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-center justify-center shrink-0 group-hover:bg-yellow-500 group-hover:text-white transition-all shadow-md">
+                                    <Award size={20} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[8px] font-black px-2 py-0.5 rounded bg-yellow-500/10 border border-yellow-500/20 uppercase tracking-widest text-yellow-500 mb-1 inline-block">
+                                        GOLD STANDARD
+                                    </span>
+                                    <h4 className="font-black text-white text-sm tracking-tight leading-tight uppercase font-display truncate group-hover:text-red-400 transition-colors">
+                                        {book.title}
+                                    </h4>
+                                    <p className="text-[9px] text-zinc-505 mt-0.5 truncate">
+                                        Recommended Registry Reference
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* 4. Geography Roadmap Overlay (Screen 2) */}
+                {/* 5. Geography Roadmap Overlay (Screen 2) */}
                 <AnimatePresence>
                     {activeAssignment === 'Geography' && !activeLevel && (
                         <motion.div 
@@ -4185,18 +4351,16 @@ const HomeView = ({
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'tween', duration: 0.3 }}
-                            className="absolute inset-0 z-40 bg-[#e3effd] dark:bg-slate-900 flex flex-col font-sans overflow-y-auto no-scrollbar pb-16"
+                            className="absolute inset-0 z-40 bg-[#e3effd] dark:bg-slate-950 flex flex-col font-sans overflow-y-auto no-scrollbar pb-16"
                         >
-                            {/* Sky decorative clouds */}
                             <div className="absolute top-20 left-6 w-16 h-8 bg-white/60 dark:bg-white/5 rounded-full blur-[2px] pointer-events-none" />
                             <div className="absolute top-48 right-8 w-24 h-10 bg-white/60 dark:bg-white/5 rounded-full blur-[3px] pointer-events-none" />
                             <div className="absolute top-[400px] left-10 w-20 h-9 bg-white/60 dark:bg-white/5 rounded-full blur-[2px] pointer-events-none" />
 
-                            {/* Roadmap Header */}
                             <div className="sticky top-0 z-30 flex justify-between items-center px-4 py-4 bg-[#e3effd]/80 dark:bg-[#0a122c]/80 backdrop-blur-md border-b border-white/20 dark:border-white/5">
                                 <button 
                                     onClick={() => setActiveAssignment(null)}
-                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-305 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
                                 >
                                     <ArrowLeft size={18} />
                                 </button>
@@ -4208,67 +4372,49 @@ const HomeView = ({
                                         Assignment 3h
                                     </span>
                                 </div>
-                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
+                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-305 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
                                     <Info size={18} />
                                 </button>
                             </div>
 
-                            {/* Roadmap Progression Path */}
                             <div className="flex-1 relative py-12 flex flex-col justify-start items-center overflow-x-hidden min-h-[500px]">
-                                {/* Curved staggered progression path lines */}
-                                <svg className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-48 h-full stroke-blue-300/40 dark:stroke-zinc-800/80 fill-none pointer-events-none" strokeWidth={3} strokeDasharray="6 6">
+                                <svg className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-48 h-full stroke-blue-300/40 dark:stroke-zinc-800/85 fill-none pointer-events-none" strokeWidth={3} strokeDasharray="6 6">
                                     <path d="M 96,40 C 40,140 152,240 96,340 C 40,440 152,540 96,640" />
                                 </svg>
                                 
                                 <div className="space-y-10 w-full px-8 relative">
                                     {[
-                                        { id: 1, label: 'CLIMATE ZONES', completed: geoCompleted },
-                                        { id: 2, label: 'CONTINENTS & OCEANS', completed: false },
-                                        { id: 3, label: 'WORLD MAPS', completed: false },
-                                        { id: 4, label: 'NATURAL LANDFORMS', completed: false },
-                                        { id: 5, label: 'HUMAN SETTLEMENTS', completed: false }
-                                    ].map((lvl, idx) => {
-                                        const alignments = [
-                                            'justify-center -translate-x-8',
-                                            'justify-center translate-x-8',
-                                            'justify-center -translate-x-4',
-                                            'justify-center -translate-x-12',
-                                            'justify-center translate-x-4'
-                                        ];
-                                        const align = alignments[idx % alignments.length];
-                                        
+                                        { id: 1, label: 'Continents & Oceans', completed: geoCompleted },
+                                        { id: 2, label: 'Lakes & Rivers', completed: false },
+                                        { id: 3, label: 'Mountain Ranges', completed: false },
+                                        { id: 4, label: 'Final Exam', completed: false }
+                                    ].map((lvl, index) => {
+                                        const alignClass = index % 2 === 0 ? 'justify-start md:pl-24' : 'justify-end md:pr-24';
                                         return (
-                                            <div key={lvl.id} className={`flex w-full ${align} relative z-10 my-4`}>
-                                                <div className="flex flex-col items-center">
-                                                    {/* Star rewards */}
-                                                    <div className="flex gap-0.5 mb-1.5 justify-center">
-                                                        <Star size={10} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
-                                                        <Star size={12} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
-                                                        <Star size={10} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
-                                                    </div>
-                                                    
-                                                    {/* Circle Button */}
+                                            <div key={lvl.id} className={`flex w-full ${alignClass} relative z-10`}>
+                                                <div className="flex flex-col items-center max-w-[150px]">
                                                     <button
                                                         onClick={() => {
                                                             if (lvl.id === 1) {
                                                                 setActiveLevel(1);
+                                                            } else if (lvl.completed) {
+                                                                showToast(`Level ${lvl.id} is already completed!`, "info");
                                                             } else {
-                                                                showToast(`Unlock level 1 "Climate Zones" first!`, 'info');
+                                                                showToast(`Complete previous levels first!`, "error");
                                                             }
                                                         }}
-                                                        className={`w-14 h-14 rounded-full border-4 flex items-center justify-center text-lg font-black transition-all transform active:scale-95 shadow-md
-                                                            ${lvl.completed 
-                                                                ? 'bg-emerald-500 border-white text-white dark:border-zinc-800' 
+                                                        className={`w-14 h-14 rounded-full border-4 shadow-lg flex items-center justify-center text-sm font-black transition-all active:scale-95 ${
+                                                            lvl.completed
+                                                                ? 'bg-emerald-500 border-emerald-300 text-white shadow-emerald-500/20'
                                                                 : lvl.id === 1 && !geoCompleted
-                                                                    ? 'bg-blue-600 border-white text-white dark:border-zinc-800 animate-pulse'
-                                                                    : 'bg-white border-white text-zinc-400 dark:bg-zinc-800 dark:border-zinc-800'
-                                                            }`}
+                                                                    ? 'bg-blue-600 border-blue-400 text-white shadow-blue-600/30 animate-pulse'
+                                                                    : 'bg-white border-white text-zinc-450 dark:bg-zinc-800 dark:border-zinc-800'
+                                                        }`}
                                                     >
                                                         {lvl.completed ? '✓' : lvl.id}
                                                     </button>
                                                     
-                                                    {/* Level name label */}
-                                                    <span className="mt-2.5 px-3 py-1 bg-white/95 dark:bg-zinc-800/95 text-[9px] font-black text-blue-700 dark:text-blue-300 rounded-full border border-white/50 dark:border-zinc-700/50 tracking-wide shadow-sm max-w-[130px] text-center uppercase leading-none font-bold">
+                                                    <span className="mt-2.5 px-3 py-1 bg-white/95 dark:bg-zinc-800/95 text-[9px] font-black text-blue-755 dark:text-blue-300 rounded-full border border-white/50 dark:border-zinc-700/50 tracking-wide shadow-sm max-w-[130px] text-center uppercase leading-none font-bold">
                                                         {lvl.label}
                                                     </span>
                                                 </div>
@@ -4278,16 +4424,15 @@ const HomeView = ({
                                 </div>
                             </div>
                             
-                            {/* Bottom Hill decoration */}
                             <div className="relative w-full h-24 mt-auto z-10 overflow-hidden shrink-0">
-                                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-emerald-600/30 to-transparent blur-xl" />
-                                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[140%] h-24 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full border-t border-emerald-400/20" />
+                                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-blue-600/30 to-transparent blur-xl" />
+                                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[140%] h-24 bg-blue-50/10 dark:bg-blue-95/5 rounded-full border-t border-blue-400/20" />
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* 5. Level 1 Climate Zones Detail Overlay (Screen 3) */}
+                {/* 6. Geography Level 1 Detail Overlay (Screen 2.1) */}
                 <AnimatePresence>
                     {activeAssignment === 'Geography' && activeLevel === 1 && (
                         <motion.div 
@@ -4297,11 +4442,10 @@ const HomeView = ({
                             transition={{ type: 'tween', duration: 0.3 }}
                             className="absolute inset-0 z-50 bg-[#f8fafc] dark:bg-zinc-950 flex flex-col font-sans overflow-y-auto pb-16"
                         >
-                            {/* Header */}
                             <div className="sticky top-0 z-30 flex justify-between items-center px-4 py-4 bg-[#f8fafc]/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-150 dark:border-zinc-800">
                                 <button 
                                     onClick={() => setActiveLevel(null)}
-                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-305 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
                                 >
                                     <ArrowLeft size={18} />
                                 </button>
@@ -4309,60 +4453,54 @@ const HomeView = ({
                                     <h3 className="text-base font-black font-display text-slate-800 dark:text-white uppercase tracking-wider leading-none">
                                         Climate Zones
                                     </h3>
-                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 block uppercase">
+                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-450 mt-1 block uppercase">
                                         Level 1
                                     </span>
                                 </div>
-                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
+                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-305 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
                                     <Info size={18} />
                                 </button>
                             </div>
 
-                            {/* Video Cover Illustration */}
-                            <div className="relative w-full h-[220px] bg-gradient-to-b from-[#e3effd] to-[#f7f9fc] dark:from-[#0a122c] dark:to-zinc-950 flex items-center justify-center overflow-hidden shrink-0">
+                            <div className="relative w-full h-[220px] bg-gradient-to-b from-[#ebf3fe] to-[#f8fafc] dark:from-[#0d162a] dark:to-zinc-950 flex items-center justify-center overflow-hidden shrink-0">
                                 <div className="absolute inset-0 pointer-events-none opacity-80 mix-blend-normal">
                                     <Image 
                                         src="/profile_landscape.png" 
-                                        alt="Globe" 
+                                        alt="Geography" 
                                         fill 
                                         className="object-cover" 
                                     />
                                 </div>
                                 
-                                {/* Video Play circle indicator */}
                                 <div className="relative z-10 w-16 h-16 rounded-full bg-white/85 dark:bg-zinc-900/85 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30 hover:scale-105 active:scale-95 transition-transform cursor-pointer">
                                     <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[14px] border-l-blue-600 dark:border-l-blue-500 ml-1" />
                                 </div>
                             </div>
 
-                            {/* Details Text and Form Card */}
                             <div className="p-5 flex-1 flex flex-col justify-start">
                                 <h3 className="text-xl font-black text-slate-800 dark:text-white font-display text-center leading-tight mb-8 uppercase tracking-tight">
                                     Watch the video on climate zones and write down key differences.
                                 </h3>
 
-                                {/* Upload Widget */}
                                 <div className="p-6 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex flex-col items-center justify-center text-center bg-zinc-50/50 dark:bg-zinc-900/10 mb-6 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer group">
                                     <Upload size={24} className="text-zinc-400 dark:text-zinc-500 mb-2 group-hover:scale-110 transition-transform" />
-                                    <span className="block text-sm font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-wide">
-                                        Upload Your Work
+                                    <span className="block text-sm font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-wide font-display">
+                                        Upload Worksheet
                                     </span>
                                     <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 leading-normal font-bold">
                                         Add your work files to keep everything up to date.
                                     </span>
                                 </div>
 
-                                {/* Parent check warning widget */}
-                                <div className="p-4 bg-blue-50/70 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-3xl flex flex-col gap-1 mb-8 shrink-0">
-                                    <span className="text-[10px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-widest leading-none">
-                                        Parent Check Required
+                                <div className="p-4 bg-blue-50/70 dark:bg-blue-955/20 border border-blue-100 dark:border-blue-900/30 rounded-3xl flex flex-col gap-1 mb-8 shrink-0">
+                                    <span className="text-[10px] font-black text-blue-755 dark:text-blue-400 uppercase tracking-widest leading-none font-bold">
+                                        Parent Review
                                     </span>
-                                    <p className="text-[11px] text-blue-600/90 dark:text-blue-300 font-bold leading-normal mt-0.5">
-                                        After completing this task, ask your parent to check your work and provide feedback!
+                                    <p className="text-[11px] text-blue-700/95 dark:text-blue-350 font-bold leading-normal mt-0.5">
+                                        After submitting, have a parent log in on their portal to unlock Level 2!
                                     </p>
                                 </div>
 
-                                {/* Main Action CTA */}
                                 <button
                                     onClick={() => {
                                         setGeoCompleted(true);
@@ -4380,7 +4518,7 @@ const HomeView = ({
                     )}
                 </AnimatePresence>
 
-                {/* 6. History Roadmap Overlay (Screen 2) */}
+                {/* 7. History Roadmap Overlay (Screen 3) */}
                 <AnimatePresence>
                     {activeAssignment === 'History' && !activeLevel && (
                         <motion.div 
@@ -4388,18 +4526,16 @@ const HomeView = ({
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'tween', duration: 0.3 }}
-                            className="absolute inset-0 z-40 bg-[#fef5ec] dark:bg-slate-900 flex flex-col font-sans overflow-y-auto no-scrollbar pb-16"
+                            className="absolute inset-0 z-40 bg-[#fdf5eb] dark:bg-zinc-950 flex flex-col font-sans overflow-y-auto no-scrollbar pb-16"
                         >
-                            {/* Sky decorative clouds */}
                             <div className="absolute top-20 left-6 w-16 h-8 bg-white/60 dark:bg-white/5 rounded-full blur-[2px] pointer-events-none" />
                             <div className="absolute top-48 right-8 w-24 h-10 bg-white/60 dark:bg-white/5 rounded-full blur-[3px] pointer-events-none" />
                             <div className="absolute top-[400px] left-10 w-20 h-9 bg-white/60 dark:bg-white/5 rounded-full blur-[2px] pointer-events-none" />
 
-                            {/* Roadmap Header */}
-                            <div className="sticky top-0 z-30 flex justify-between items-center px-4 py-4 bg-[#fef5ec]/80 dark:bg-[#1a0e05]/80 backdrop-blur-md border-b border-white/20 dark:border-white/5">
+                            <div className="sticky top-0 z-30 flex justify-between items-center px-4 py-4 bg-[#fdf5eb]/80 dark:bg-[#1a0e05]/80 backdrop-blur-md border-b border-white/20 dark:border-white/5">
                                 <button 
                                     onClick={() => setActiveAssignment(null)}
-                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-305 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
                                 >
                                     <ArrowLeft size={18} />
                                 </button>
@@ -4407,71 +4543,53 @@ const HomeView = ({
                                     <h3 className="text-base font-black font-display text-slate-800 dark:text-white uppercase tracking-wider leading-none">
                                         History
                                     </h3>
-                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 block uppercase">
+                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-405 mt-1 block uppercase">
                                         Assignment 2h
                                     </span>
                                 </div>
-                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
+                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-305 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
                                     <Info size={18} />
                                 </button>
                             </div>
 
-                            {/* Roadmap Progression Path */}
                             <div className="flex-1 relative py-12 flex flex-col justify-start items-center overflow-x-hidden min-h-[500px]">
-                                {/* Curved staggered progression path lines */}
-                                <svg className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-48 h-full stroke-orange-300/40 dark:stroke-zinc-800/80 fill-none pointer-events-none" strokeWidth={3} strokeDasharray="6 6">
-                                    <path d="M 96,40 C 152,140 40,240 96,340 C 152,440 40,540 96,640" />
+                                <svg className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-48 h-full stroke-orange-300/40 dark:stroke-zinc-800/85 fill-none pointer-events-none" strokeWidth={3} strokeDasharray="6 6">
+                                    <path d="M 96,40 C 40,140 152,240 96,340 C 40,440 152,540 96,640" />
                                 </svg>
                                 
                                 <div className="space-y-10 w-full px-8 relative">
                                     {[
-                                        { id: 1, label: 'ANCIENT CIVILIZATIONS', completed: histCompleted },
-                                        { id: 2, label: 'MIDDLE AGES OVERVIEW', completed: false },
-                                        { id: 3, label: 'INDUSTRIAL REVOLUTION', completed: false },
-                                        { id: 4, label: 'WORLD WARS STUDY', completed: false },
-                                        { id: 5, label: 'MODERN HISTORY ERA', completed: false }
-                                    ].map((lvl, idx) => {
-                                        const alignments = [
-                                            'justify-center translate-x-8',
-                                            'justify-center -translate-x-8',
-                                            'justify-center translate-x-4',
-                                            'justify-center translate-x-12',
-                                            'justify-center -translate-x-4'
-                                        ];
-                                        const align = alignments[idx % alignments.length];
-                                        
+                                        { id: 11, label: 'Ancient Civilizations', completed: histCompleted },
+                                        { id: 12, label: 'The Middle Ages', completed: false },
+                                        { id: 13, label: 'The Renaissance', completed: false },
+                                        { id: 14, label: 'Modern History', completed: false }
+                                    ].map((lvl, index) => {
+                                        const alignClass = index % 2 === 0 ? 'justify-start md:pl-24' : 'justify-end md:pr-24';
                                         return (
-                                            <div key={lvl.id} className={`flex w-full ${align} relative z-10 my-4`}>
-                                                <div className="flex flex-col items-center">
-                                                    {/* Star rewards */}
-                                                    <div className="flex gap-0.5 mb-1.5 justify-center">
-                                                        <Star size={10} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
-                                                        <Star size={12} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
-                                                        <Star size={10} className={lvl.id === 1 ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-700"} />
-                                                    </div>
-                                                    
-                                                    {/* Circle Button */}
+                                            <div key={lvl.id} className={`flex w-full ${alignClass} relative z-10`}>
+                                                <div className="flex flex-col items-center max-w-[150px]">
                                                     <button
                                                         onClick={() => {
-                                                            if (lvl.id === 1) {
+                                                            if (lvl.id === 11) {
                                                                 setActiveLevel(11);
+                                                            } else if (lvl.completed) {
+                                                                showToast(`Level ${lvl.id - 10} is already completed!`, "info");
                                                             } else {
-                                                                showToast(`Unlock level 1 "Ancient Civilizations" first!`, 'info');
+                                                                showToast(`Complete previous levels first!`, "error");
                                                             }
                                                         }}
-                                                        className={`w-14 h-14 rounded-full border-4 flex items-center justify-center text-lg font-black transition-all transform active:scale-95 shadow-md
-                                                            ${lvl.completed 
-                                                                ? 'bg-emerald-500 border-white text-white dark:border-zinc-800' 
-                                                                : lvl.id === 1 && !histCompleted
-                                                                    ? 'bg-orange-500 border-white text-white dark:border-zinc-800 animate-pulse'
-                                                                    : 'bg-white border-white text-zinc-400 dark:bg-zinc-800 dark:border-zinc-800'
-                                                            }`}
+                                                        className={`w-14 h-14 rounded-full border-4 shadow-lg flex items-center justify-center text-sm font-black transition-all active:scale-95 ${
+                                                            lvl.completed
+                                                                ? 'bg-emerald-500 border-emerald-300 text-white shadow-emerald-500/20'
+                                                                : lvl.id === 11
+                                                                    ? 'bg-orange-600 border-orange-400 text-white shadow-orange-600/30 animate-pulse'
+                                                                    : 'bg-white border-white text-zinc-450 dark:bg-zinc-800 dark:border-zinc-800'
+                                                        }`}
                                                     >
-                                                        {lvl.completed ? '✓' : lvl.id}
+                                                        {lvl.completed ? '✓' : lvl.id - 10}
                                                     </button>
                                                     
-                                                    {/* Level name label */}
-                                                    <span className="mt-2.5 px-3 py-1 bg-white/95 dark:bg-zinc-800/95 text-[9px] font-black text-orange-700 dark:text-orange-300 rounded-full border border-white/50 dark:border-zinc-700/50 tracking-wide shadow-sm max-w-[130px] text-center uppercase leading-none font-bold">
+                                                    <span className="mt-2.5 px-3 py-1 bg-white/95 dark:bg-zinc-800/95 text-[9px] font-black text-orange-755 dark:text-orange-300 rounded-full border border-white/50 dark:border-zinc-700/50 tracking-wide shadow-sm max-w-[130px] text-center uppercase leading-none font-bold">
                                                         {lvl.label}
                                                     </span>
                                                 </div>
@@ -4481,16 +4599,15 @@ const HomeView = ({
                                 </div>
                             </div>
                             
-                            {/* Bottom Hill decoration */}
                             <div className="relative w-full h-24 mt-auto z-10 overflow-hidden shrink-0">
                                 <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-orange-600/30 to-transparent blur-xl" />
-                                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[140%] h-24 bg-orange-50/10 dark:bg-orange-55/5 rounded-full border-t border-orange-405/20" />
+                                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[140%] h-24 bg-orange-50/10 dark:bg-orange-55/5 rounded-full border-t border-orange-400/20" />
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* 7. History Level 1 Ancient Civilizations Detail Overlay (Screen 3) */}
+                {/* 8. History Level 1 Detail Overlay */}
                 <AnimatePresence>
                     {activeAssignment === 'History' && activeLevel === 11 && (
                         <motion.div 
@@ -4500,11 +4617,10 @@ const HomeView = ({
                             transition={{ type: 'tween', duration: 0.3 }}
                             className="absolute inset-0 z-50 bg-[#f8fafc] dark:bg-zinc-950 flex flex-col font-sans overflow-y-auto pb-16"
                         >
-                            {/* Header */}
                             <div className="sticky top-0 z-30 flex justify-between items-center px-4 py-4 bg-[#f8fafc]/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-150 dark:border-zinc-800">
                                 <button 
                                     onClick={() => setActiveLevel(null)}
-                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
+                                    className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-305 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm"
                                 >
                                     <ArrowLeft size={18} />
                                 </button>
@@ -4512,16 +4628,15 @@ const HomeView = ({
                                     <h3 className="text-base font-black font-display text-slate-800 dark:text-white uppercase tracking-wider leading-none">
                                         Ancient Civilizations
                                     </h3>
-                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 block uppercase font-bold font-display">
+                                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-450 mt-1 block uppercase">
                                         Level 1
                                     </span>
                                 </div>
-                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-300 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
+                                <button className="w-10 h-10 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-zinc-700 dark:text-zinc-305 border border-white/20 dark:border-white/10 active:scale-95 transition-all shadow-sm">
                                     <Info size={18} />
                                 </button>
                             </div>
 
-                            {/* Video Cover Illustration */}
                             <div className="relative w-full h-[220px] bg-gradient-to-b from-[#fef5ec] to-[#f8fafc] dark:from-[#1a0e05] dark:to-zinc-950 flex items-center justify-center overflow-hidden shrink-0">
                                 <div className="absolute inset-0 pointer-events-none opacity-80 mix-blend-normal">
                                     <Image 
@@ -4532,32 +4647,28 @@ const HomeView = ({
                                     />
                                 </div>
                                 
-                                {/* Video Play circle indicator */}
                                 <div className="relative z-10 w-16 h-16 rounded-full bg-white/85 dark:bg-zinc-900/85 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30 hover:scale-105 active:scale-95 transition-transform cursor-pointer">
                                     <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[14px] border-l-orange-600 dark:border-l-orange-500 ml-1" />
                                 </div>
                             </div>
 
-                            {/* Details Text and Form Card */}
                             <div className="p-5 flex-1 flex flex-col justify-start">
-                                <h3 className="text-xl font-black text-slate-800 dark:text-white font-display text-center leading-tight mb-8 uppercase tracking-tight">
+                                <h3 className="text-xl font-black text-slate-850 dark:text-white font-display text-center leading-tight mb-8 uppercase tracking-tight">
                                     Read the chapter on Mesopotamia and Egypt, and submit your summary.
                                 </h3>
 
-                                {/* Upload Widget */}
                                 <div className="p-6 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex flex-col items-center justify-center text-center bg-zinc-50/50 dark:bg-zinc-900/10 mb-6 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer group">
                                     <Upload size={24} className="text-zinc-400 dark:text-zinc-500 mb-2 group-hover:scale-110 transition-transform" />
                                     <span className="block text-sm font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-wide font-display">
-                                        Upload Your Work
+                                        Upload Summary
                                     </span>
                                     <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 leading-normal font-bold">
                                         Add your work files to keep everything up to date.
                                     </span>
                                 </div>
 
-                                {/* Parent check warning widget */}
-                                <div className="p-4 bg-orange-50/70 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-3xl flex flex-col gap-1 mb-8 shrink-0">
-                                    <span className="text-[10px] font-black text-orange-750 dark:text-orange-400 uppercase tracking-widest leading-none font-bold">
+                                <div className="p-4 bg-orange-50/70 dark:bg-orange-955/20 border border-orange-100 dark:border-orange-900/30 rounded-3xl flex flex-col gap-1 mb-8 shrink-0">
+                                    <span className="text-[10px] font-black text-orange-755 dark:text-orange-400 uppercase tracking-widest leading-none font-bold">
                                         Parent Check Required
                                     </span>
                                     <p className="text-[11px] text-orange-700/95 dark:text-orange-300 font-bold leading-normal mt-0.5">
@@ -4565,7 +4676,6 @@ const HomeView = ({
                                     </p>
                                 </div>
 
-                                {/* Main Action CTA */}
                                 <button
                                     onClick={() => {
                                         setHistCompleted(true);
@@ -4580,108 +4690,6 @@ const HomeView = ({
                                 </button>
                             </div>
                         </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {/* Settings Controls Modal */}
-                <AnimatePresence>
-                    {showSettingsModal && (
-                        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in">
-                            <motion.div 
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute inset-0 bg-black/60 backdrop-blur-md" 
-                                onClick={() => setShowSettingsModal(false)}
-                            />
-                            
-                            <motion.div 
-                                initial={{ scale: 0.9, y: 20, opacity: 0 }}
-                                animate={{ scale: 1, y: 0, opacity: 1 }}
-                                exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                                className="relative z-10 w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800 rounded-[2rem] p-6 shadow-2xl overflow-hidden"
-                            >
-                                <div className="flex justify-between items-center mb-6">
-                                    <h3 className="text-lg font-black font-display text-zinc-900 dark:text-white uppercase tracking-wider font-bold">
-                                        System Controls
-                                    </h3>
-                                    <button 
-                                        onClick={() => setShowSettingsModal(false)}
-                                        className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:hover:text-white transition-colors"
-                                    >
-                                        <X size={16} />
-                                    </button>
-                                </div>
-                                
-                                <div className="space-y-5">
-                                    {/* Gamify toggle option */}
-                                    <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
-                                        <div className="space-y-0.5">
-                                            <span className="block text-sm font-bold text-zinc-900 dark:text-white">
-                                                Gamified Dashboard
-                                            </span>
-                                            <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">
-                                                Enable progress metrics & roadmaps
-                                            </span>
-                                        </div>
-                                        
-                                        <button
-                                            onClick={() => setGamify(!gamify)}
-                                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gamify ? 'bg-red-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}
-                                        >
-                                            <span
-                                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${gamify ? 'translate-x-5' : 'translate-x-0'}`}
-                                            />
-                                        </button>
-                                    </div>
-                                    
-                                    {/* Appearance theme toggle */}
-                                    <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
-                                        <div className="space-y-0.5">
-                                            <span className="block text-sm font-bold text-zinc-900 dark:text-white font-bold">
-                                                Core Dark Mode
-                                            </span>
-                                            <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">
-                                                Toggle light/dark appearance
-                                            </span>
-                                        </div>
-                                        
-                                        <button
-                                            onClick={() => {
-                                                const nextTheme = isDarkTheme ? 'light' : 'dark';
-                                                localStorage.setItem('dr-astro-theme', nextTheme);
-                                                if (nextTheme === 'dark') {
-                                                    document.documentElement.classList.add('dark');
-                                                    setIsDarkTheme(true);
-                                                } else {
-                                                    document.documentElement.classList.remove('dark');
-                                                    setIsDarkTheme(false);
-                                                }
-                                            }}
-                                            className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shadow-sm active:scale-95 transition-all"
-                                        >
-                                            {isDarkTheme ? <Sun size={18} /> : <Moon size={18} />}
-                                        </button>
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="space-y-2 pt-3 border-t border-zinc-150 dark:border-zinc-800">
-                                        <button
-                                            onClick={() => {
-                                                setGeoCompleted(false);
-                                                setHistCompleted(false);
-                                                showToast("Gamified progress reset to defaults.", "info");
-                                                setShowSettingsModal(false);
-                                            }}
-                                            className="w-full py-3 bg-zinc-100 dark:bg-zinc-850 hover:bg-zinc-200 dark:hover:bg-zinc-805 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
-                                        >
-                                            Reset Gamified Stats
-                                        </button>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </div>
                     )}
                 </AnimatePresence>
             </div>
@@ -7945,7 +7953,9 @@ const ProfileView = ({
     geoCompleted,
     setGeoCompleted,
     histCompleted,
-    setHistCompleted
+    setHistCompleted,
+    showSettingsModal,
+    setShowSettingsModal
 }: {
     user: AppUser,
     onLogout: () => void,
@@ -7969,7 +7979,9 @@ const ProfileView = ({
     geoCompleted: boolean,
     setGeoCompleted: (v: boolean) => void,
     histCompleted: boolean,
-    setHistCompleted: (v: boolean) => void
+    setHistCompleted: (v: boolean) => void,
+    showSettingsModal: boolean,
+    setShowSettingsModal: (v: boolean) => void
 }) => {
     const { minutes } = useStudyTime();
     const { recentIds } = useRecentlyViewed();
@@ -7983,22 +7995,8 @@ const ProfileView = ({
     const [librarySearch, setLibrarySearch] = useState('');
     const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
 
-    const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [activeAssignment, setActiveAssignment] = useState<string | null>(null);
     const [activeLevel, setActiveLevel] = useState<number | null>(null);
-
-    // Dynamic tracking of local theme to update styles
-    const [isDarkTheme, setIsDarkTheme] = useState(false);
-    useEffect(() => {
-        if (typeof document !== 'undefined') {
-            setIsDarkTheme(document.documentElement.classList.contains('dark'));
-        }
-        const observer = new MutationObserver(() => {
-            setIsDarkTheme(document.documentElement.classList.contains('dark'));
-        });
-        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-        return () => observer.disconnect();
-    }, []);
 
     useEffect(() => {
         if (activeAssignment && typeof document !== 'undefined') {
@@ -8543,130 +8541,6 @@ const ProfileView = ({
                                 </button>
                             </div>
                         </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {/* 6. Settings Modal */}
-                <AnimatePresence>
-                    {showSettingsModal && (
-                        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in">
-                            <motion.div 
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute inset-0 bg-black/60 backdrop-blur-md" 
-                                onClick={() => setShowSettingsModal(false)}
-                            />
-                            
-                            <motion.div 
-                                initial={{ scale: 0.9, y: 20, opacity: 0 }}
-                                animate={{ scale: 1, y: 0, opacity: 1 }}
-                                exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                                className="relative z-10 w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800 rounded-[2rem] p-6 shadow-2xl overflow-hidden"
-                            >
-                                <div className="flex justify-between items-center mb-6">
-                                    <h3 className="text-lg font-black font-display text-zinc-900 dark:text-white uppercase tracking-wider">
-                                        System Controls
-                                    </h3>
-                                    <button 
-                                        onClick={() => setShowSettingsModal(false)}
-                                        className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:hover:text-white transition-colors"
-                                    >
-                                        <X size={16} />
-                                    </button>
-                                </div>
-                                
-                                <div className="space-y-5">
-                                    {/* Gamify toggle option */}
-                                    <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
-                                        <div className="space-y-0.5">
-                                            <span className="block text-sm font-bold text-zinc-900 dark:text-white">
-                                                Gamified Dashboard
-                                            </span>
-                                            <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">
-                                                Enable progress metrics & roadmaps
-                                            </span>
-                                        </div>
-                                        
-                                        <button
-                                            onClick={() => setGamify(!gamify)}
-                                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gamify ? 'bg-red-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}
-                                        >
-                                            <span
-                                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${gamify ? 'translate-x-5' : 'translate-x-0'}`}
-                                            />
-                                        </button>
-                                    </div>
-                                    
-                                    {/* Appearance core theme toggle */}
-                                    <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
-                                        <div className="space-y-0.5">
-                                            <span className="block text-sm font-bold text-zinc-900 dark:text-white">
-                                                Core Dark Mode
-                                            </span>
-                                            <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">
-                                                Toggle light/dark appearance
-                                            </span>
-                                        </div>
-                                        
-                                        <button
-                                            onClick={() => {
-                                                const nextTheme = isDarkTheme ? 'light' : 'dark';
-                                                localStorage.setItem('dr-astro-theme', nextTheme);
-                                                if (nextTheme === 'dark') {
-                                                    document.documentElement.classList.add('dark');
-                                                    setIsDarkTheme(true);
-                                                } else {
-                                                    document.documentElement.classList.remove('dark');
-                                                    setIsDarkTheme(false);
-                                                }
-                                            }}
-                                            className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shadow-sm active:scale-95 transition-all"
-                                        >
-                                            {isDarkTheme ? <Sun size={18} /> : <Moon size={18} />}
-                                        </button>
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-                                        <button
-                                            onClick={() => {
-                                                setGeoCompleted(false);
-                                                setHistCompleted(false);
-                                                localStorage.setItem('dr-astro-geo-completed', 'false');
-                                                localStorage.setItem('dr-astro-hist-completed', 'false');
-                                                showToast("Gamified progress reset to defaults.", "info");
-                                                setShowSettingsModal(false);
-                                            }}
-                                            className="w-full py-3 bg-zinc-100 dark:bg-zinc-850 hover:bg-zinc-200 dark:hover:bg-zinc-805 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
-                                        >
-                                            Reset Gamified Stats
-                                        </button>
-                                        
-                                        <button
-                                            onClick={() => {
-                                                setShowSettingsModal(false);
-                                                setIsEditing(true);
-                                            }}
-                                            className="w-full py-3 bg-zinc-100 dark:bg-zinc-850 hover:bg-zinc-200 dark:hover:bg-zinc-805 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
-                                        >
-                                            Edit Student Profile
-                                        </button>
-                                        
-                                        <button
-                                            onClick={() => {
-                                                setShowSettingsModal(false);
-                                                onLogout();
-                                            }}
-                                            className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-md shadow-red-600/10"
-                                        >
-                                            Sign Out of System
-                                        </button>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </div>
                     )}
                 </AnimatePresence>
             </div>
@@ -9400,130 +9274,6 @@ const ProfileView = ({
                 )}
             </div>
         )}
-
-        {/* Settings Modal (available in non-gamified view too) */}
-        <AnimatePresence>
-            {showSettingsModal && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-                    <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-md" 
-                        onClick={() => setShowSettingsModal(false)}
-                    />
-                    
-                    <motion.div 
-                        initial={{ scale: 0.9, y: 20, opacity: 0 }}
-                        animate={{ scale: 1, y: 0, opacity: 1 }}
-                        exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                        className="relative z-10 w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800 rounded-[2rem] p-6 shadow-2xl overflow-hidden"
-                    >
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-black font-display text-zinc-900 dark:text-white uppercase tracking-wider">
-                                System Controls
-                            </h3>
-                            <button 
-                                onClick={() => setShowSettingsModal(false)}
-                                className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:hover:text-white transition-colors"
-                            >
-                                <X size={16} />
-                            </button>
-                        </div>
-                        
-                        <div className="space-y-5">
-                            {/* Gamify toggle option */}
-                            <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
-                                <div className="space-y-0.5">
-                                    <span className="block text-sm font-bold text-zinc-900 dark:text-white">
-                                        Gamified Dashboard
-                                    </span>
-                                    <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">
-                                        Enable progress metrics & roadmaps
-                                    </span>
-                                </div>
-                                
-                                <button
-                                    onClick={() => setGamify(!gamify)}
-                                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gamify ? 'bg-red-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}
-                                >
-                                    <span
-                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${gamify ? 'translate-x-5' : 'translate-x-0'}`}
-                                    />
-                                </button>
-                            </div>
-                            
-                            {/* Appearance core theme toggle */}
-                            <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
-                                <div className="space-y-0.5">
-                                    <span className="block text-sm font-bold text-zinc-900 dark:text-white">
-                                        Core Dark Mode
-                                    </span>
-                                    <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">
-                                        Toggle light/dark appearance
-                                    </span>
-                                </div>
-                                
-                                <button
-                                    onClick={() => {
-                                        const nextTheme = isDarkTheme ? 'light' : 'dark';
-                                        localStorage.setItem('dr-astro-theme', nextTheme);
-                                        if (nextTheme === 'dark') {
-                                            document.documentElement.classList.add('dark');
-                                            setIsDarkTheme(true);
-                                        } else {
-                                            document.documentElement.classList.remove('dark');
-                                            setIsDarkTheme(false);
-                                        }
-                                    }}
-                                    className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shadow-sm active:scale-95 transition-all"
-                                >
-                                    {isDarkTheme ? <Sun size={18} /> : <Moon size={18} />}
-                                </button>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-                                <button
-                                    onClick={() => {
-                                        setGeoCompleted(false);
-                                        setHistCompleted(false);
-                                        localStorage.setItem('dr-astro-geo-completed', 'false');
-                                        localStorage.setItem('dr-astro-hist-completed', 'false');
-                                        showToast("Gamified progress reset to defaults.", "info");
-                                        setShowSettingsModal(false);
-                                    }}
-                                    className="w-full py-3 bg-zinc-100 dark:bg-zinc-850 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
-                                >
-                                    Reset Gamified Stats
-                                </button>
-                                
-                                <button
-                                    onClick={() => {
-                                        setShowSettingsModal(false);
-                                        setIsEditing(true);
-                                    }}
-                                    className="w-full py-3 bg-zinc-100 dark:bg-zinc-850 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
-                                >
-                                    Edit Student Profile
-                                </button>
-                                
-                                <button
-                                    onClick={() => {
-                                        setShowSettingsModal(false);
-                                        onLogout();
-                                    }}
-                                    className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-md shadow-red-600/10"
-                                >
-                                    Sign Out of System
-                                </button>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
-        </AnimatePresence>
         </div>
     );
 };
@@ -9927,6 +9677,18 @@ export default function DrAstroApp() {
     const [isTimerRunning, setIsTimerRunning] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+    // Hoisted Settings Controls States
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [isProfileEditing, setIsProfileEditing] = useState(false);
+    const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
+    const [settingsTab, setSettingsTab] = useState<'controls' | 'history'>('controls');
+
+    useEffect(() => {
+        if (!showSettingsModal) {
+            setSettingsTab('controls');
+        }
+    }, [showSettingsModal]);
+
     // Lifted State for Gamified Dashboard
     const [gamify, setGamify] = useState<boolean>(() => {
         if (typeof window !== 'undefined') {
@@ -9979,6 +9741,25 @@ export default function DrAstroApp() {
             document.documentElement.classList.remove('dark');
         }
     }, []);
+
+    // Real-time listener for admin audit logs (History) at root level
+    useEffect(() => {
+        if (currentUser?.role !== 'admin') return;
+        const auditCol = collection(db, 'admin-audit');
+        const q = query(auditCol, limit(100));
+        const unsubscribeLogs = onSnapshot(q, (snap) => {
+            const logs: AdminAuditLog[] = [];
+            snap.forEach(docSnap => {
+                logs.push({ id: docSnap.id, ...docSnap.data() } as AdminAuditLog);
+            });
+            logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            setAuditLogs(logs);
+        }, (error) => {
+            console.error("Real-time audit log sync error at root:", error);
+        });
+
+        return () => unsubscribeLogs();
+    }, [currentUser]);
 
     const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
         setToast({ message, type });
@@ -10203,10 +9984,10 @@ export default function DrAstroApp() {
     };
 
     const { data: subjectsData, error: swrError, mutate: mutateSubjects } = useSWR('subjects-v2', fetchSubjects, {
-        revalidateOnFocus: false,     // Disable auto-revalidation on window focus since onSnapshot is active
-        revalidateOnReconnect: true,  // Keep reconnection sync active
-        dedupingInterval: 5000,
-        refreshInterval: 0,           // Disable polling to prevent race conditions
+        revalidateOnFocus: true,     
+        revalidateOnReconnect: true,  
+        dedupingInterval: 1000,
+        refreshInterval: 3000,
     });
 
     useEffect(() => {
@@ -11349,6 +11130,7 @@ export default function DrAstroApp() {
                         userAvatar={currentUser?.avatarUrl} 
                         isFocusMode={isFocusMode}
                         toggleFocusMode={toggleFocusMode}
+                        setShowSettingsModal={setShowSettingsModal}
                     />
 
                     {/* Mandatory Profile Setup Enforcement Overlay */}
@@ -11386,6 +11168,8 @@ export default function DrAstroApp() {
                                 histCompleted={histCompleted}
                                 setHistCompleted={setHistCompleted}
                                 showToast={showToast}
+                                showSettingsModal={showSettingsModal}
+                                setShowSettingsModal={setShowSettingsModal}
                             />
                         )}
 
@@ -11431,6 +11215,8 @@ export default function DrAstroApp() {
                                 setGeoCompleted={setGeoCompleted}
                                 histCompleted={histCompleted}
                                 setHistCompleted={setHistCompleted}
+                                showSettingsModal={showSettingsModal}
+                                setShowSettingsModal={setShowSettingsModal}
                             />
                         )}
 
@@ -11447,7 +11233,7 @@ export default function DrAstroApp() {
                         )}
 
                         {view === 'SUBJECT_DETAIL' && activeSubject && (
-                            <div className="pt-2 md:pt-6 w-full max-w-full overflow-x-hidden">
+                            <div className="pt-24 md:pt-28 w-full max-w-full overflow-x-hidden">
                                 <SubjectDetailView
                                     subjectId={activeSubject}
                                     subjects={subjects}
@@ -11473,7 +11259,7 @@ export default function DrAstroApp() {
                         )}
 
                         {view === 'EXAM_SUBJECT_DETAIL' && activeSubject && (
-                            <div className="pt-2 md:pt-6 w-full max-w-full overflow-x-hidden">
+                            <div className="pt-24 md:pt-28 w-full max-w-full overflow-x-hidden">
                                 <ExamSubjectDetailView
                                     subjectId={activeSubject}
                                     subjects={subjects}
@@ -11499,7 +11285,7 @@ export default function DrAstroApp() {
                         )}
 
                         {view === 'PRACTICAL_SUBJECT_DETAIL' && activeSubject && (
-                            <div className="pt-2 md:pt-6 w-full max-w-full overflow-x-hidden">
+                            <div className="pt-24 md:pt-28 w-full max-w-full overflow-x-hidden">
                                 <PracticalSubjectDetailView
                                     subjectId={activeSubject}
                                     subjects={subjects}
@@ -11923,6 +11709,235 @@ export default function DrAstroApp() {
                             })}
                         </div>
                     </div>
+
+                    {/* ── UNIFIED SYSTEM SETTINGS MODAL (Root-level for correct viewport centering) ── */}
+                    <AnimatePresence>
+                        {showSettingsModal && currentUser && (
+                            <div className="fixed inset-0 z-[9999] pointer-events-auto flex items-center justify-center p-4">
+                                {/* Backdrop */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="fixed inset-0 bg-black/50 backdrop-blur-md z-[9998]"
+                                    onClick={() => setShowSettingsModal(false)}
+                                />
+
+                                {/* Modal Panel */}
+                                <motion.div
+                                    initial={{ scale: 0.92, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.92, opacity: 0 }}
+                                    transition={{ type: 'spring', damping: 26, stiffness: 360 }}
+                                    className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/80 rounded-[2rem] shadow-[0_30px_80px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[85vh]"
+                                >
+                                    {/* Modal Header */}
+                                    <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-xl bg-red-600/10 flex items-center justify-center">
+                                                <Settings size={16} className="text-red-500" />
+                                            </div>
+                                            <h3 className="text-base font-black font-display text-zinc-900 dark:text-white uppercase tracking-wider">
+                                                System Controls
+                                            </h3>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowSettingsModal(false)}
+                                            className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:hover:text-white transition-colors active:scale-90"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+
+                                    {/* Tab Bar (show Admin History tab only for admins) */}
+                                    <div className="flex items-center gap-1 px-6 pb-4 shrink-0">
+                                        <button
+                                            onClick={() => setSettingsTab('controls')}
+                                            className={`flex-1 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${settingsTab === 'controls' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'}`}
+                                        >
+                                            Settings
+                                        </button>
+                                        {currentUser.role === 'admin' && (
+                                            <button
+                                                onClick={() => setSettingsTab('history')}
+                                                className={`flex-1 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${settingsTab === 'history' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'}`}
+                                            >
+                                                Admin History
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Settings Tab */}
+                                    {settingsTab === 'controls' && (
+                                        <div className="overflow-y-auto px-6 pb-6 space-y-4 flex-1 custom-scrollbar">
+                                            {/* Gamify Toggle */}
+                                            <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
+                                                <div className="space-y-0.5">
+                                                    <span className="block text-sm font-bold text-zinc-900 dark:text-white">Gamified Dashboard</span>
+                                                    <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">Enable progress metrics & roadmaps</span>
+                                                </div>
+                                                <button
+                                                    onClick={() => setGamify(!gamify)}
+                                                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gamify ? 'bg-red-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+                                                >
+                                                    <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${gamify ? 'translate-x-5' : 'translate-x-0'}`} />
+                                                </button>
+                                            </div>
+
+                                            {/* Dark Mode Toggle */}
+                                            <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
+                                                <div className="space-y-0.5">
+                                                    <span className="block text-sm font-bold text-zinc-900 dark:text-white">Core Dark Mode</span>
+                                                    <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">Toggle light/dark appearance</span>
+                                                </div>
+                                                <button
+                                                    onClick={() => {
+                                                        const isDark = document.documentElement.classList.contains('dark');
+                                                        const next = isDark ? 'light' : 'dark';
+                                                        localStorage.setItem('dr-astro-theme', next);
+                                                        if (next === 'dark') document.documentElement.classList.add('dark');
+                                                        else document.documentElement.classList.remove('dark');
+                                                        setTheme(next as 'light' | 'dark');
+                                                    }}
+                                                    className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shadow-sm active:scale-95 transition-all"
+                                                >
+                                                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                                                </button>
+                                            </div>
+
+                                            {/* File Access History */}
+                                            {(() => {
+                                                const recentBooksLocal: { book: Book, sId: string, secId: string }[] = [];
+                                                Object.entries(subjects).forEach(([sId, sub]) => {
+                                                    Object.entries(sub.materials || {}).forEach(([secId, rawBooks]) => {
+                                                        const books = rawBooks as Book[];
+                                                        if (Array.isArray(books)) {
+                                                            books.forEach(b => {
+                                                                if (!recentBooksLocal.find(r => r.book.id === b.id)) {
+                                                                    recentBooksLocal.push({ book: b, sId, secId });
+                                                                }
+                                                            });
+                                                        }
+                                                    });
+                                                });
+                                                const topRecent = recentBooksLocal.slice(0, 5);
+                                                if (topRecent.length === 0) return null;
+                                                return (
+                                                    <div className="space-y-2">
+                                                        <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block px-1">Recent Files</span>
+                                                        <div className="space-y-2 max-h-40 overflow-y-auto no-scrollbar">
+                                                            {topRecent.map(({ book }) => (
+                                                                <button
+                                                                    key={book.id}
+                                                                    onClick={() => { handleBookClick(book); setShowSettingsModal(false); }}
+                                                                    className="w-full text-left flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-xl hover:border-red-500/30 transition-all group"
+                                                                >
+                                                                    <div className="w-8 h-8 rounded-lg bg-red-600/10 flex items-center justify-center shrink-0">
+                                                                        <BookOpen size={14} className="text-red-500" />
+                                                                    </div>
+                                                                    <div className="min-w-0 flex-1">
+                                                                        <p className="text-xs font-bold text-zinc-900 dark:text-white truncate group-hover:text-red-500 transition-colors">{book.title}</p>
+                                                                        <p className="text-[10px] text-zinc-400 truncate">{book.author}</p>
+                                                                    </div>
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+
+                                            {/* Actions */}
+                                            <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                                                <button
+                                                    onClick={() => {
+                                                        setGeoCompleted(false);
+                                                        setHistCompleted(false);
+                                                        localStorage.setItem('dr-astro-geo-completed', 'false');
+                                                        localStorage.setItem('dr-astro-hist-completed', 'false');
+                                                        showToast("Gamified progress reset to defaults.", "info");
+                                                        setShowSettingsModal(false);
+                                                    }}
+                                                    className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
+                                                >
+                                                    Reset Gamified Stats
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowSettingsModal(false);
+                                                        navigate('PROFILE');
+                                                    }}
+                                                    className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
+                                                >
+                                                    Edit Student Profile
+                                                </button>
+                                                <button
+                                                    onClick={() => { setShowSettingsModal(false); handleLogout(); }}
+                                                    className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-md shadow-red-600/20"
+                                                >
+                                                    Sign Out of System
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Admin History Tab */}
+                                    {settingsTab === 'history' && currentUser.role === 'admin' && (
+                                        <div className="overflow-y-auto px-6 pb-6 flex-1 custom-scrollbar">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+                                                    {auditLogs.length} Action{auditLogs.length !== 1 ? 's' : ''} Logged
+                                                </span>
+                                                <span className="text-[9px] font-bold text-emerald-500 flex items-center gap-1">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+                                                    LIVE SYNC
+                                                </span>
+                                            </div>
+                                            {auditLogs.length === 0 ? (
+                                                <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800">
+                                                    <Activity size={24} className="text-zinc-300 dark:text-zinc-600" />
+                                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">No Actions Recorded</p>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    {auditLogs.map((log) => (
+                                                        <div key={log.id} className="p-4 bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl space-y-2.5 hover:border-red-500/20 transition-colors">
+                                                            <div className="flex items-start justify-between gap-2">
+                                                                <div className="flex-1 min-w-0">
+                                                                    <span className={`inline-block text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest mb-1.5 ${
+                                                                        log.action === 'revert_action' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                                                        log.action.startsWith('book_') ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
+                                                                        log.action.startsWith('section_') ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
+                                                                        'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20'
+                                                                    }`}>
+                                                                        {log.action.replace(/_/g, ' ')}
+                                                                    </span>
+                                                                    <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-tight">{log.details}</p>
+                                                                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                                                        <span className="text-[9px] text-zinc-400 font-mono">{log.adminEmail}</span>
+                                                                        <span className="text-[9px] text-zinc-400">·</span>
+                                                                        <span className="text-[9px] text-zinc-400">{new Date(log.timestamp).toLocaleString()}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {log.action !== 'revert_action' && (
+                                                                <button
+                                                                    onClick={() => handleRevertAction(log)}
+                                                                    className="w-full py-2 flex items-center justify-center gap-1.5 bg-red-600/10 hover:bg-red-600 border border-red-500/20 hover:border-red-600 text-red-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 group"
+                                                                >
+                                                                    <RefreshCw size={11} className="group-hover:animate-spin" />
+                                                                    Revert Action
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </div>
+                        )}
+                    </AnimatePresence>
 
                     <InstallPrompt />
                     <AIChat currentView={view} subjects={subjects} />

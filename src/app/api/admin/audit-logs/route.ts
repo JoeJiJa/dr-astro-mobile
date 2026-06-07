@@ -5,6 +5,9 @@ export const dynamic = 'force-static';
 
 export async function GET() {
     try {
+        if (!process.env.MONGODB_URI) {
+            return NextResponse.json([]);
+        }
         const { db } = await connectToDatabase();
         const logs = await db.collection('admin-audit')
             .find({})
