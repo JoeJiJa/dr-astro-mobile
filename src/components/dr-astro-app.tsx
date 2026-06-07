@@ -4179,8 +4179,50 @@ const HomeView = ({
         return (
             <div className="w-full max-w-6xl mx-auto min-h-screen bg-zinc-950 text-white pb-32 overflow-x-hidden relative flex flex-col shadow-2xl rounded-none md:rounded-[3rem] border border-white/5 pt-24 md:pt-32 animate-view-transition">
                 
+                {/* ── CINEMATIC CONSOLE BACKDROP ── */}
+                {/* Mouse-Parallax Nebula & Stars */}
+                <div 
+                    className="absolute inset-0 pointer-events-none overflow-hidden z-0"
+                    style={{
+                        transform: `translate(${mousePos.x * 0.4}px, ${mousePos.y * 0.4}px)`,
+                        transition: 'transform 0.1s ease-out'
+                    }}
+                >
+                    {/* Glowing Nebula Blobs */}
+                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.12),transparent_70%)] blur-[80px]" />
+                    <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.08),transparent_70%)] blur-[80px]" />
+                    
+                    {/* Star Field Particles */}
+                    <div className="absolute top-[15%] left-[25%] w-1 h-1 bg-white rounded-full opacity-60 animate-pulse" />
+                    <div className="absolute top-[40%] left-[80%] w-1.5 h-1.5 bg-orange-400 rounded-full opacity-40 animate-pulse" style={{ animationDelay: '1s' }} />
+                    <div className="absolute top-[75%] left-[15%] w-1 h-1 bg-red-400 rounded-full opacity-50 animate-pulse" style={{ animationDelay: '2s' }} />
+                    <div className="absolute top-[60%] left-[65%] w-1.5 h-1.5 bg-white rounded-full opacity-30 animate-pulse" style={{ animationDelay: '1.5s' }} />
+                </div>
+
+                {/* Swirling SVG EKG Data Streams */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-20">
+                    <svg className="w-full h-full text-red-500/[0.04]" xmlns="http://www.w3.org/2000/svg">
+                        <path 
+                            d="M -100 400 L 100 400 L 120 380 L 140 420 L 160 350 L 180 450 L 200 400 L 400 400 L 420 380 L 440 420 L 460 350 L 480 450 L 500 400 L 800 400 L 820 380 L 840 420 L 860 350 L 880 450 L 900 400 L 1200 400" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="1.5" 
+                            strokeDasharray="20 10" 
+                            className="animate-ekg-flow-1"
+                        />
+                        <path 
+                            d="M -100 650 L 200 650 L 220 630 L 240 670 L 260 600 L 280 700 L 300 650 L 600 650 L 620 630 L 640 670 L 660 600 L 680 700 L 700 650 L 1000 650 L 1020 630 L 1040 670 L 1060 600 L 1080 700 L 1100 650 L 1300 650" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="1" 
+                            strokeDasharray="15 8" 
+                            className="animate-ekg-flow-2 opacity-50"
+                        />
+                    </svg>
+                </div>
+
                 {/* 1. Cinematic Greeting HUD Header */}
-                <div className="relative w-full rounded-[2.5rem] p-8 md:p-12 overflow-hidden border border-white/10 bg-gradient-to-r from-red-955/10 via-zinc-900/60 to-orange-955/10 shadow-2xl mb-8 relative group/hero">
+                <div className="relative w-full rounded-[2.5rem] p-8 md:p-12 overflow-hidden border border-white/10 bg-gradient-to-r from-red-955/10 via-zinc-900/60 to-orange-955/10 shadow-2xl mb-8 group/hero z-10">
                     {/* Pulsing Neon Scanning Line */}
                     <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
                         <div className="w-full h-1 bg-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.8)] animate-scan" />
@@ -4211,6 +4253,11 @@ const HomeView = ({
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
                                         COGNITIVE ENGINE STABLE
                                     </span>
+                                    {/* Glow Score Fire Badge */}
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full text-[9px] font-black text-orange-400 uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(249,115,22,0.15)] select-none">
+                                        <span>🔥</span>
+                                        <span>Glow Score: {streak || 543}</span>
+                                    </div>
                                 </div>
                                 <h1 className="text-4xl md:text-6xl font-black font-display tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-300 uppercase">
                                     Dr. {formatName(user.name)}
@@ -4386,10 +4433,7 @@ const HomeView = ({
                                 <div 
                                     key={book.id}
                                     onClick={() => onBookClick(book)}
-                                    className="flex flex-col justify-between p-5 bg-zinc-900/40 border border-white/5 hover:border-red-500/35 rounded-3xl min-w-[200px] max-w-[200px] h-[160px] shrink-0 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-red-600/10 active:scale-[0.98] group relative overflow-hidden card-3d"
-                                    style={{
-                                        transformStyle: 'preserve-3d',
-                                    }}
+                                    className="flex flex-col justify-between p-5 bg-white/[0.03] dark:bg-black/45 backdrop-blur-md border border-white/10 hover:border-red-500/35 rounded-3xl min-w-[200px] max-w-[200px] h-[160px] shrink-0 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-red-600/10 active:scale-[0.98] group relative overflow-hidden card-3d-deck"
                                 >
                                     {/* Neon Red/Blue accent bar at the top */}
                                     <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-600 to-orange-500 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -4401,7 +4445,7 @@ const HomeView = ({
                                         <div className="w-10 h-10 rounded-2xl bg-zinc-950/60 border border-white/10 flex items-center justify-center text-red-500 shrink-0 shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all">
                                             <BookOpen size={16} />
                                         </div>
-                                        <span className="text-[7px] font-black px-2 py-0.5 rounded bg-white/5 border border-white/10 uppercase tracking-widest text-zinc-450">
+                                        <span className="text-[7px] font-black px-2 py-0.5 rounded bg-white/5 border border-white/10 uppercase tracking-widest text-zinc-400">
                                             {book.type || 'textbook'}
                                         </span>
                                     </div>
@@ -4410,7 +4454,7 @@ const HomeView = ({
                                         <h4 className="font-black text-white text-xs truncate leading-tight uppercase tracking-tight font-display group-hover:text-red-400 transition-colors">
                                             {book.title}
                                         </h4>
-                                        <p className="text-[9px] text-zinc-505 truncate">By {book.author}</p>
+                                        <p className="text-[9px] text-zinc-500 truncate">By {book.author}</p>
                                     </div>
                                 </div>
                             ))}
@@ -9800,7 +9844,7 @@ export default function DrAstroApp() {
     const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [isProfileEditing, setIsProfileEditing] = useState(false);
     const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
-    const [settingsTab, setSettingsTab] = useState<'controls' | 'history'>('controls');
+    const [settingsTab, setSettingsTab] = useState<'controls' | 'notifications' | 'history'>('controls');
 
     useEffect(() => {
         if (!showSettingsModal) {
@@ -11942,231 +11986,316 @@ export default function DrAstroApp() {
 
                     {/* ── UNIFIED SYSTEM SETTINGS MODAL (Root-level for correct viewport centering) ── */}
                     <AnimatePresence>
-                        {showSettingsModal && currentUser && (
-                            <div className="fixed inset-0 z-[9999] pointer-events-auto flex items-center justify-center p-4">
-                                {/* Backdrop */}
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="fixed inset-0 bg-black/50 backdrop-blur-md z-[9998]"
-                                    onClick={() => setShowSettingsModal(false)}
-                                />
+                        {showSettingsModal && currentUser && (() => {
+                            const formatTimeAgoInModal = (isoString: string) => {
+                                const date = new Date(isoString);
+                                const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+                                if (seconds < 5) return 'Just now';
+                                if (seconds < 60) return `${seconds}s ago`;
+                                const minutes = Math.floor(seconds / 60);
+                                if (minutes < 60) return `${minutes}m ago`;
+                                const hours = Math.floor(minutes / 60);
+                                if (hours < 24) return `${hours}h ago`;
+                                const days = Math.floor(hours / 24);
+                                return `${days}d ago`;
+                            };
+                            return (
+                                <div className="fixed inset-0 z-[9999] pointer-events-auto flex items-center justify-center p-4">
+                                    {/* Backdrop */}
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="fixed inset-0 bg-black/50 backdrop-blur-md z-[9998]"
+                                        onClick={() => setShowSettingsModal(false)}
+                                    />
 
-                                {/* Modal Panel */}
-                                <motion.div
-                                    initial={{ scale: 0.92, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    exit={{ scale: 0.92, opacity: 0 }}
-                                    transition={{ type: 'spring', damping: 26, stiffness: 360 }}
-                                    className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/80 rounded-[2rem] shadow-[0_30px_80px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[85vh]"
-                                >
-                                    {/* Modal Header */}
-                                    <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-xl bg-red-600/10 flex items-center justify-center">
-                                                <Settings size={16} className="text-red-500" />
+                                    {/* Modal Panel */}
+                                    <motion.div
+                                        initial={{ scale: 0.92, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0.92, opacity: 0 }}
+                                        transition={{ type: 'spring', damping: 26, stiffness: 360 }}
+                                        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/80 rounded-[2rem] shadow-[0_30px_80px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[85vh]"
+                                    >
+                                        {/* Modal Header */}
+                                        <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 rounded-xl bg-red-600/10 flex items-center justify-center">
+                                                    <Settings size={16} className="text-red-500" />
+                                                </div>
+                                                <h3 className="text-base font-black font-display text-zinc-900 dark:text-white uppercase tracking-wider">
+                                                    System Controls
+                                                </h3>
                                             </div>
-                                            <h3 className="text-base font-black font-display text-zinc-900 dark:text-white uppercase tracking-wider">
-                                                System Controls
-                                            </h3>
+                                            <button
+                                                onClick={() => setShowSettingsModal(false)}
+                                                className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:hover:text-white transition-colors active:scale-90"
+                                            >
+                                                <X size={16} />
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={() => setShowSettingsModal(false)}
-                                            className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:hover:text-white transition-colors active:scale-90"
-                                        >
-                                            <X size={16} />
-                                        </button>
-                                    </div>
 
-                                    {/* Tab Bar (show Admin History tab only for admins) */}
-                                    <div className="flex items-center gap-1 px-6 pb-4 shrink-0">
-                                        <button
-                                            onClick={() => setSettingsTab('controls')}
-                                            className={`flex-1 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${settingsTab === 'controls' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'}`}
-                                        >
-                                            Settings
-                                        </button>
-                                        {currentUser.role === 'admin' && (
+                                        {/* Tab Bar — Settings, Notifications, Admin Log (All visible for clarity) */}
+                                        <div className="flex items-center gap-1 px-6 pb-4 shrink-0">
+                                            <button
+                                                onClick={() => setSettingsTab('controls')}
+                                                className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${settingsTab === 'controls' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'}`}
+                                            >
+                                                Settings
+                                            </button>
+                                            <button
+                                                onClick={() => setSettingsTab('notifications')}
+                                                className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all relative ${settingsTab === 'notifications' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'}`}
+                                            >
+                                                Notifications
+                                                {auditLogs.length > 0 && (
+                                                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white border border-white">
+                                                        {auditLogs.length}
+                                                    </span>
+                                                )}
+                                            </button>
                                             <button
                                                 onClick={() => setSettingsTab('history')}
-                                                className={`flex-1 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${settingsTab === 'history' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'}`}
+                                                className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${settingsTab === 'history' ? 'bg-red-600 text-white shadow-md shadow-red-600/20' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'}`}
                                             >
-                                                Admin History
+                                                Admin Log
                                             </button>
-                                        )}
-                                    </div>
-
-                                    {/* Settings Tab */}
-                                    {settingsTab === 'controls' && (
-                                        <div className="overflow-y-auto px-6 pb-6 space-y-4 flex-1 custom-scrollbar">
-                                            {/* Gamify Toggle */}
-                                            <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
-                                                <div className="space-y-0.5">
-                                                    <span className="block text-sm font-bold text-zinc-900 dark:text-white">Gamified Dashboard</span>
-                                                    <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">Enable progress metrics & roadmaps</span>
-                                                </div>
-                                                <button
-                                                    onClick={() => setGamify(!gamify)}
-                                                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gamify ? 'bg-red-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}
-                                                >
-                                                    <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${gamify ? 'translate-x-5' : 'translate-x-0'}`} />
-                                                </button>
-                                            </div>
-
-                                            {/* Dark Mode Toggle */}
-                                            <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
-                                                <div className="space-y-0.5">
-                                                    <span className="block text-sm font-bold text-zinc-900 dark:text-white">Core Dark Mode</span>
-                                                    <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">Toggle light/dark appearance</span>
-                                                </div>
-                                                <button
-                                                    onClick={() => {
-                                                        const isDark = document.documentElement.classList.contains('dark');
-                                                        const next = isDark ? 'light' : 'dark';
-                                                        localStorage.setItem('dr-astro-theme', next);
-                                                        if (next === 'dark') document.documentElement.classList.add('dark');
-                                                        else document.documentElement.classList.remove('dark');
-                                                        setTheme(next as 'light' | 'dark');
-                                                    }}
-                                                    className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shadow-sm active:scale-95 transition-all"
-                                                >
-                                                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                                                </button>
-                                            </div>
-
-                                            {/* File Access History */}
-                                            {(() => {
-                                                const recentBooksLocal: { book: Book, sId: string, secId: string }[] = [];
-                                                Object.entries(subjects).forEach(([sId, sub]) => {
-                                                    Object.entries(sub.materials || {}).forEach(([secId, rawBooks]) => {
-                                                        const books = rawBooks as Book[];
-                                                        if (Array.isArray(books)) {
-                                                            books.forEach(b => {
-                                                                if (!recentBooksLocal.find(r => r.book.id === b.id)) {
-                                                                    recentBooksLocal.push({ book: b, sId, secId });
-                                                                }
-                                                            });
-                                                        }
-                                                    });
-                                                });
-                                                const topRecent = recentBooksLocal.slice(0, 5);
-                                                if (topRecent.length === 0) return null;
-                                                return (
-                                                    <div className="space-y-2">
-                                                        <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block px-1">Recent Files</span>
-                                                        <div className="space-y-2 max-h-40 overflow-y-auto no-scrollbar">
-                                                            {topRecent.map(({ book }) => (
-                                                                <button
-                                                                    key={book.id}
-                                                                    onClick={() => { handleBookClick(book); setShowSettingsModal(false); }}
-                                                                    className="w-full text-left flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-xl hover:border-red-500/30 transition-all group"
-                                                                >
-                                                                    <div className="w-8 h-8 rounded-lg bg-red-600/10 flex items-center justify-center shrink-0">
-                                                                        <BookOpen size={14} className="text-red-500" />
-                                                                    </div>
-                                                                    <div className="min-w-0 flex-1">
-                                                                        <p className="text-xs font-bold text-zinc-900 dark:text-white truncate group-hover:text-red-500 transition-colors">{book.title}</p>
-                                                                        <p className="text-[10px] text-zinc-400 truncate">{book.author}</p>
-                                                                    </div>
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })()}
-
-                                            {/* Actions */}
-                                            <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                                                <button
-                                                    onClick={() => {
-                                                        setGeoCompleted(false);
-                                                        setHistCompleted(false);
-                                                        localStorage.setItem('dr-astro-geo-completed', 'false');
-                                                        localStorage.setItem('dr-astro-hist-completed', 'false');
-                                                        showToast("Gamified progress reset to defaults.", "info");
-                                                        setShowSettingsModal(false);
-                                                    }}
-                                                    className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
-                                                >
-                                                    Reset Gamified Stats
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        setShowSettingsModal(false);
-                                                        navigate('PROFILE');
-                                                    }}
-                                                    className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
-                                                >
-                                                    Edit Student Profile
-                                                </button>
-                                                <button
-                                                    onClick={() => { setShowSettingsModal(false); handleLogout(); }}
-                                                    className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-md shadow-red-600/20"
-                                                >
-                                                    Sign Out of System
-                                                </button>
-                                            </div>
                                         </div>
-                                    )}
 
-                                    {/* Admin History Tab */}
-                                    {settingsTab === 'history' && currentUser.role === 'admin' && (
-                                        <div className="overflow-y-auto px-6 pb-6 flex-1 custom-scrollbar">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
-                                                    {auditLogs.length} Action{auditLogs.length !== 1 ? 's' : ''} Logged
-                                                </span>
-                                                <span className="text-[9px] font-bold text-emerald-500 flex items-center gap-1">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
-                                                    LIVE SYNC
-                                                </span>
-                                            </div>
-                                            {auditLogs.length === 0 ? (
-                                                <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800">
-                                                    <Activity size={24} className="text-zinc-300 dark:text-zinc-600" />
-                                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">No Actions Recorded</p>
+                                        {/* Settings Tab */}
+                                        {settingsTab === 'controls' && (
+                                            <div className="overflow-y-auto px-6 pb-6 space-y-4 flex-1 custom-scrollbar">
+                                                {/* Gamify Toggle */}
+                                                <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
+                                                    <div className="space-y-0.5">
+                                                        <span className="block text-sm font-bold text-zinc-900 dark:text-white">Gamified Dashboard</span>
+                                                        <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">Enable progress metrics & roadmaps</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setGamify(!gamify)}
+                                                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gamify ? 'bg-red-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+                                                    >
+                                                        <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${gamify ? 'translate-x-5' : 'translate-x-0'}`} />
+                                                    </button>
                                                 </div>
-                                            ) : (
-                                                <div className="space-y-3">
-                                                    {auditLogs.map((log) => (
-                                                        <div key={log.id} className="p-4 bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl space-y-2.5 hover:border-red-500/20 transition-colors">
-                                                            <div className="flex items-start justify-between gap-2">
-                                                                <div className="flex-1 min-w-0">
-                                                                    <span className={`inline-block text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest mb-1.5 ${
-                                                                        log.action === 'revert_action' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                                                                        log.action.startsWith('book_') ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
-                                                                        log.action.startsWith('section_') ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
-                                                                        'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20'
-                                                                    }`}>
-                                                                        {log.action.replace(/_/g, ' ')}
-                                                                    </span>
-                                                                    <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-tight">{log.details}</p>
-                                                                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                                                        <span className="text-[9px] text-zinc-400 font-mono">{log.adminEmail}</span>
-                                                                        <span className="text-[9px] text-zinc-400">·</span>
-                                                                        <span className="text-[9px] text-zinc-400">{new Date(log.timestamp).toLocaleString()}</span>
+
+                                                {/* Notifications Feed Center Row (Day/Night Toggle Replacement) */}
+                                                <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl">
+                                                    <div className="space-y-0.5">
+                                                        <span className="block text-sm font-bold text-zinc-900 dark:text-white">Live Cognitive Feed</span>
+                                                        <span className="block text-[11px] text-zinc-400 dark:text-zinc-500 leading-normal font-bold">Review real-time system feed updates</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setSettingsTab('notifications')}
+                                                        className="w-10 h-10 rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-md shadow-red-600/20 active:scale-95 transition-all relative border border-white/10"
+                                                    >
+                                                        <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                                        </svg>
+                                                        {auditLogs.length > 0 && (
+                                                            <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white border border-white animate-pulse">
+                                                                {auditLogs.length}
+                                                            </span>
+                                                        )}
+                                                    </button>
+                                                </div>
+
+                                                {/* File Access History */}
+                                                {(() => {
+                                                    const recentBooksLocal: { book: Book, sId: string, secId: string }[] = [];
+                                                    Object.entries(subjects).forEach(([sId, sub]) => {
+                                                        Object.entries(sub.materials || {}).forEach(([secId, rawBooks]) => {
+                                                            const books = rawBooks as Book[];
+                                                            if (Array.isArray(books)) {
+                                                                books.forEach(b => {
+                                                                    if (!recentBooksLocal.find(r => r.book.id === b.id)) {
+                                                                        recentBooksLocal.push({ book: b, sId, secId });
+                                                                    }
+                                                                });
+                                                            }
+                                                        });
+                                                    });
+                                                    const topRecent = recentBooksLocal.slice(0, 5);
+                                                    if (topRecent.length === 0) return null;
+                                                    return (
+                                                        <div className="space-y-2">
+                                                            <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block px-1">Recent Files</span>
+                                                            <div className="space-y-2 max-h-40 overflow-y-auto no-scrollbar">
+                                                                {topRecent.map(({ book }) => (
+                                                                    <button
+                                                                        key={book.id}
+                                                                        onClick={() => { handleBookClick(book); setShowSettingsModal(false); }}
+                                                                        className="w-full text-left flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 rounded-xl hover:border-red-500/30 transition-all group"
+                                                                    >
+                                                                        <div className="w-8 h-8 rounded-lg bg-red-600/10 flex items-center justify-center shrink-0">
+                                                                            <BookOpen size={14} className="text-red-500" />
+                                                                        </div>
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <p className="text-xs font-bold text-zinc-900 dark:text-white truncate group-hover:text-red-500 transition-colors">{book.title}</p>
+                                                                            <p className="text-[10px] text-zinc-400 truncate">{book.author}</p>
+                                                                        </div>
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()}
+
+                                                {/* Actions */}
+                                                <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                                                    <button
+                                                        onClick={() => {
+                                                            setGeoCompleted(false);
+                                                            setHistCompleted(false);
+                                                            localStorage.setItem('dr-astro-geo-completed', 'false');
+                                                            localStorage.setItem('dr-astro-hist-completed', 'false');
+                                                            showToast("Gamified progress reset to defaults.", "info");
+                                                            setShowSettingsModal(false);
+                                                        }}
+                                                        className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
+                                                    >
+                                                        Reset Gamified Stats
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setShowSettingsModal(false);
+                                                            navigate('PROFILE');
+                                                        }}
+                                                        className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
+                                                    >
+                                                        Edit Student Profile
+                                                    </button>
+                                                    <button
+                                                        onClick={() => { setShowSettingsModal(false); handleLogout(); }}
+                                                        className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-md shadow-red-600/20"
+                                                    >
+                                                        Sign Out of System
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Notifications Tab */}
+                                        {settingsTab === 'notifications' && (
+                                            <div className="overflow-y-auto px-6 pb-6 flex-1 flex flex-col custom-scrollbar">
+                                                <div className="flex items-center justify-between mb-4 pt-1 shrink-0">
+                                                    <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+                                                        Live Feeds Synced
+                                                    </span>
+                                                    <span className="text-[9px] font-bold text-red-500 uppercase tracking-widest px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 animate-pulse">
+                                                        COGNITIVE LIVE
+                                                    </span>
+                                                </div>
+                                                <div className="overflow-y-auto flex-1 divide-y divide-zinc-100 dark:divide-zinc-850 custom-scrollbar pr-1">
+                                                    {auditLogs.length === 0 ? (
+                                                        <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800">
+                                                            <svg className="w-8 h-8 text-zinc-300 dark:text-zinc-600 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                                            </svg>
+                                                            <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">No cognitive feeds synced</p>
+                                                        </div>
+                                                    ) : (
+                                                        auditLogs.map((log) => {
+                                                            const LogIcon = log.action.startsWith('book_add') ? Plus : (log.action.includes('delete') ? Trash2 : (log.action === 'revert_action' ? RefreshCw : Info));
+                                                            const colorClass = log.action.includes('delete') ? 'text-red-500 bg-red-500/10' : (log.action.includes('add') ? 'text-emerald-500 bg-emerald-500/10' : 'text-zinc-500 bg-zinc-500/10');
+                                                            return (
+                                                                <div key={log.id} className="py-3.5 flex gap-3.5 items-start">
+                                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border border-zinc-100 dark:border-zinc-800 ${colorClass}`}>
+                                                                        <LogIcon size={13} />
+                                                                    </div>
+                                                                    <div className="min-w-0 flex-1 space-y-1">
+                                                                        <p className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 leading-snug break-words">
+                                                                            {log.details}
+                                                                        </p>
+                                                                        <div className="flex justify-between items-center text-[8px] font-bold">
+                                                                            <span className="text-zinc-450 dark:text-zinc-500">{log.adminEmail.split('@')[0]}</span>
+                                                                            <span className="text-red-500/85 tracking-widest">{formatTimeAgoInModal(log.timestamp)}</span>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                            {log.action !== 'revert_action' && (
-                                                                <button
-                                                                    onClick={() => handleRevertAction(log)}
-                                                                    className="w-full py-2 flex items-center justify-center gap-1.5 bg-red-600/10 hover:bg-red-600 border border-red-500/20 hover:border-red-600 text-red-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 group"
-                                                                >
-                                                                    <RefreshCw size={11} className="group-hover:animate-spin" />
-                                                                    Revert Action
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    ))}
+                                                            );
+                                                        })
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </motion.div>
-                            </div>
-                        )}
+                                            </div>
+                                        )}
+
+                                        {/* Admin History (or Log) Tab */}
+                                        {settingsTab === 'history' && (
+                                            currentUser.role === 'admin' ? (
+                                                <div className="overflow-y-auto px-6 pb-6 flex-1 flex flex-col custom-scrollbar">
+                                                    <div className="flex items-center justify-between mb-4 pt-1 shrink-0">
+                                                        <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+                                                            {auditLogs.length} Action{auditLogs.length !== 1 ? 's' : ''} Logged
+                                                        </span>
+                                                        <span className="text-[9px] font-bold text-emerald-500 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+                                                            LIVE SYNC
+                                                        </span>
+                                                    </div>
+                                                    <div className="overflow-y-auto flex-1 divide-y divide-zinc-150 dark:divide-zinc-850 custom-scrollbar pr-1">
+                                                        {auditLogs.length === 0 ? (
+                                                            <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800">
+                                                                <Activity size={24} className="text-zinc-300 dark:text-zinc-650" />
+                                                                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">No Actions Recorded</p>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="space-y-3 pt-2">
+                                                                {auditLogs.map((log) => (
+                                                                    <div key={log.id} className="p-4 bg-zinc-55 dark:bg-zinc-950/60 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl space-y-2.5 hover:border-red-500/20 transition-colors">
+                                                                        <div className="flex items-start justify-between gap-2">
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <span className={`inline-block text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest mb-1.5 ${
+                                                                                    log.action === 'revert_action' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                                                                    log.action.startsWith('book_') ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
+                                                                                    log.action.startsWith('section_') ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
+                                                                                    'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20'
+                                                                                }`}>
+                                                                                    {log.action.replace(/_/g, ' ')}
+                                                                                </span>
+                                                                                <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-tight">{log.details}</p>
+                                                                                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                                                                    <span className="text-[9px] text-zinc-405 font-mono">{log.adminEmail}</span>
+                                                                                    <span className="text-[9px] text-zinc-405">·</span>
+                                                                                    <span className="text-[9px] text-zinc-405">{new Date(log.timestamp).toLocaleString()}</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        {log.action !== 'revert_action' && (
+                                                                            <button
+                                                                                onClick={() => handleRevertAction(log)}
+                                                                                className="w-full py-2 flex items-center justify-center gap-1.5 bg-red-600/10 hover:bg-red-600 border border-red-500/20 hover:border-red-600 text-red-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 group"
+                                                                            >
+                                                                                <RefreshCw size={11} className="group-hover:animate-spin" />
+                                                                                Revert Action
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="overflow-y-auto px-6 pb-6 flex-1 flex flex-col justify-center items-center text-center space-y-4 py-8">
+                                                    <div className="w-16 h-16 rounded-full bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-500 animate-pulse">
+                                                        <Lock size={28} />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <h4 className="text-sm font-black font-display text-zinc-900 dark:text-white uppercase tracking-wider">Access Denied</h4>
+                                                        <span className="text-[9px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest block leading-none">CMO Authorization Required</span>
+                                                    </div>
+                                                    <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-[260px] font-bold leading-normal">
+                                                        You do not have administrative elevation credentials to view the central action audit logs. Please contact your system administrator.
+                                                    </p>
+                                                </div>
+                                            )
+                                        )}
+                                    </motion.div>
+                                </div>
+                            );
+                        })()}
                     </AnimatePresence>
 
                     <InstallPrompt />
@@ -12210,6 +12339,25 @@ export default function DrAstroApp() {
                                 .scrollbar-hide {
                                     -ms-overflow-style: none;
                                     scrollbar-width: none;
+                                }
+                                
+                                @keyframes ekg-flow {
+                                    0% { stroke-dashoffset: 1000; }
+                                    100% { stroke-dashoffset: 0; }
+                                }
+                                .animate-ekg-flow-1 {
+                                    animation: ekg-flow 45s linear infinite;
+                                }
+                                .animate-ekg-flow-2 {
+                                    animation: ekg-flow 30s linear infinite reverse;
+                                }
+                                .card-3d-deck {
+                                    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+                                    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateZ(0);
+                                }
+                                .card-3d-deck:hover {
+                                    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(15px) translateY(-6px) !important;
+                                    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.18) !important;
                                 }
                             `}</style>
                 </div>
