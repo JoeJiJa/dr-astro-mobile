@@ -2935,22 +2935,67 @@ const getGreeting = () => {
 const Header = ({ 
     currentView, 
     setView, 
-    theme, 
-    toggleTheme, 
     userAvatar, 
     isFocusMode, 
     toggleFocusMode,
-    setShowSettingsModal
+    setShowSettingsModal,
+    auditLogs
 }: {
     currentView: ViewState,
     setView: (v: ViewState) => void,
-    theme: 'light' | 'dark',
-    toggleTheme: () => void,
     userAvatar?: string,
     isFocusMode: boolean,
     toggleFocusMode: () => void,
-    setShowSettingsModal: (v: boolean) => void
+    setShowSettingsModal: (v: boolean) => void,
+    auditLogs: AdminAuditLog[]
 }) => {
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [lastViewedNotifications, setLastViewedNotifications] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('dr-astro-last-notif-view') || new Date(0).toISOString();
+        }
+        return new Date(0).toISOString();
+    });
+
+    const unreadCount = auditLogs.filter(log => new Date(log.timestamp).getTime() > new Date(lastViewedNotifications).getTime()).length;
+
+    const handleBellClick = () => {
+        setShowNotifications(!showNotifications);
+        if (!showNotifications) {
+            const nowStr = new Date().toISOString();
+            setLastViewedNotifications(nowStr);
+            localStorage.setItem('dr-astro-last-notif-view', nowStr);
+        }
+    };
+
+    const formatTimeAgo = (isoString: string) => {
+        const date = new Date(isoString);
+        const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+        if (seconds < 5) return 'Just now';
+        if (seconds < 60) return `${seconds}s ago`;
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
+    };
+
+    const getLogIcon = (action: string) => {
+        if (action.startsWith('book_add')) return Plus;
+        if (action.startsWith('book_delete')) return Trash2;
+        if (action.startsWith('section_add')) return Layers;
+        if (action.startsWith('section_delete')) return Trash2;
+        if (action === 'revert_action') return RefreshCw;
+        return Info;
+    };
+
+    const getLogColorClass = (action: string) => {
+        if (action.includes('delete')) return 'text-red-400 bg-red-500/10 border border-red-500/20';
+        if (action.includes('add')) return 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20';
+        if (action === 'revert_action') return 'text-blue-400 bg-blue-500/10 border border-blue-500/20';
+        return 'text-zinc-400 bg-zinc-500/10 border border-zinc-500/20';
+    };
     const navItems = [
         { label: 'Home', view: 'HOME', icon: Home },
         { label: 'Books', view: 'THEORY', icon: BookOpen },
@@ -3041,12 +3086,77 @@ const Header = ({
 
                     {/* Action Hub */}
                     <div className="flex items-center gap-3 px-3 border-l border-white/10">
-                        <button
-                            onClick={toggleTheme}
-                            className="w-10 h-10 rounded-2xl flex items-center justify-center bg-white/5 hover:bg-white/15 text-zinc-400 hover:text-white transition-all active:scale-90 border border-white/10 group/btn"
-                        >
-                            {theme === 'dark' ? <Sun size={18} className="group-hover:rotate-90 transition-transform" /> : <Moon size={18} />}
-                        </button>
+                        <div className="relative">
+                            <button
+                                onClick={handleBellClick}
+                                className="w-10 h-10 rounded-2xl flex items-center justify-center bg-white/5 hover:bg-white/15 text-zinc-400 hover:text-white transition-all active:scale-90 border border-white/10 relative group/btn"
+                            >
+                                <svg className="w-[18px] h-[18px] group-hover/btn:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white border-2 border-black animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]">
+                                        {unreadCount}
+                                    </span>
+                                )}
+                            </button>
+
+                            {/* Notification Dropdown Panel */}
+                            <AnimatePresence>
+                                {showNotifications && (
+                                    <>
+                                        {/* Click outside to close */}
+                                        <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                                            className="absolute right-0 mt-3 w-80 bg-zinc-950/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden z-50 flex flex-col max-h-[400px]"
+                                            style={{
+                                                boxShadow: '0 20px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05)'
+                                            }}
+                                        >
+                                            <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 bg-white/[0.02] shrink-0">
+                                                <span className="text-[10px] font-black text-white uppercase tracking-widest">Cognitive updates</span>
+                                                <span className="text-[8px] font-black text-red-500 uppercase tracking-widest px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20">LIVE FEEDS</span>
+                                            </div>
+
+                                            <div className="overflow-y-auto flex-1 py-2 divide-y divide-white/5 custom-scrollbar">
+                                                {auditLogs.length === 0 ? (
+                                                    <div className="py-12 flex flex-col items-center justify-center text-center space-y-2.5">
+                                                        <svg className="w-8 h-8 text-zinc-600 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                                        </svg>
+                                                        <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">No feeds synced</p>
+                                                    </div>
+                                                ) : (
+                                                    auditLogs.map((log) => {
+                                                        const LogIcon = getLogIcon(log.action);
+                                                        const colorClass = getLogColorClass(log.action);
+                                                        return (
+                                                            <div key={log.id} className="p-4 flex gap-3.5 items-start hover:bg-white/[0.02] transition-colors">
+                                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${colorClass}`}>
+                                                                    <LogIcon size={13} />
+                                                                </div>
+                                                                <div className="min-w-0 flex-1 space-y-1">
+                                                                    <p className="text-[11px] font-bold text-zinc-200 leading-snug break-words">
+                                                                        {log.details}
+                                                                    </p>
+                                                                    <div className="flex justify-between items-center text-[8px] font-bold">
+                                                                        <span className="text-zinc-500 font-mono tracking-tight">{log.adminEmail.split('@')[0]}</span>
+                                                                        <span className="text-red-500/80 tracking-widest">{formatTimeAgo(log.timestamp)}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    </>
+                                )}
+                            </AnimatePresence>
+                        </div>
 
                         <button
                             onClick={toggleFocusMode}
@@ -11125,12 +11235,11 @@ export default function DrAstroApp() {
                     <Header 
                         currentView={view} 
                         setView={(v: ViewState) => navigate(v)} 
-                        theme={theme} 
-                        toggleTheme={toggleTheme} 
                         userAvatar={currentUser?.avatarUrl} 
                         isFocusMode={isFocusMode}
                         toggleFocusMode={toggleFocusMode}
                         setShowSettingsModal={setShowSettingsModal}
+                        auditLogs={auditLogs}
                     />
 
                     {/* Mandatory Profile Setup Enforcement Overlay */}
