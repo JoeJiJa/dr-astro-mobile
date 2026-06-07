@@ -7657,7 +7657,9 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
 
             setIsOnboarding(true);
         } catch (err: any) {
-            console.error('Google Sign-In Error:', err);
+            console.error('Google Sign-In Error (Raw object):', err);
+            console.error('Google Sign-In Error Code:', err?.code);
+            console.error('Google Sign-In Error Message:', err?.message);
             const errorCode = err?.code;
             const errorMessage = err?.message || 'Unknown error';
 
@@ -7666,7 +7668,7 @@ const LoginView = ({ onLogin }: { onLogin: (u: AppUser) => void }) => {
             } else if (errorCode === 'auth/unauthorized-domain') {
                 setError('Domain not authorized. Please check Firebase console.');
             } else {
-                setError(`Login failed: ${errorMessage}`);
+                setError(`Login failed: ${errorMessage} (${errorCode || 'unknown_code'})`);
             }
         } finally {
             setIsGoogleLoading(false);
@@ -10927,7 +10929,7 @@ export default function DrAstroApp() {
     // ---------------------------
 
     // -- BROWSER HISTORY INTEGRATION --
-    // Sync React state with browser history to fix "Back" button behavior on mobile
+    // Sync React state with browser history and intercept back button for Capacitor / Mobile
     useEffect(() => {
         // 1. Handle Initial Load / Deep Linking
         const params = new URLSearchParams(window.location.search);
@@ -10943,6 +10945,8 @@ export default function DrAstroApp() {
             window.history.replaceState({ view: 'HOME', activeSubject: null }, '', '/');
         }
 
+        // Refs to avoid closing on fresh states (stale closure check)
+        // We'll read these directly from document context/window if needed, or inline standard variables.
         // 2. Handle Back/Forward Interaction
         const handlePopState = (event: PopStateEvent) => {
             const state = event.state;
@@ -10950,15 +10954,51 @@ export default function DrAstroApp() {
                 setView(state.view);
                 setActiveSubject(state.activeSubject || null);
             } else {
-                // Should ideally not happen if we replaceState correctly, but fallback:
                 setView('HOME');
                 setActiveSubject(null);
             }
         };
 
         window.addEventListener('popstate', handlePopState);
-        return () => window.removeEventListener('popstate', handlePopState);
-    }, []);
+
+        // 3. Mobile Back Button / Capacitor Interceptor
+        const setupCapacitorBack = async () => {
+            const cap = (window as any).Capacitor;
+            if (cap && cap.Plugins && cap.Plugins.App) {
+                const { App } = cap.Plugins;
+                App.addListener('backButton', (canGoBack: any) => {
+                    // Read active modal/view states directly from react ref elements or DOM
+                    const settingsModalEl = document.querySelector('[class*="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"]');
+                    const onboardingEl = document.getElementById('onboarding-panel');
+                    const quickProfileEl = document.getElementById('quick-profile-modal');
+                    const multipartEl = document.getElementById('multipart-modal');
+
+                    if (settingsModalEl) {
+                        setShowSettingsModal(false);
+                    } else if (quickProfileEl) {
+                        setShowQuickProfile(false);
+                    } else if (multipartEl) {
+                        setMultiPartBook(null);
+                    } else if (view !== 'HOME') {
+                        // Go back in views, simulate popState or push to Home
+                        navigate('HOME');
+                    } else {
+                        // sits at root home and no modals are open - safely exit the application
+                        App.exitApp();
+                    }
+                });
+            }
+        };
+        setupCapacitorBack();
+
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+            const cap = (window as any).Capacitor;
+            if (cap && cap.Plugins && cap.Plugins.App) {
+                cap.Plugins.App.removeAllListeners();
+            }
+        };
+    }, [view]);
 
     const navigate = (newView: ViewState, newSubjectId: string | null = null, simConfig: any = null) => {
         if (simConfig) setSimulationConfig(simConfig);
